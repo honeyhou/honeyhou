@@ -167,10 +167,19 @@ textarea.inp{resize:none;line-height:1.5}
 .cd.pri-m{background:#fff3d6;color:#b7791f}
 .cd.pri-l{background:#e2f2e6;color:#2e7d43}
 .ani-ops{display:flex;gap:4px}
-.meme{background:var(--tile-bg);border-radius:16px;padding:12px;margin-bottom:10px;transition:.2s}
-.meme.done{opacity:.55}
+.meme{background:var(--tile-bg);border-radius:16px;padding:12px;margin-bottom:10px;transition:.2s;cursor:pointer}
+.meme.done{opacity:.75}
+.meme.done .mm-name{color:var(--muted)}
 .mm-head{display:flex;align-items:center;gap:8px}
 .mm-name{font-size:15px;color:var(--title)}
+.mm-st{margin-left:auto;font-size:11px;font-weight:bold;color:var(--muted);flex:none}
+.meme:not(.done) .mm-st{color:var(--accent)}
+.mm-hint{font-size:10.5px;color:var(--muted);margin-top:6px}
+.meme.open{box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.mm-detail{display:none}
+.meme.open .mm-detail{display:block}
+.meme.open .mm-hint{display:none}
+.mm-pic{height:86px;border-radius:12px;background:linear-gradient(135deg,var(--accent),transparent 130%);display:flex;align-items:center;justify-content:center;font-size:44px;margin-top:10px}
 .src{font-size:9.5px;font-weight:bold;padding:2px 8px;border-radius:99px;color:#fff;flex:none}
 .src-抖音{background:#161823}
 .src-小红书{background:#fe2c55}
@@ -572,7 +581,7 @@ textarea.inp{resize:none;line-height:1.5}
       <div class="card">
         <div class="sec-title">ℹ️ 版本信息 <span class="en">Version</span></div>
         <div id="appVer" style="font-size:18px;font-weight:700;color:var(--accent)"></div>
-        <div id="appVerDate" style="font-size:16px;font-weight:500;color:var(--text);opacity:.75;margin-top:2px"></div>
+        <div id="appVerDate" style="font-size:11px;font-weight:500;color:var(--text);opacity:.75;margin-top:2px"></div>
         <p class="hint">每次更新后这里的版本号都会变。看到新版本号 = 更新成功！</p>
       </div>
     </section>
@@ -9130,7 +9139,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v1.1';
+const APP_VER='v1.3';
 const APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9144,26 +9153,26 @@ const MENUS=[
 const MOODS=['😄','🥰','🙂','😌','🤩','😐','😟','😢','😡','😴'];
 const PRI_C={'高':'pri-h','中':'pri-m','低':'pri-l'};
 const MEME_POOL=[
- ['画地为牢','出自芒果TV综艺《后会友期》：许飞对断联15年的厉娜哽咽说「我画地为牢啊，厉娜」，厉娜没听懂回屋用AI查词还点了麦当劳。现在形容自我设限、困在心结里，「我xx，厉娜」句式全网刷屏。',99,'综艺'],
- ['厉娜体','句尾加上「厉娜」两个字，淡淡的怅然感立刻就有了：芒果TV崩了，厉娜。今天不想上班，厉娜。万能情绪句号。',96,'微博'],
- ['我要验牌','《赌侠2》沉寂30年的老台词「我要验牌！牌没有问题」2026春晚翻红。看到离谱消息刷一句「我要验牌」要求拿证据；「牌没有问题」=甩锅话术。',95,'抖音'],
- ['养龙虾','AI智能体OpenClaw的logo是小龙虾，网友戏称「养龙虾」：调教AI当电子员工，PPT报表全丢给AI做，自己安心摸鱼准时下班。',95,'微博'],
- ['雪山救狐狸','现象级AI共创梗：「你可曾在雪山救过一只狐狸？」反转是「我不是狐狸，我是当年那只酱板鸭，今天是来寻仇的」。强烈预期反差引发全民二创接龙。',94,'小红书'],
- ['爱你老己','方言版「爱自己」，主打疲惫生活中不过度内耗：累了就歇、饿了就吃，买好吃的看好电影，先取悦自己。',93,'小红书'],
- ['沈腾鼓掌','2026春晚沈腾名场面：表面热情鼓掌，内心毫无波澜。职场社交神器——老板画饼、强制团建时表面捧场，心里疯狂吐槽。',93,'抖音'],
- ['已读乱回','社恐保命技能！亲戚催婚、打探工资时不正面回答，答非所问、礼貌敷衍，既不伤人也不委屈自己。',92,'微博'],
- ['背手负鼠','负鼠背着手淡定站在窗边的图火爆全网：看透世事、处变不惊，「内核稳定」的精神代表。遇到糟心事就发背手负鼠稳住心态。',91,'小红书'],
- ['电子布洛芬','能缓解精神内耗的「电子止痛药」：搞笑视频、萌宠内容等刷完坏心情立刻痊愈的东西。',90,'抖音'],
- ['哭哭马','马年限定丧萌自嘲形象：水逆、倒霉又委屈可爱。「马到（倒）成功」谐音梗配套食用。',90,'抖音'],
- ['手搓','源自游戏圈「不靠外挂纯手动通关」，现在泛指不靠模板工具、从零一点点亲手完成：手搓PPT、手搓方案，从零硬肝。',88,'知乎'],
- ['精神离职','人在工位，心已远：活照干但只剩分内最低配，高压之下的自我拯救。和「班味」是一对难兄难弟。',88,'微博'],
- ['不舒服文学','出自综艺台词「当时确实不舒服」。不直接吵架，委婉表达委屈和介意，温和表达不满的万能句式。',88,'综艺'],
- ['活人感','交友新标准：真实、不装、不端着，没被互联网「格式化」。在满是滤镜人设的网上，「好有活人感」是最高赞美。',89,'微博'],
- ['我的身材很曼妙','万能挡话句式：被问工资、年龄等隐私问题时一句「我的身材很曼妙」，礼貌回避不尴尬。',86,'抖音'],
- ['情绪裸奔','深夜真情实感发伤感动态，睡一觉醒来火速删除，假装无事发生。',85,'小红书'],
- ['夯爆了','闽台方言走红短视频，形容事物超强、炸裂惊艳：「这个舞台夯爆了！」夸人夸物都好用。',85,'抖音'],
- ['不要鸡腿','点餐备注「不要鸡腿」，商家直接给个空汉堡的乌龙事件。吐槽死板机械执行，也用来自嘲操作翻车。',84,'抖音'],
- ['赛博对账','每月用App把花销一笔笔算清，再和网友互相「对账」，看谁花得冤枉，账单互检仪式感拉满。',83,'知乎']
+ ['画地为牢','出自芒果TV综艺《后会友期》：许飞对断联15年的厉娜哽咽说「我画地为牢啊，厉娜」，厉娜没听懂回屋用AI查词还点了麦当劳。现在形容自我设限、困在心结里，「我xx，厉娜」句式全网刷屏。',99,'综艺',"🚧"],
+ ['厉娜体','句尾加上「厉娜」两个字，淡淡的怅然感立刻就有了：芒果TV崩了，厉娜。今天不想上班，厉娜。万能情绪句号。',96,'微博',"🥲"],
+ ['我要验牌','《赌侠2》沉寂30年的老台词「我要验牌！牌没有问题」2026春晚翻红。看到离谱消息刷一句「我要验牌」要求拿证据；「牌没有问题」=甩锅话术。',95,'抖音',"🎴"],
+ ['养龙虾','AI智能体OpenClaw的logo是小龙虾，网友戏称「养龙虾」：调教AI当电子员工，PPT报表全丢给AI做，自己安心摸鱼准时下班。',95,'微博',"🦞"],
+ ['雪山救狐狸','现象级AI共创梗：「你可曾在雪山救过一只狐狸？」反转是「我不是狐狸，我是当年那只酱板鸭，今天是来寻仇的」。强烈预期反差引发全民二创接龙。',94,'小红书',"🦊"],
+ ['爱你老己','方言版「爱自己」，主打疲惫生活中不过度内耗：累了就歇、饿了就吃，买好吃的看好电影，先取悦自己。',93,'小红书',"💗"],
+ ['沈腾鼓掌','2026春晚沈腾名场面：表面热情鼓掌，内心毫无波澜。职场社交神器——老板画饼、强制团建时表面捧场，心里疯狂吐槽。',93,'抖音',"👏"],
+ ['已读乱回','社恐保命技能！亲戚催婚、打探工资时不正面回答，答非所问、礼貌敷衍，既不伤人也不委屈自己。',92,'微博',"🙃"],
+ ['背手负鼠','负鼠背着手淡定站在窗边的图火爆全网：看透世事、处变不惊，「内核稳定」的精神代表。遇到糟心事就发背手负鼠稳住心态。',91,'小红书',"😌"],
+ ['电子布洛芬','能缓解精神内耗的「电子止痛药」：搞笑视频、萌宠内容等刷完坏心情立刻痊愈的东西。',90,'抖音',"💊"],
+ ['哭哭马','马年限定丧萌自嘲形象：水逆、倒霉又委屈可爱。「马到（倒）成功」谐音梗配套食用。',90,'抖音',"🐴"],
+ ['手搓','源自游戏圈「不靠外挂纯手动通关」，现在泛指不靠模板工具、从零一点点亲手完成：手搓PPT、手搓方案，从零硬肝。',88,'知乎',"🤲"],
+ ['精神离职','人在工位，心已远：活照干但只剩分内最低配，高压之下的自我拯救。和「班味」是一对难兄难弟。',88,'微博',"💼"],
+ ['不舒服文学','出自综艺台词「当时确实不舒服」。不直接吵架，委婉表达委屈和介意，温和表达不满的万能句式。',88,'综艺',"📝"],
+ ['活人感','交友新标准：真实、不装、不端着，没被互联网「格式化」。在满是滤镜人设的网上，「好有活人感」是最高赞美。',89,'微博',"✨"],
+ ['我的身材很曼妙','万能挡话句式：被问工资、年龄等隐私问题时一句「我的身材很曼妙」，礼貌回避不尴尬。',86,'抖音',"💃"],
+ ['情绪裸奔','深夜真情实感发伤感动态，睡一觉醒来火速删除，假装无事发生。',85,'小红书',"🌙"],
+ ['夯爆了','闽台方言走红短视频，形容事物超强、炸裂惊艳：「这个舞台夯爆了！」夸人夸物都好用。',85,'抖音',"🎇"],
+ ['不要鸡腿','点餐备注「不要鸡腿」，商家直接给个空汉堡的乌龙事件。吐槽死板机械执行，也用来自嘲操作翻车。',84,'抖音',"🍗"],
+ ['赛博对账','每月用App把花销一笔笔算清，再和网友互相「对账」，看谁花得冤枉，账单互检仪式感拉满。',83,'知乎',"🧾"]
 ];
 const FUNNY_QUOTES=[
  ['今天的班味有点重，但没关系，Honey闻起来还是香的。','Smells like overtime — but Honey still smells like roses.'],
@@ -9284,7 +9293,8 @@ function lun(d){try{return Lunar.fromDate(d)}catch(e){return null}}
 function lunarText(d){
   const L=lun(d); if(!L)return'';
   const jieqi=L.getJieQi();
-  return '农历 '+L.getYearInGanZhi()+'【'+L.getAnimal()+'】年 '+L.getMonthInChinese()+'月'+L.getDayInChinese()+(jieqi?' · '+jieqi:'');
+  const zodiac='鼠牛虎兔龙蛇马羊猴鸡狗猪'['子丑寅卯辰巳午未申酉戌亥'.indexOf(L.getYearInGanZhi()[1])];
+  return '农历 '+L.getYearInGanZhi()+'【'+zodiac+'】年 '+L.getMonthInChinese()+'月'+L.getDayInChinese()+(jieqi?' · '+jieqi:'');
 }
 function festOfDay(d){
   const out=[];
@@ -10052,6 +10062,7 @@ function tgWish(id){const w=D.wishes.find(o=>o.id===id);w.done=!w.done;save();re
 function delWish(id){D.wishes=D.wishes.filter(o=>o.id!==id);save();renderWish()}
 
 /* ---------- 热梗 ---------- */
+let mmOpen={};
 function renderMeme(){
   const now=new Date(),start=new Date(now.getFullYear(),0,0);
   const doy=Math.floor((now-start)/86400000);
@@ -10060,19 +10071,23 @@ function renderMeme(){
   const seen=D.memeSeen[todayStr()]||[];
   $id('mmCnt').textContent='已看 '+Math.min(seen.length,5)+'/5';
   $id('mmList').innerHTML=picks.map(p=>{
-    const m=p.m,ok=seen.includes(p.key);
-    return `<div class="meme ${ok?'done':''}">
+    const m=p.m,ok=seen.includes(p.key),open=!!mmOpen[p.key];
+    return `<div class="meme ${ok?'done':''} ${open?'open':''}" onclick="mmToggle(${p.key})">
       <div class="mm-head"><b class="mm-name">${m[0]}</b>
         <span class="src src-${m[3]}">${m[3]}</span>
-        <button class="mini-btn ${ok?'on':''}" onclick="tgMeme(${p.key})">${ok?'✔ 已看过':'标记看过'}</button></div>
-      <p class="mm-exp">${m[1]}</p>
-      <div class="heat"><span>🔥 热度 ${m[2]}</span><div class="heat-bar"><i style="width:${m[2]}%"></i></div></div></div>`;
+        <span class="mm-st">${ok?'✔ 已看':'👀 未看'}</span></div>
+      ${open?`<div class="mm-pic">${m[4]||'🔥'}</div>
+        <p class="mm-exp">${m[1]}</p>
+        <div class="heat"><span>🔥 热度 ${m[2]}</span><div class="heat-bar"><i style="width:${m[2]}%"></i></div></div>`
+      :'<p class="mm-hint">点开看这条梗的出处和玩法</p>'}
+    </div>`;
   }).join('');
 }
-function tgMeme(i){
+function mmToggle(i){
+  mmOpen[i]=!mmOpen[i];
   const k=todayStr(),seen=D.memeSeen[k]=D.memeSeen[k]||[];
-  const ix=seen.indexOf(i);ix>=0?seen.splice(ix,1):seen.push(i);
-  save();renderMeme();
+  if(mmOpen[i]&&!seen.includes(i)){seen.push(i);save()}
+  renderMeme();
 }
 
 /* ---------- 设置 ---------- */
