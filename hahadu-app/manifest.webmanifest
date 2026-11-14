@@ -1,0 +1,13 @@
+{
+  "name": "哈哈杜 · 音乐工作台",
+  "short_name": "哈哈杜",
+  "description": "音乐制作人 / DJ / 总监的一站式工作台",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0E1217",
+  "theme_color": "#0E1217",
+  "icons": [
+    {"src": "./apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}
+  ]
+}
