@@ -19,7 +19,7 @@
 body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
 #app{display:flex;min-height:100vh}
 /* 侧边导航 */
-#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:14px 8px;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 8px;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
 #side::-webkit-scrollbar{display:none}
 .brand{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 4px 14px;text-align:center}
 .brand .bico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#FF5E62);display:flex;align-items:center;justify-content:center;font-size:22px}
@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-sy
 .menu-item.active .mz{color:var(--accent)}
 .menu-item:active{opacity:.6}
 /* 内容区 */
-#main{flex:1;padding:16px;max-width:720px;margin:0 auto;width:100%}
+#main{flex:1;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
 .page{display:none}
 .page.active{display:block}
 .pg-head{margin-bottom:12px}
@@ -123,12 +123,12 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 .m-btns .btn{flex:1}
 /* 手机：竖栏保持，稍微收窄 */
 @media (max-width:720px){
-  #side{width:78px;padding:10px 6px}
+  #side{width:78px;padding:calc(10px + env(safe-area-inset-top,0px)) 6px}
   .brand .bico{width:36px;height:36px;font-size:19px}
   .brand b{font-size:11.5px}
   .menu-item .mi{font-size:21px}
   .menu-item .mz{font-size:10.5px}
-  #main{padding:12px}
+  #main{padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(24px + env(safe-area-inset-bottom,0px))}
 }
 </style>
 </head>
