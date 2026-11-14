@@ -568,6 +568,13 @@ textarea.inp{resize:none;line-height:1.5}
         <button class="btn ghost" onclick="resetTheme()">恢复默认配色</button>
       </div>
       <div class="card">
+        <div class="sec-title">☁️ 语录云同步 <span class="en">Quote Sync</span></div>
+        <div class="form-row"><input class="inp" id="syGist" placeholder="Gist ID（哈哈杜那边填同一个）"></div>
+        <div class="form-row"><input class="inp" id="syToken" type="password" placeholder="GitHub Token（只存你手机，不进代码）"></div>
+        <div class="form-row2"><button class="btn" onclick="saveSync()">保存云同步配置</button></div>
+        <p class="hint">填一次就好：以后点语录卡的「📋 复制」，语录自动推送到云端，对方哈哈杜 1 分钟内自动更新。Gist ID / Token 的获取方法看更新说明。</p>
+      </div>
+      <div class="card">
         <div class="sec-title">💾 数据管理 <span class="en">Data</span></div>
         <div class="form-row2">
           <button class="btn ghost" onclick="exportData()">导出备份</button>
@@ -9140,7 +9147,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v1.4';
+const APP_VER='v1.5';
 const APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9243,7 +9250,7 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
-  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.theme=Object.assign({},DEF_THEME,d.theme||{});
+  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});
   if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
   delete d.project;
   d.projects.forEach(p=>{if(!p.id)p.id=uid()});
@@ -9380,10 +9387,27 @@ function tickClock(){
 function copyQuote(){
   const q=todayQuote();
   const txt=q[0]+(q[1]?'\n'+q[1]:'');
-  const done=()=>alert('语录已复制！✅ 打开哈哈杜的「拒绝鸡汤」卡，粘贴后点「📌 保存语录」');
+  const done=()=>{
+    const s=D.sync||{};
+    if(s.gist&&s.token){
+      pushQuoteCloud(q[0],q[1]||'').then(ok=>{
+        alert(ok?'语录已复制 ✅ 已推送到云端 ☁️ 对方的哈哈杜会自动更新（他打开 App 或最长等 1 分钟就能看到）':'语录已复制 ✅（云端推送没成功，检查一下设置里的 Gist ID / Token）');
+      });
+    }else{
+      alert('语录已复制！✅ 打开哈哈杜的「拒绝鸡汤」卡，粘贴后点「📌 保存语录」\n\n（想免粘贴全自动同步？去 设置 → ☁️ 语录云同步 配置一次就好）');
+    }
+  };
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
   }else fallbackCopy(txt,done);
+}
+function pushQuoteCloud(t,en){
+  const s=D.sync;
+  return fetch('https://api.github.com/gists/'+s.gist,{
+    method:'PATCH',
+    headers:{'Authorization':'Bearer '+s.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+    body:JSON.stringify({files:{'honey-sync.json':{content:JSON.stringify({t:t,en:en,at:Date.now()})}}})
+  }).then(r=>r.ok).catch(()=>false);
 }
 function fallbackCopy(txt,done){
   const ta=document.createElement('textarea');ta.value=txt;
@@ -10120,7 +10144,13 @@ function renderSettings(){
   $id('appVerDate').textContent=APP_VER_DATE+' 更新';
   $id('stAccent').value=D.theme.accent;$id('stGreen').value=D.theme.green;
   $id('stText').value=D.theme.text;$id('stFont').value=D.theme.font;
+  $id('syGist').value=(D.sync&&D.sync.gist)||'';$id('syToken').value=(D.sync&&D.sync.token)||'';
   applySettings();
+}
+function saveSync(){
+  D.sync={gist:$id('syGist').value.trim(),token:$id('syToken').value.trim()};
+  save();renderSettings();
+  alert(D.sync.gist&&D.sync.token?'☁️ 已保存！以后点语录卡的「📋 复制」会自动推送给哈哈杜':'已保存。Gist ID 和 Token 都填好才能自动推送哦');
 }
 function changeAvatar(inp){
   const f=inp.files[0];if(!f)return;
