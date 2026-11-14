@@ -1,0 +1,15 @@
+{
+  "name": "HONEY呦",
+  "short_name": "HONEY呦",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F1F3EC",
+  "theme_color": "#1F3A2A",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
