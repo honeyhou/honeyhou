@@ -332,13 +332,10 @@ textarea.inp{resize:none;line-height:1.5}
     <!-- 来财 Honey money -->
     <section class="page" id="p-money">
       <div class="pg-head"><h2>来财记账</h2><p>Honey Money · 归0的好日子一天天靠近我</p></div>
-      <div class="card money-project">
-        <div class="sec-title">🎯 自由自在倒数日 <span class="en">Total Project</span>
-          <button class="mini-btn" onclick="editProject()">✏️ 设置</button></div>
-        <div class="proj-name" id="pjName"></div>
-        <div class="proj-nums" id="pjNums"></div>
-        <div class="bar"><i id="pjBar"></i></div>
-        <div class="bar-txt" id="pjBarTxt"></div>
+      <div id="pjCards"></div>
+      <div class="card">
+        <button class="btn ghost" onclick="addProject()">➕ 添加新大计</button>
+        <p class="hint">可以建多个还款计划（如：四年还款大计、旅行基金…），每笔账单可选择计入哪一个。</p>
       </div>
       <div class="card">
         <div class="sec-title">⏰ 今日应还 <span class="en">Due Today</span></div>
@@ -362,8 +359,11 @@ textarea.inp{resize:none;line-height:1.5}
           <label class="inp cycle-lb"><input type="checkbox" id="mnCycle" checked onchange="document.getElementById('mnMonth').style.display=this.checked?'none':'block'">🔁 每月循环</label>
           <input class="inp" type="month" id="mnMonth" style="display:none">
         </div>
+        <div class="form-row">
+          <select class="inp" id="mnProj"></select>
+        </div>
         <button class="btn" onclick="addLoan()">添加</button>
-        <p class="hint">勾选「每月循环」= 每月这一天自动生成待还；不勾 = 只在该月份还一次。</p>
+        <p class="hint">勾选「每月循环」= 每月这一天自动生成待还；不勾 = 只在该月份还一次。下方选择计入哪个大计，勾还时自动加进它的已还进度。</p>
       </div>
       <div class="card">
         <div class="sec-title">📅 还款日历 <span class="en">Repay Calendar</span></div>
@@ -572,6 +572,7 @@ textarea.inp{resize:none;line-height:1.5}
       <div class="card">
         <div class="sec-title">ℹ️ 版本信息 <span class="en">Version</span></div>
         <div id="appVer" style="font-size:18px;font-weight:700;color:var(--accent)"></div>
+        <div id="appVerDate" style="font-size:16px;font-weight:500;color:var(--text);opacity:.75;margin-top:2px"></div>
         <p class="hint">每次更新后这里的版本号都会变。看到新版本号 = 更新成功！</p>
       </div>
     </section>
@@ -9215,7 +9216,7 @@ function defaultData(){
       {id:uid(),name:'信用卡',purpose:'固定还款',per:1200,day:15,paid:{},cycle:true,month:null},
       {id:uid(),name:'花呗·闺蜜代付',purpose:'代付款',per:88,day:13,paid:{},cycle:true,month:null}
     ],
-    project:{name:'🌸 2026 年度还款大计',total:20000,paid:8000},
+    projects:[{id:uid(),name:'🌸 2026 年度还款大计',total:20000,paid:8000}],
     moods:{},
     supps:[{id:uid(),name:'维生素C',days:[],daily:true,once:t},{id:uid(),name:'胶原蛋白肽',days:[],daily:true,once:t},{id:uid(),name:'钙片',days:[],daily:true,once:t}],
     annis:[{id:uid(),name:'我的生日',type:'生日',rel:'自己',date:'1998-06-18',remind:3,cycle:'year',note:'蛋糕+火锅',cal:'solar'}],
@@ -9232,6 +9233,11 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
+  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};
+  if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
+  delete d.project;
+  d.projects.forEach(p=>{if(!p.id)p.id=uid()});
+  (d.loans||[]).forEach(l=>{if(l.projId===undefined)l.projId=d.projects[0]?d.projects[0].id:null});
   return d}}catch(e){}return defaultData()}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(D))}catch(e){alert('保存失败：本地存储可能已满（照片较多）')}}
 
@@ -9453,11 +9459,17 @@ function saveTodoDate(id){
 function moneyYM(){return todayStr().slice(0,7)}
 function mnActive(l,ym){return l.cycle||l.month===ym}
 function renderMoney(){
-  const pj=D.project,pjPaid=Math.min(pj.paid,pj.total);
-  $id('pjName').textContent=pj.name;
-  $id('pjNums').innerHTML=`<span>总金额 <b>¥${pj.total}</b></span><span>已还 <b>¥${pjPaid}</b></span><span class="hot">还差 <b>¥${pj.total-pjPaid}</b></span>`;
-  const pct=pj.total?Math.round(pjPaid/pj.total*100):0;
-  $id('pjBar').style.width=pct+'%';$id('pjBarTxt').textContent='已还 '+pct+'%';
+  $id('pjCards').innerHTML=D.projects.map(pj=>{
+    const pjPaid=Math.min(pj.paid,pj.total);
+    const pct=pj.total?Math.round(pjPaid/pj.total*100):0;
+    return `<div class="card money-project">
+      <div class="sec-title">🎯 ${esc(pj.name)} <span class="en">Project</span>
+        <button class="mini-btn" onclick="editProject('${pj.id}')">✏️ 设置</button></div>
+      <div class="proj-nums"><span>总金额 <b>¥${pj.total}</b></span><span>已还 <b>¥${pjPaid}</b></span><span class="hot">还差 <b>¥${pj.total-pjPaid}</b></span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="bar-txt">已还 ${pct}%</div>
+    </div>`;
+  }).join('');
   const t=todayStr(),ym=moneyYM(),dd=new Date().getDate();
   const due=D.loans.filter(l=>l.day===dd&&mnActive(l,ym));
   $id('mnToday').innerHTML=due.length?due.map(l=>{
@@ -9470,19 +9482,25 @@ function renderMoney(){
   $id('mnMonth').innerHTML=D.loans.filter(l=>mnActive(l,ym)).map(l=>{
     const ok=!!l.paid[ym];
     const when=l.cycle?`每月${l.day}日还`:`${l.month}月${l.day}日 · 仅一次`;
-    const cnt=l.count===false?'<span class="tag pri-l">不计入大计</span>':'';
+    const pjName=D.projects.find(p=>p.id===l.projId);
+    const cnt=pjName?'<span class="tag pri-m">'+esc(pjName.name.replace(/^[^\u4e00-\u9fa5A-Za-z0-9]+/,''))+'</span>':'<span class="tag pri-l">不计入大计</span>';
     return `<div class="li ${ok?'done':''}">
       <input type="checkbox" ${ok?'checked':''} onchange="tgLoan('${l.id}')">
       <div class="li-main"><div class="li-t">${esc(l.name)} · ¥${l.per}</div><div class="li-sub">${esc(l.purpose)} · ${when} ${cnt}</div></div>
       <button class="mini-btn" onclick="editLoan('${l.id}')">✏️</button>
       <button class="del" onclick="delLoan('${l.id}')">✕</button></div>`;
   }).join('')||'<p class="empty">还没有还款项，点下方添加～</p>';
+  const sel=$id('mnProj');
+  if(sel){const cur=sel.value;
+    sel.innerHTML='<option value="">🚫 不计入任何大计</option>'+D.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    sel.value=(cur&&[...sel.options].some(o=>o.value===cur))?cur:(D.projects[0]?D.projects[0].id:'');}
   renderMnCal();
 }
 function tgLoan(id){
   const l=D.loans.find(o=>o.id===id),ym=moneyYM();
-  if(l.paid[ym]){delete l.paid[ym];if(l.count!==false)D.project.paid=Math.max(0,D.project.paid-l.per)}
-  else{l.paid[ym]=true;if(l.count!==false)D.project.paid+=l.per}
+  const pj=D.projects.find(p=>p.id===l.projId);
+  if(l.paid[ym]){delete l.paid[ym];if(pj)pj.paid=Math.max(0,pj.paid-l.per)}
+  else{l.paid[ym]=true;if(pj)pj.paid+=l.per}
   save();renderMoney();
 }
 function editLoan(id){
@@ -9494,23 +9512,29 @@ function editLoan(id){
       <input class="inp" id="elPer" type="number" value="${l.per}" placeholder="每月金额 ¥">
       <input class="inp" id="elDay" type="number" min="1" max="31" value="${l.day}" placeholder="每月几号">
     </div>
-    <label class="inp cycle-lb" style="margin-top:8px"><input type="checkbox" id="elCount" ${l.count!==false?'checked':''}> 计入「${esc(D.project.name)}」已还金额</label>
-    <p class="hint">选「是」= 勾还这笔款时会自动加进上面大计的已还金额；选「否」= 只在这里记录，不影响大计进度。</p>
+    <div class="form-row" style="margin-top:8px"><select class="inp" id="elProj">
+      <option value="">🚫 不计入任何大计</option>
+      ${D.projects.map(p=>`<option value="${p.id}" ${l.projId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}
+    </select></div>
+    <p class="hint">勾还这笔款时，金额会自动加进所选大计的「已还」里；选「不计入」则只在这里记录，不影响任何大计进度。</p>
     <div class="m-btns"><button class="btn" onclick="saveLoan('${l.id}')">保存</button>
     <button class="btn ghost" onclick="closeModal()">取消</button></div>`);
 }
 function saveLoan(id){
   const l=D.loans.find(o=>o.id===id),ym=moneyYM();
-  const wasPaid=!!l.paid[ym],wasCount=wasPaid&&l.count!==false,oldPer=l.per;
+  const wasPaid=!!l.paid[ym];
+  const oldPj=D.projects.find(p=>p.id===l.projId)||null;
+  const oldPer=l.per;
   l.name=$id('elName').value.trim()||l.name;
   l.purpose=$id('elUse').value.trim()||'日常';
   l.per=+$id('elPer').value||oldPer;
   l.day=Math.min(31,Math.max(1,+$id('elDay').value||l.day));
-  l.count=$id('elCount').checked;
-  const nowCount=wasPaid&&l.count;
-  if(wasCount&&!nowCount)D.project.paid=Math.max(0,D.project.paid-l.per);
-  else if(!wasCount&&nowCount)D.project.paid+=l.per;
-  else if(wasCount&&nowCount&&l.per!==oldPer)D.project.paid=Math.max(0,D.project.paid+(l.per-oldPer));
+  l.projId=$id('elProj').value||null;
+  const newPj=D.projects.find(p=>p.id===l.projId)||null;
+  if(wasPaid&&oldPj&&!newPj)oldPj.paid=Math.max(0,oldPj.paid-oldPer);
+  else if(wasPaid&&!oldPj&&newPj)newPj.paid+=l.per;
+  else if(wasPaid&&oldPj&&newPj&&oldPj!==newPj){oldPj.paid=Math.max(0,oldPj.paid-oldPer);newPj.paid+=l.per}
+  else if(wasPaid&&oldPj&&newPj&&oldPj===newPj&&l.per!==oldPer)newPj.paid=Math.max(0,newPj.paid+(l.per-oldPer));
   save();closeModal();renderMoney();
 }
 function delLoan(id){if(!confirm('删除这个还款项？'))return;D.loans=D.loans.filter(o=>o.id!==id);save();renderMoney()}
@@ -9544,19 +9568,42 @@ function mnDay(key){
 function addLoan(){
   const n=$id('mnName').value.trim();if(!n)return alert('填写名称哦');
   const cyc=$id('mnCycle').checked;
-  D.loans.push({id:uid(),name:n,purpose:$id('mnUse').value.trim()||'日常',per:+$id('mnPer').value||0,day:Math.min(31,Math.max(1,+$id('mnDay').value||1)),paid:{},cycle:cyc,month:cyc?null:($id('mnMonth').value||moneyYM())});
+  D.loans.push({id:uid(),name:n,purpose:$id('mnUse').value.trim()||'日常',per:+$id('mnPer').value||0,day:Math.min(31,Math.max(1,+$id('mnDay').value||1)),paid:{},cycle:cyc,month:cyc?null:($id('mnMonth').value||moneyYM()),projId:($id('mnProj')&&$id('mnProj').value)||null});
   save();renderMoney();
 }
-function editProject(){
-  const p=D.project;
-  showModal(`<h3>✏️ 编辑自由自在倒数日</h3>
+function editProject(pid){
+  const p=D.projects.find(o=>o.id===pid);if(!p)return;
+  showModal(`<h3>✏️ 编辑大计</h3>
     <input class="inp" id="pjN" value="${esc(p.name)}" placeholder="项目名称">
     <input class="inp" id="pjT" type="number" value="${p.total}" placeholder="总金额" style="margin-top:8px">
     <input class="inp" id="pjP" type="number" value="${p.paid}" placeholder="目前已还" style="margin-top:8px">
-    <div class="m-btns"><button class="btn" onclick="saveProject()">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+    <div class="m-btns"><button class="btn" onclick="saveProject('${p.id}')">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>
+    ${D.projects.length>1?'<div class="m-btns" style="margin-top:6px"><button class="btn danger" onclick="delProject(\''+p.id+'\')">🗑 删除这个大计</button></div><p class="hint">删除后，原本计入它的账单会变为「不计入任何大计」。</p>':''}`);
 }
-function saveProject(){
-  D.project={name:$id('pjN').value.trim()||'还款计划',total:+$id('pjT').value||0,paid:+$id('pjP').value||0};
+function saveProject(pid){
+  const p=D.projects.find(o=>o.id===pid);if(!p)return;
+  p.name=$id('pjN').value.trim()||p.name;
+  p.total=+$id('pjT').value||p.total;
+  p.paid=+$id('pjP').value||0;
+  save();closeModal();renderMoney();
+}
+function addProject(){
+  showModal(`<h3>➕ 添加新大计</h3>
+    <input class="inp" id="npN" placeholder="名称，如：旅行基金">
+    <input class="inp" id="npT" type="number" placeholder="总金额 ¥" style="margin-top:8px">
+    <input class="inp" id="npP" type="number" value="0" placeholder="目前已还（默认0）" style="margin-top:8px">
+    <p class="hint">建好后，去每笔账单的 ✏️ 里选择计入这个新大计。</p>
+    <div class="m-btns"><button class="btn" onclick="saveNewProject()">创建</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+}
+function saveNewProject(){
+  const n=$id('npN').value.trim();if(!n)return alert('给大计起个名字哦');
+  D.projects.push({id:uid(),name:n,total:+$id('npT').value||0,paid:+$id('npP').value||0});
+  save();closeModal();renderMoney();
+}
+function delProject(pid){
+  if(!confirm('删除这个大计？原本计入它的账单将变为不计入。'))return;
+  D.projects=D.projects.filter(o=>o.id!==pid);
+  D.loans.forEach(l=>{if(l.projId===pid)l.projId=null});
   save();closeModal();renderMoney();
 }
 
@@ -10038,7 +10085,8 @@ function renderAvatar(){
 function renderSettings(){
   renderAvatar();
   $id('setAva').innerHTML=avaHTML();
-  $id('appVer').textContent='HONEY呦 '+APP_VER+' · '+APP_VER_DATE+' 更新';
+  $id('appVer').textContent='HONEY呦 '+APP_VER;
+  $id('appVerDate').textContent=APP_VER_DATE+' 更新';
   $id('stAccent').value=D.theme.accent;$id('stGreen').value=D.theme.green;
   $id('stText').value=D.theme.text;$id('stFont').value=D.theme.font;
   applySettings();
