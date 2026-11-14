@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="哈哈杜">
 <title>哈哈杜 · 音乐工作台</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="apple-touch-icon" href="./hahadu-icon.png?v=3">
 <style>
 :root{
   --bg:#0E1217;--card:#171D26;--card2:#1D2430;--line:#2A323E;
@@ -19,7 +19,7 @@
 body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
 #app{display:flex;min-height:100vh}
 /* 侧边导航 */
-#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:14px 8px;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 8px;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
 #side::-webkit-scrollbar{display:none}
 .brand{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 4px 14px;text-align:center}
 .brand .bico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#FF5E62);display:flex;align-items:center;justify-content:center;font-size:22px}
@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-sy
 .menu-item.active .mz{color:var(--accent)}
 .menu-item:active{opacity:.6}
 /* 内容区 */
-#main{flex:1;padding:16px;max-width:720px;margin:0 auto;width:100%}
+#main{flex:1;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
 .page{display:none}
 .page.active{display:block}
 .pg-head{margin-bottom:12px}
@@ -47,7 +47,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-sy
 .sec-title{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;margin-bottom:10px}
 .sec-title .en{font-size:10px;color:var(--sub);font-weight:400;margin-left:2px}
 .sec-title .sp{margin-left:auto}
-.btn{background:linear-gradient(135deg,var(--accent),#FF5E62);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.btn{background:linear-gradient(135deg,var(--accent),#FF5E62);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
 .btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
 .btn.danger{background:linear-gradient(135deg,#E5484D,#B3261E)}
 .btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
@@ -121,14 +121,16 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 #modalBox h3{font-size:16px;margin-bottom:12px}
 .m-btns{display:flex;gap:8px;margin-top:14px}
 .m-btns .btn{flex:1}
+.card>.btn{margin-top:10px;display:inline-block}
 /* 手机：竖栏保持，稍微收窄 */
 @media (max-width:720px){
-  #side{width:78px;padding:10px 6px}
+  #side{width:78px;padding:calc(10px + env(safe-area-inset-top,0px)) 6px}
+  .m-btns .btn{padding:8px 6px;font-size:12px}
   .brand .bico{width:36px;height:36px;font-size:19px}
   .brand b{font-size:11.5px}
   .menu-item .mi{font-size:21px}
   .menu-item .mz{font-size:10.5px}
-  #main{padding:12px}
+  #main{padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(24px + env(safe-area-inset-bottom,0px))}
 }
 </style>
 </head>
@@ -361,6 +363,13 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
       </div>
     </section>
 
+    <!-- 行业动态 -->
+    <section class="page" id="p-news">
+      <div class="pg-head"><h2>📰 行业动态</h2><p>Industry News · 看看大拿们最近在忙什么</p></div>
+      <div id="newsList"></div>
+      <p class="hint">点开卡片即视为已看；动态在每次 App 更新时补充最新内容。</p>
+    </section>
+
     <!-- 设置 -->
     <section class="page" id="p-set">
       <div class="pg-head"><h2>⚙️ 设置</h2><p>Settings</p></div>
@@ -371,6 +380,12 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
         <div class="ap-row"><span class="ap-lab">字体大小 <b id="apFsVal">14px</b></span><input type="range" id="apFs" min="12" max="17" step="1" oninput="apFs(this.value)" style="width:150px;accent-color:var(--accent)"></div>
         <div class="form-row"><button class="btn ghost sm" onclick="apReset()">↩ 恢复默认配色</button></div>
         <p class="hint">主题色管按钮和高亮，辅助色管成功的绿色点缀，改完立即生效并记住。</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">☁️ 语录云同步 <span class="en">Quote Sync</span></div>
+        <div class="form-row"><input class="inp" id="syGist" placeholder="Gist ID（HONEY呦 那边填同一个）"></div>
+        <div class="form-row2"><button class="btn sm" onclick="saveSync()">保存</button></div>
+        <p class="hint">填一次 Gist ID（不用 Token），HONEY呦 点「复制」后语录会自动出现在桌面「拒绝鸡汤」卡上，最长 1 分钟延迟。</p>
       </div>
       <div class="card">
         <div class="sec-title">💾 数据 <span class="en">Data</span></div>
@@ -394,7 +409,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.2', APP_VER_DATE='2026-11-14';
+const APP_VER='v1.5', APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -402,6 +417,7 @@ const MENUS=[
  ['study','🎧','拆歌日志','Study'],['release','🚀','发歌清单','Release'],
  ['contact','🤝','伙伴录','Contacts'],
  ['show','🎧','演出歌单','Sets'],
+ ['news','📰','行业动态','Industry'],
  ['set','⚙️','设置','Settings']
 ];
 const SAMPLE_TYPES=['鼓组','旋律','Bass','人声','氛围','音效','完整Demo','DJ组曲素材','其他'];
@@ -449,11 +465,12 @@ function defaultData(){
     lib:[],theme:null
   };
 }
-function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse(r);
-  d.projects=d.projects||[];d.samples=d.samples||[];d.ideas=d.ideas||[];d.songs=d.songs||[];d.studies=d.studies||[];d.releases=d.releases||[];d.contacts=d.contacts||[];d.shows=d.shows||[];d.lib=d.lib||[];d.appearance=d.appearance||{};
+function load(){let d=defaultData();try{const r=localStorage.getItem(STORE);if(r){const s=JSON.parse(r);Object.assign(d,s);
+  }}catch(e){d=defaultData()}
+  d.projects=d.projects||[];d.samples=d.samples||[];d.ideas=d.ideas||[];d.songs=d.songs||[];d.studies=d.studies||[];d.releases=d.releases||[];d.contacts=d.contacts||[];d.shows=d.shows||[];d.lib=d.lib||[];d.appearance=d.appearance||{};d.sync=d.sync||{gist:''};d.quoteCloud=d.quoteCloud||null;d.quoteLocal=d.quoteLocal||null;d.newsSeen=d.newsSeen||{};
   d.projects.forEach(p=>{if(!p.type)p.type='编曲制作';if(!p.versions)p.versions=[]});
   if(!d.relTpl||!d.relTpl.length)d.relTpl=[...DEF_TPL];
-  return d}}catch(e){}return defaultData()}
+  return d}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(D))}catch(e){alert('保存失败：本地存储可能已满')}}
 let D=load(), smNewRate=3, stNewRate=3, curLyric=null, mtOn=false, mtTimer=null, mtBeat=0, mtCtx=null;
 
@@ -470,7 +487,7 @@ function go(p){
 function renderPage(p){
   ({home:renderHome,project:renderProjects,show:renderShows,sample:renderSamples,lib:renderLib,tool:renderTools,
     idea:renderIdeas,lyric:renderLyrics,study:renderStudies,release:renderReleases,
-    contact:renderContacts,set:renderSettings})[p]();
+    contact:renderContacts,news:renderNews,set:renderSettings})[p]();
 }
 /* 弹窗 */
 function showModal(html){$id('modalBox').innerHTML=html;$id('modalMask').classList.add('show')}
@@ -508,18 +525,101 @@ function honeyQuote(){
   }catch(e){}
   return null;
 }
+function saveQuoteLocal(){
+  const t=$id('qlT').value.trim();if(!t)return alert('先粘贴语录哦');
+  D.quoteLocal={t:t,en:$id('qlE').value.trim()};save();renderHome();
+}
+function editQuoteLocal(){
+  const loc=D.quoteLocal||{t:'',en:''};
+  showModal(`<h3>✏️ 手动同步语录</h3>
+    <input class="inp" id="qlT2" value="${esc(loc.t)}" placeholder="语录">
+    <input class="inp" id="qlE2" value="${esc(loc.en||'')}" placeholder="英文翻译（可空）" style="margin-top:8px">
+    <div class="m-btns"><button class="btn" onclick="saveQuoteLocal2()">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+}
+function saveQuoteLocal2(){
+  const t=$id('qlT2').value.trim();if(!t)return alert('先写语录哦');
+  D.quoteLocal={t:t,en:$id('qlE2').value.trim()};
+  save();closeModal();renderHome();
+}
+/* ---------- 语录云端同步（GitHub Gist 中转，接收端） ---------- */
+function cloudPullQuote(){
+  const g=D.sync&&D.sync.gist;if(!g)return;
+  fetch('https://api.github.com/gists/'+g,{headers:{'Accept':'application/vnd.github+json'}})
+    .then(r=>r.ok?r.json():null).then(gist=>{
+      if(!gist||!gist.files)return;
+      const f=gist.files['honey-sync.json'];
+      if(!f||!f.content)return;
+      let q;try{q=JSON.parse(f.content)}catch(e){return}
+      if(!q||!q.t)return;
+      const old=D.quoteCloud;
+      if(!old||q.at>(old.at||0)){D.quoteCloud={t:q.t,en:q.en||'',at:q.at||0};save();renderHome();}
+    }).catch(()=>{});
+}
+/* ---------- 行业动态（随版本更新补充） ---------- */
+const NEWS=[
+ {cat:'🤖 AI音乐',d:'11月13日',s:'网易科技',t:'苏诺之音上线浏览器版「AI 音乐工作站」，主攻中文咬字',
+  sum:'免安装网页端即可做多轨精修：选区无痕改词补唱（Inpainting）、AI 人声音色替换、无缝续写延长、多轨混音与 24-bit 母带导出；还整合人声伴奏分离、音频转 MIDI / 五线谱简谱、LRC 歌词轴等 20 余项工具，并配套 AI MV 成片管线。网页 DAW + AI 精修的工作流，值得上手体验。',
+  url:'https://www.163.com/tech/article/LBK59O7000099BK0.html'},
+ {cat:'🏢 平台',d:'11月13日',s:'腾讯新闻',t:'网易云音乐 × 索尼音乐娱乐达成多年期战略合作',
+  sum:'网易云接入索尼全球正版曲库，合作从「版权采购」升级为「内容共创 + 艺人宣发协同」：为华语音乐人搭面向全球的宣发渠道，也为海外艺人触达国内年轻用户铺路。上游正版生态和发行通路都在变宽。',
+  url:'https://news.qq.com/rain/a/20261113A07V3700'},
+ {cat:'🤖 AI音乐',d:'11月12日',s:'钛媒体·显微故事',t:'Suno v6：首个全部用「授权曲库」训练的 AI 音乐模型',
+  sum:'华纳与 Suno 和解并签授权协议后，Suno 于今年 9 月发布 v6，训练曲库来自华纳、BMG、Believe/TuneCore 三家。「授权训练」正成为 AI 音乐与版权方的和解范式——AI 歌曲的商用与确权路径越来越清晰，接单时可留意平台对 AI 内容的标注与授权要求。',
+  url:'https://www.jiemian.com/article/15324550.html'},
+ {cat:'🤖 AI音乐',d:'11月12日',s:'钛媒体·显微故事',t:'深度｜被 AI 改写行情的音乐圈：5000 元编曲报价被砍到 300',
+  sum:'国内平台日新入库歌已超 10 万首，其中 20% 以上是 AI 生成。冲击之外新通路也在打开：汽水音乐 AI 歌曲千次播放分成约 1-2 元；腾讯音乐推 AI 创作激励金（年播 1000 次可签约）；网易云 AI 创作大赛第二届收到近 16 万首作品、冠军奖金 30 万。「审美与人味」仍是职业音乐人的护城河。',
+  url:'https://www.163.com/dy/article/LBHMDSCG05118O92.html'},
+ {cat:'🎧 制作人',d:'11月09日',s:'新浪娱乐',t:'钱雷包办马嘉祺《致年少的自己》编曲、制作与钢琴',
+  sum:'上线首日登顶 QQ 音乐在听热度榜（实时在听 7.4 万人），35 分钟收藏破 100 万。制作思路：钢琴打底不堆配器、把重心让给人声与词意，混音母带也由钱雷本人操刀——「少即是多」的静水系制作再次被市场验证。',
+  url:'https://ent.sina.cn/2026-11-09/detail-iniycmtw2911977.d.html'},
+ {cat:'🤖 AI音乐',d:'11月上旬',s:'音集协 CAVCA',t:'小柯、《黑神话：悟空》音频总监李佳骐到访音集协，共话「AI 乐谈」',
+  sum:'共识：AI 是提效工具，但词曲核心应当由人完成（小柯）；交互音频的叙事节奏与东方听觉美学离不开声音设计师（李佳骐）。行业发展要恪守「内容为本、版权为先」。做游戏 / 交互音频方向可以重点关注李佳骐的实践路径。',
+  url:'https://www.cavca.org/newsDetail/2440'},
+ {cat:'🎧 制作人',d:'11月上旬',s:'网易新闻',t:'首届中国影视音乐艺术周落幕：AI 时代影视音乐怎么教、怎么写',
+  sum:'上海音乐学院牵头：彭飞谈《AI 如何影响人类创作》（把 AI 当镜子、守住真实情感）、《黑神话：悟空》翟锦彦拆民族元素「形与神」、项珏讲沉浸式声场与全景声、潘攀提出 AI 音乐确权与标准的四层模型。影视 / 游戏配乐方向的一手风向标。',
+  url:'https://c.m.163.com/news/a/LB0E3L970516BNNT.html'},
+ {cat:'🏢 平台',d:'11月中旬',s:'今日头条',t:'对话酷狗董事长傅鸿城：目标是全球前五的版权公司',
+  sum:'广州出台推动音乐产业高质量发展的若干措施；酷狗把《一路生花》改编成印尼语版成功出海，计划 3-5 年把厂牌做到世界前五。出海改编与产业集聚（羊城创意产业园：制作、版权、演出一体）是两个值得注意的信号。',
+  url:'https://www.toutiao.com/article/7706434601710862858/'},
+ {cat:'🤖 AI音乐',d:'今年3月',s:'腾讯×清华',t:'开源回看：SongGeneration 2 开源音乐大模型，中文咬字指标超 Suno v5',
+  sum:'4B 参数开源模型，音素错误率 8.55%（优于 Suno v5 的 12.4%），支持中英多语言，消费级显卡（22GB 显存）可本地部署，HuggingFace 提供 Fast 版一分钟出一整曲。想搭私有 AI 音乐管线的开发者值得收藏。',
+  url:'https://www.haomings.com/ai/suno-v5-songgeneration2'}
+];
+function renderNews(){
+  $id('newsList').innerHTML=NEWS.map((n,i)=>{
+    const open=!!newsOpen[i],seen=!!D.newsSeen[i];
+    return `<div class="card news-i${open?' open':''}" style="cursor:pointer" onclick="newsToggle(${i})">
+     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tag blue">${n.cat}</span><span style="font-size:11px;color:var(--sub)">${n.d} · ${n.s}</span><span style="margin-left:auto;font-size:11px;color:var(--sub)">${seen?'✔ 已看':'👀 未看'}</span></div>
+     <div style="font-size:14px;font-weight:700;margin-top:8px;line-height:1.5">${n.t}</div>
+     ${open?`<div style="font-size:12px;color:var(--sub);margin-top:6px;line-height:1.7" onclick="event.stopPropagation()">${n.sum}</div>
+     <div class="form-row" style="cursor:default" onclick="event.stopPropagation()"><a class="btn ghost sm" href="${n.url}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">🔗 查看原文</a></div>`
+     :'<div style="font-size:11px;color:var(--sub);margin-top:4px">点开阅读全文 ▸</div>'}
+    </div>`;
+  }).join('');
+}
+let newsOpen={};
+function newsToggle(i){
+  newsOpen[i]=!newsOpen[i];
+  if(newsOpen[i]&&!D.newsSeen[i]){D.newsSeen[i]=1;save()}
+  renderNews();
+}
 function renderHome(){
   const now=new Date(),wd='日一二三四五六'[now.getDay()];
   $id('hmDate').textContent=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 · 星期'+wd;
   $id('hmGreet').textContent='⏰ '+greetTxt(now)+'，哈哈杜 ꯁ';
   $id('hmLunar').textContent=lunarText(now);
-  const q=honeyQuote();
-  if(q){
+  const q=(D.quoteCloud&&D.quoteCloud.t)?D.quoteCloud:honeyQuote();
+  if(q&&q.t){
     $id('hmQuote').innerHTML='<div style="font-size:15px;font-weight:700;line-height:1.7">'+esc(q.t)+'</div>'+(q.en?'<div style="font-size:11px;color:var(--sub);margin-top:6px;line-height:1.6">'+esc(q.en)+'</div>':'');
-    $id('hmQuoteHint').textContent='✔ 实时同步自 HONEY呦「拒绝鸡汤」，在那边编辑就自动更新';
+    let hint='✔ 实时同步自 HONEY呦「拒绝鸡汤」，在那边编辑就自动更新';
+    if(q.at){const dt=new Date(q.at);hint='☁️ 云端同步自 HONEY呦 · '+(dt.getMonth()+1)+'月'+dt.getDate()+'日 '+pad(dt.getHours())+':'+pad(dt.getMinutes())+' 自动更新'}
+    $id('hmQuoteHint').innerHTML=hint;
+  }else if(D.quoteLocal&&D.quoteLocal.t){
+    $id('hmQuote').innerHTML='<div style="font-size:15px;font-weight:700;line-height:1.7">'+esc(D.quoteLocal.t)+'</div>'+(D.quoteLocal.en?'<div style="font-size:11px;color:var(--sub);margin-top:6px;line-height:1.6">'+esc(D.quoteLocal.en)+'</div>':'');
+    $id('hmQuoteHint').innerHTML='📌 手动同步的语录 · <span style="cursor:pointer;text-decoration:underline;color:var(--accent)" onclick="editQuoteLocal()">改一改 / 重新粘贴</span> · 想全自动同步：设置 → ☁️ 语录云同步';
   }else{
-    $id('hmQuote').innerHTML='<div style="color:var(--sub);font-size:13px">还没有读到你的语录～</div>';
-    $id('hmQuoteHint').textContent='同步条件：两个 App 在同一个网址下（哈哈杜放在 HONEY呦 的子文件夹里），并在 HONEY呦 的桌面点「✏️ 编辑」写下你的语录。';
+    $id('hmQuote').innerHTML='<div class="form-row" style="margin-top:0"><input class="inp" id="qlT" placeholder="把 HONEY呦 的语录粘到这里"></div><div class="form-row"><input class="inp" id="qlE" placeholder="英文翻译（可空）"></div><div class="form-row"><button class="btn sm" onclick="saveQuoteLocal()">📌 保存语录</button></div>';
+    $id('hmQuoteHint').innerHTML='想全自动同步？在 HONEY呦「设置 → ☁️ 语录云同步」和这里「设置 → ☁️ 语录云同步」各填一次 Gist 配置即可；也可以先手动粘贴。';
   }
   const t=todayStr();
   const dues=D.projects.filter(p=>p.due&&p.status!=='已结清'&&p.status!=='已交付').map(p=>({p,d:daysLeft(p.due)})).sort((a,b)=>a.d-b.d);
@@ -543,7 +643,8 @@ function renderHome(){
     ['💿 曲库',D.lib.length+' 首','lib'],
     ['🚀 发歌进度',relTot?relDone+'/'+relTot:'-','release'],['🎧 已拆歌',D.studies.length+' 首','study'],
     ['🤝 伙伴',D.contacts.length+' 位','contact'],
-    ['🎧 演出排期',D.shows.length+' 场','show']
+    ['🎧 演出排期',D.shows.length+' 场','show'],
+    ['📰 行业动态',NEWS.filter((n,i)=>!D.newsSeen[i]).length+' 条未看','news']
   ].map(x=>`<div class="li" onclick="go('${x[2]}')"><div class="li-main"><div class="li-t">${x[0]}</div></div><span class="tag acc">${x[1]}</span></div>`).join('');
 }
 
@@ -1082,7 +1183,11 @@ function addContact(){
 function delContact(id){D.contacts=D.contacts.filter(o=>o.id!==id);save();renderContacts()}
 
 /* ---------- 设置 ---------- */
-function renderSettings(){$id('appVer').textContent='哈哈杜 '+APP_VER;$id('appVerDate').textContent=APP_VER_DATE+' 更新';apInit()}
+function renderSettings(){$id('appVer').textContent='哈哈杜 '+APP_VER;$id('appVerDate').textContent=APP_VER_DATE+' 更新';$id('syGist').value=(D.sync&&D.sync.gist)||'';apInit()}
+function saveSync(){
+  D.sync={gist:$id('syGist').value.trim()};save();renderSettings();
+  alert('已保存 ☁️ 以后 HONEY呦 点「复制」，语录会自动同步到你的桌面');
+}
 
 /* ---------- 外观设置 ---------- */
 const AP_D1=['#FF8A3D','#FF5E62','#FF6B6B','#E84A8B','#F5B942','#FFD166','#3ECFB2','#2BB3A3','#5BA8F5','#7C5CFF','#B58AF5','#FF7AB8','#9BDE7E','#8A97A8'];
@@ -1128,7 +1233,27 @@ function importData(inp){
 
 /* 启动 */
 apApply();
+/* 自动版本检查：App 每次激活时对比服务器 sw 版本，有新版自动刷新（防主屏缓存旧页面） */
+let _swChecking=false;
+async function checkSwVer(){
+  if(_swChecking)return;
+  _swChecking=true;
+  try{
+    const r=await fetch('./sw.js',{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/hahadu-v[0-9a-z]+/);
+    const cur=m?m[0]:'';
+    const known=localStorage.getItem('hahaduSwVer');
+    if(cur&&known&&cur!==known){location.reload();return}
+    if(cur)localStorage.setItem('hahaduSwVer',cur);
+  }catch(e){}
+  _swChecking=false;
+}
+window.addEventListener('pageshow',e=>{checkSwVer();cloudPullQuote()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkSwVer();cloudPullQuote()}});
 renderMenu();renderPage('home');
+cloudPullQuote();
+setInterval(cloudPullQuote,180000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
