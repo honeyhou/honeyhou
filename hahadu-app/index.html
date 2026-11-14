@@ -147,7 +147,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 
     <!-- 桌面 Home -->
     <section class="page active" id="p-home">
-      <div class="pg-head"><h2>🏠 工作台</h2><p>Home · 今天也要做出好听的歌</p></div>
+      <div class="pg-head"><h2>🏠 工作台</h2><p>Home · 今天也要做出好听的歌哟</p></div>
       <div class="card"><div class="sec-title" id="hmGreet">⏰ 下午好，哈哈杜 ꯁ</div>
         <div id="hmDate" style="font-size:15px;font-weight:700"></div>
         <div id="hmLunar" style="font-size:11.5px;color:var(--sub);margin-top:4px"></div>
@@ -365,7 +365,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 
     <!-- 行业动态 -->
     <section class="page" id="p-news">
-      <div class="pg-head"><h2>📰 行业动态</h2><p>Industry News · 看看大拿们最近在忙什么</p></div>
+      <div class="pg-head"><h2>📰 行业动态 <span id="newsCnt" style="font-size:12px;font-weight:600;color:var(--sub);vertical-align:2px;margin-left:4px"></span></h2><p>Industry News · 看看大拿们最近在忙什么</p></div>
       <div id="newsList"></div>
       <p class="hint">点开卡片即视为已看；动态在每次 App 更新时补充最新内容。</p>
     </section>
@@ -409,7 +409,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.5', APP_VER_DATE='2026-11-14';
+const APP_VER='v1.7', APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -586,6 +586,7 @@ const NEWS=[
   url:'https://www.haomings.com/ai/suno-v5-songgeneration2'}
 ];
 function renderNews(){
+  $id('newsCnt').textContent='已看 '+NEWS.filter((n,i)=>D.newsSeen[i]).length+'/'+NEWS.length;
   $id('newsList').innerHTML=NEWS.map((n,i)=>{
     const open=!!newsOpen[i],seen=!!D.newsSeen[i];
     return `<div class="card news-i${open?' open':''}" style="cursor:pointer" onclick="newsToggle(${i})">
@@ -644,7 +645,7 @@ function renderHome(){
     ['🚀 发歌进度',relTot?relDone+'/'+relTot:'-','release'],['🎧 已拆歌',D.studies.length+' 首','study'],
     ['🤝 伙伴',D.contacts.length+' 位','contact'],
     ['🎧 演出排期',D.shows.length+' 场','show'],
-    ['📰 行业动态',NEWS.filter((n,i)=>!D.newsSeen[i]).length+' 条未看','news']
+    ['📰 行业动态',NEWS.filter((n,i)=>D.newsSeen[i]).length+'/'+NEWS.length,'news']
   ].map(x=>`<div class="li" onclick="go('${x[2]}')"><div class="li-main"><div class="li-t">${x[0]}</div></div><span class="tag acc">${x[1]}</span></div>`).join('');
 }
 
