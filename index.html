@@ -9224,7 +9224,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.9';
+const APP_VER='v2.11';
 const APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9533,8 +9533,8 @@ function renderWxLine(){
   if(seg){const what=seg.snow?'有雪':'有雨';
     tip='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+'点-'+String(seg.h1+1).padStart(2,'0')+'点'+what+(seg.mm>=2?'（雨不小）':'')+(seg.snow?'，路滑慢行 🙅‍♀️':'，带伞 ☂️');
   }else tip='✅ 白天没雨没雪';
-  $id('dkWx').innerHTML='<b>'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span>最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'° · </span>'+
-    (seg?'<b style="color:#E60012">'+tip+'</b>':'<span>'+tip+'</span>');
+  $id('dkWx').innerHTML='<b style="color:var(--muted)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span>最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'° · </span>'+
+    (seg?'<b style="color:#F2B8CB">'+tip+'</b>':'<span>'+tip+'</span>');
 }
 async function useGeo(){
   if(!navigator.geolocation){alert('这部设备不支持定位，手动输入城市吧');return}
