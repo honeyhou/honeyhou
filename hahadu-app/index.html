@@ -152,6 +152,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
       <div class="card"><div class="sec-title" id="hmGreet">⏰ 下午好，哈哈杜 ꯁ</div>
         <div id="hmDate" style="font-size:15px;font-weight:700"></div>
         <div id="hmLunar" style="font-size:11.5px;color:var(--sub);margin-top:4px"></div>
+        <div id="hmWx" style="font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.5;cursor:pointer" onclick="go('set')">🌤️ 天气加载中…</div>
       </div>
       <div class="card"><div class="sec-title">💬 拒绝鸡汤 <span class="en">和 HONEY呦 同步</span></div>
         <div id="hmQuote"></div>
@@ -383,6 +384,13 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
         <p class="hint">主题色管按钮和高亮，辅助色管成功的绿色点缀，改完立即生效并记住。</p>
       </div>
       <div class="card">
+        <div class="sec-title">🌤️ 天气城市 <span class="en">Weather</span></div>
+        <div class="ap-row"><span class="ap-lab" id="cityNow">还没设置</span><button class="btn ghost sm" onclick="useGeo()">📍 用我的位置</button></div>
+        <div class="form-row" style="gap:6px"><input class="inp" id="cityInp" style="flex:1;min-width:0" placeholder="输入城市或区，比如 金水区、成都"><button class="btn ghost sm" style="flex:0 0 auto" onclick="searchCity()">查</button></div>
+        <div id="cityHits" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+        <p class="hint">天气每 30 分钟自动更新；想精确到区就填区名（如 金水区）。</p>
+      </div>
+      <div class="card">
         <div class="sec-title">☁️ 语录云同步 <span class="en">Quote Sync</span></div>
         <div class="form-row"><input class="inp" id="syGist" readonly placeholder="Gist ID（HONEY呦 那边填同一个）"></div>
         <div class="form-row2"><button class="btn sm" id="syBtn" onclick="syncBtnTap()">✏️ 修改</button></div>
@@ -412,7 +420,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.10', APP_VER_DATE='2026-11-16';
+const APP_VER='v1.11', APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -465,12 +473,12 @@ function defaultData(){
     relTpl:[...DEF_TPL],
     releases:[{id:uid(),song:'夏夜漫游',items:DEF_TPL.map((t,i)=>({t,done:i<2}))}],
     contacts:[{id:uid(),name:'阿澈',role:'混音师',skill:'流行/R&B 混音',price:'¥2k-4k/首',phone:'微信 achu-mix',note:'上手快，返稿不磨叽'}],
-    lib:[],theme:null
+    lib:[],theme:null,city:null
   };
 }
 function load(){let d=defaultData();try{const r=localStorage.getItem(STORE);if(r){const s=JSON.parse(r);Object.assign(d,s);
   }}catch(e){d=defaultData()}
-  d.projects=d.projects||[];d.samples=d.samples||[];d.ideas=d.ideas||[];d.songs=d.songs||[];d.studies=d.studies||[];d.releases=d.releases||[];d.contacts=d.contacts||[];d.shows=d.shows||[];d.lib=d.lib||[];d.appearance=d.appearance||{};d.sync=d.sync||{gist:''};d.quoteCloud=d.quoteCloud||null;d.quoteLocal=d.quoteLocal||null;d.newsSeen=d.newsSeen||{};
+  d.projects=d.projects||[];d.samples=d.samples||[];d.ideas=d.ideas||[];d.songs=d.songs||[];d.studies=d.studies||[];d.releases=d.releases||[];d.contacts=d.contacts||[];d.shows=d.shows||[];d.lib=d.lib||[];if(d.city===undefined)d.city=null;d.appearance=d.appearance||{};d.sync=d.sync||{gist:''};d.quoteCloud=d.quoteCloud||null;d.quoteLocal=d.quoteLocal||null;d.newsSeen=d.newsSeen||{};
   d.projects.forEach(p=>{if(!p.type)p.type='编曲制作';if(!p.versions)p.versions=[]});
   if(!d.relTpl||!d.relTpl.length)d.relTpl=[...DEF_TPL];
   return d}
@@ -1187,7 +1195,7 @@ function addContact(){
 function delContact(id){D.contacts=D.contacts.filter(o=>o.id!==id);save();renderContacts()}
 
 /* ---------- 设置 ---------- */
-function renderSettings(){$id('appVer').textContent='哈哈杜 '+APP_VER;$id('appVerDate').textContent=APP_VER_DATE+' 更新';$id('syGist').value=(D.sync&&D.sync.gist)||'';_syncEdit=false;syncEditUI();apInit()}
+function renderSettings(){$id('appVer').textContent='哈哈杜 '+APP_VER;$id('appVerDate').textContent=APP_VER_DATE+' 更新';$id('cityNow').textContent=D.city?('📍 '+D.city.name):'还没设置，加一个就有桌面天气';$id('syGist').value=(D.sync&&D.sync.gist)||'';_syncEdit=false;syncEditUI();apInit()}
 function saveSync(){
   D.sync={gist:$id('syGist').value.trim()};save();
   _syncEdit=false;syncEditUI();renderSettings();
@@ -1242,6 +1250,96 @@ function importData(inp){
   const f=inp.files[0];if(!f)return;
   const rd=new FileReader();
   rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.projects)throw 0;localStorage.setItem(STORE,JSON.stringify(d));D=load();apApply();closeModal();go('home');alert('导入成功！')}catch(e){alert('文件格式不对哦')}};rd.readAsText(f);
+}
+
+/* ================= 天气（工作台日期下，每 30 分钟更新） ================= */
+const WMO={0:['☀️','晴'],1:['🌤️','晴间多云'],2:['⛅','多云'],3:['☁️','阴'],45:['🌫️','有雾'],48:['🌫️','有雾'],
+ 51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨'],56:['🌧️','冻雨'],57:['🌧️','冻雨'],
+ 61:['🌦️','小雨'],63:['🌧️','中雨'],65:['🌧️','大雨'],66:['🌧️','冻雨'],67:['🌧️','冻雨'],
+ 71:['🌨️','小雪'],73:['🌨️','中雪'],75:['❄️','大雪'],77:['🌨️','小雪'],
+ 80:['🌦️','阵雨'],81:['🌧️','阵雨'],82:['⛈️','暴雨'],85:['🌨️','阵雪'],86:['❄️','阵雪'],
+ 95:['⛈️','雷阵雨'],96:['⛈️','雷雨'],99:['⛈️','雷雨']};
+const SNOW=[71,73,75,77,85,86];
+function wIco(c){return (WMO[c]||['🌡️',''])[0]}
+function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
+let wxJ=null;
+async function loadWeather(force){
+  const el=$id('hmWx');if(!el)return;
+  if(!D.city){el.innerHTML='🌤️ 去设置里加个城市，工作台就有天气啦';return}
+  const c=D.city;
+  try{
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
+      '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2');
+    if(!r.ok)throw 0; wxJ=await r.json(); renderWxLine();
+  }catch(e){ if(force)el.innerHTML='🌤️ 天气没取到，连上网再打开试试' }
+}
+function segName(h){return h<6?'凌晨':h<9?'早上':h<12?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':'晚上'}
+function renderWxLine(){
+  const j=wxJ;if(!j||!D.city)return;const cur=j.current||{};const dl=j.daily;
+  const today=todayStr(),T=j.hourly.time,P=j.hourly.precipitation,C=j.hourly.weather_code;
+  let seg=null,curSeg=null;
+  for(let i=0;i<T.length;i++){
+    if(!T[i].startsWith(today))continue;
+    const h=+T[i].slice(11,13); if(h<6||h>22){curSeg=null;continue}
+    const wet=P[i]>=0.15, snow=SNOW.includes(C[i]);
+    if(wet||snow){ if(!curSeg)curSeg={h0:h,h1:h,mm:0,snow}; else {curSeg.h1=h;curSeg.mm+=P[i];curSeg.snow=curSeg.snow||snow} if(!seg||curSeg.mm>seg.mm)seg=curSeg }
+    else curSeg=null;
+  }
+  let tip;
+  if(seg){const what=seg.snow?'有雪':'有雨';
+    tip='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+'点-'+String(seg.h1+1).padStart(2,'0')+'点'+what+(seg.mm>=2?'（雨不小）':'')+(seg.snow?'，路滑慢行':'，带伞 ☂️');
+  }else tip='✅ 白天没雨没雪';
+  $id('hmWx').innerHTML='<b style="color:var(--text)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span>最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'° · </span>'+
+    (seg?'<b style="color:#E60012">'+tip+'</b>':'<span>'+tip+'</span>');
+}
+async function useGeo(){
+  if(!navigator.geolocation){alert('这部设备不支持定位，手动输入城市吧');return}
+  $id('cityNow').textContent='正在定位…';$id('cityHits').innerHTML='';
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const la=pos.coords.latitude,lo=pos.coords.longitude;
+    let name='我的位置';
+    try{
+      const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+la+'&lon='+lo+'&accept-language=zh&zoom=13');
+      const j=await r.json();
+      const a=j.address||{};
+      const dist=a.city_district||a.suburb||a.district||a.county||'';
+      const city=a.city||a.town||a.village||a.municipality||'';
+      if(dist&&city&&dist!==city)name=city+' · '+dist;
+      else if(dist)name=dist;
+      else if(city)name=city;
+      else name=a.state||name;
+    }catch(e){}
+    D.city={name:name,lat:la,lon:lo};save();renderSettings();loadWeather(true);
+    alert('定位好了：'+name);
+  },()=>{alert('没拿到定位，手动输入城市吧');renderSettings()},{timeout:9000,enableHighAccuracy:true});
+}
+async function searchCity(){
+  const q=$id('cityInp').value.trim();if(!q){alert('先输入城市或区名');return}
+  $id('cityHits').innerHTML='<span class="hint">正在查…</span>';
+  let rs=[];
+  try{
+    const loadN=async kw=>{
+      const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn');
+      const j=await r.json();
+      return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
+    };
+    rs=await loadN(q);
+    if(!rs.length&&!/[区县市州]$/.test(q))rs=await loadN(q+'区');
+  }catch(e){}
+  if(!rs.length){
+    try{
+      const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json');
+      const j=await r.json();
+      rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
+    }catch(e){}
+  }
+  window.__cityHits=rs;
+  $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn ghost sm" style="flex:0 0 auto" onclick="pickCity('+i+')">'+esc(x.name)+(x.mid&&x.mid!==x.name?'（'+esc(x.mid)+'）':'')+'</button>').join(''):'<span class="hint">没找到，试试带上「区」字，比如 金水区</span>';
+}
+function pickCity(i){const x=window.__cityHits[i];if(!x)return;
+  D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};
+  save();$id('cityHits').innerHTML='';renderSettings();loadWeather(true);
+  alert('天气城市设置好了：'+D.city.name);
 }
 
 /* 启动 */
@@ -1309,6 +1407,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkSwVe
 renderMenu();renderPage('home');
 cloudPullQuote();
 setInterval(cloudPullQuote,180000);
+loadWeather();
+setInterval(loadWeather,1800000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
