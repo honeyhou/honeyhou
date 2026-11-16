@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>酒窝妈妈</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="酒窝妈妈">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF3EE">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<style>
+:root{
+  --bg:#FBF3EE; --card:#FFFFFF; --ink:#3A2B2A; --muted:#9C8681; --line:#EFE1DA;
+  --accent:#D2607A; --accent-d:#B94A64; --soft:#FBE6EC; --ok:#3D9E74; --warn:#D9822B;
+  --radius:18px; --tap:52px;
+}
+body[data-theme="ju"]{--bg:#FFF7EC;--card:#fff;--ink:#3B2E23;--muted:#9C8875;--line:#F1E3D2;--accent:#E08A47;--accent-d:#C97433;--soft:#FCEBDB;--ok:#4C9A6B;--warn:#D9691F}
+body[data-theme="zhu"]{--bg:#F1F7F2;--card:#fff;--ink:#2B3A31;--muted:#82968A;--line:#DDEBE0;--accent:#4E8C6A;--accent-d:#3D7557;--soft:#E2F1E7;--ok:#3D9E74;--warn:#C97B2C}
+body[data-theme="lan"]{--bg:#F0F5FA;--card:#fff;--ink:#28323D;--muted:#7F8FA0;--line:#DCE7F1;--accent:#4A7CA8;--accent-d:#3A6A93;--soft:#E3EEF8;--ok:#3D9E74;--warn:#C97B2C}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+html[data-fs="big"]{font-size:17.6px}
+html[data-fs="huge"]{font-size:19.2px}
+html[data-fs="max"]{font-size:21px}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.55;-webkit-font-smoothing:antialiased}
+
+.wrap{max-width:520px;margin:0 auto;padding:0 .95rem calc(92px + env(safe-area-inset-bottom))}
+
+/* 顶栏 */
+.top{position:sticky;top:0;z-index:30;background:var(--bg);padding-top:env(safe-area-inset-top)}
+.top-in{max-width:520px;margin:0 auto;padding:.7rem .95rem .5rem;display:flex;align-items:center;gap:.6rem}
+.hello{flex:1;min-width:0}
+.hello b{display:block;font-size:1.28rem;letter-spacing:.5px}
+.dateline{font-size:.88rem;font-weight:800;margin-top:.12rem;display:flex;align-items:baseline;gap:.5rem}
+.tclk{font-size:1.3rem;font-weight:900;color:var(--accent-d);letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.luneline{font-size:.74rem;color:var(--muted);margin-top:.15rem;font-weight:600}
+.badge{font-size:.72rem;color:var(--accent);background:var(--soft);border-radius:999px;padding:.2rem .55rem;font-weight:700}
+
+/* 卡片 */
+.card{background:var(--card);border-radius:var(--radius);padding:.95rem;margin-bottom:.8rem;
+  box-shadow:0 2px 10px rgba(120,90,80,.06)}
+.card.flat{box-shadow:none;border:1px solid var(--line)}
+.sec{display:flex;align-items:center;gap:.45rem;font-size:1rem;font-weight:800;margin:0 0 .7rem}
+.sec .cnt{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:600}
+
+/* 天气 */
+.wx-top{display:flex;align-items:center;gap:.7rem}
+.wx-ico{font-size:2.4rem;line-height:1}
+.wx-main{flex:1;min-width:0}
+.wx-t{font-size:1.9rem;font-weight:800;letter-spacing:-.5px}
+.wx-t i{font-size:.95rem;font-weight:600;vertical-align:super;margin-left:.1rem}
+.wx-s{font-size:.82rem;color:var(--muted)}
+.wx-hl{text-align:right;font-size:.82rem;color:var(--muted);line-height:1.7}
+.wx-tip{margin-top:.65rem;font-size:.88rem;background:var(--soft);color:var(--accent-d);
+  border-radius:12px;padding:.5rem .65rem;font-weight:700;display:flex;gap:.4rem}
+.wx-tip.calm{background:#F4F4F2;color:#6E6A66;font-weight:600}
+.wx-next{margin-top:.45rem;font-size:.8rem;color:var(--muted)}
+
+/* 快递 */
+.pc-big{display:flex;align-items:baseline;gap:.4rem;margin-bottom:.7rem}
+.pc-big b{font-size:2.1rem;color:var(--accent);line-height:1}
+.pc-big span{font-size:.86rem;color:var(--muted)}
+.pc{display:flex;align-items:center;gap:.7rem;background:var(--soft);border-radius:14px;padding:.7rem .8rem;margin-bottom:.55rem;cursor:pointer}
+.pc:active{opacity:.6}
+.pc-tap{font-size:.7rem;color:var(--accent-d);font-weight:800;text-align:center;line-height:1.5;white-space:nowrap;opacity:.85}
+.pc:last-child{margin-bottom:0}
+.pc-code{font-size:1.35rem;font-weight:800;letter-spacing:1px;color:var(--accent-d);font-variant-numeric:tabular-nums}
+.pc-meta{font-size:.76rem;color:var(--muted);margin-top:.1rem}
+.pc-body{flex:1;min-width:0}
+.pc-done{border:none;background:var(--card);color:var(--muted);font-size:.82rem;font-weight:700;
+  padding:.55rem .7rem;border-radius:11px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.pc-wrap{display:flex;flex-direction:column}
+.pc .ok-go{background:var(--card);color:var(--accent);border:1.5px solid var(--accent);font-weight:800}
+.empty{text-align:center;color:var(--muted);font-size:.9rem;padding:1.4rem 0}
+.empty .e{font-size:2rem;display:block;margin-bottom:.3rem}
+
+/* 防骗 */
+.scam{background:var(--card);border-radius:var(--radius);padding:.85rem .95rem;margin-bottom:.65rem;box-shadow:0 2px 10px rgba(120,90,80,.06)}
+.scam-h{display:flex;gap:.55rem;align-items:flex-start;cursor:pointer}
+.scam-h .t{flex:1;font-size:.98rem;font-weight:800;line-height:1.4}
+.scam-tag{font-size:.68rem;background:var(--soft);color:var(--accent-d);border-radius:8px;padding:.12rem .4rem;font-weight:700;white-space:nowrap}
+.scam-h .arw{color:var(--muted);font-size:.9rem;font-weight:800}
+.scam-seen .t{color:var(--muted);font-weight:700}
+.scam-b{margin-top:.65rem;border-top:1px dashed var(--line);padding-top:.6rem;display:none}
+.scam.open .scam-b{display:block}
+.scam-b p{margin:0 0 .5rem;font-size:.88rem;color:#4A3A37}
+.scam-tip{font-size:.86rem;background:var(--soft);border-radius:12px;padding:.55rem .65rem;color:var(--accent-d);font-weight:700;margin-bottom:.6rem}
+.scam-acts{display:flex;gap:.5rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:none;
+  background:var(--accent);color:#fff;font-size:.9rem;font-weight:800;padding:.62rem .9rem;border-radius:12px;
+  text-decoration:none;cursor:pointer;min-height:44px;font-family:inherit}
+.btn.ghost{background:var(--soft);color:var(--accent-d)}
+.btn.line{background:transparent;border:1.5px solid var(--line);color:var(--ink);font-weight:700}
+.btn.sm{font-size:.82rem;padding:.45rem .7rem;min-height:38px}
+.btn.block{display:flex;width:100%}
+.dial{position:sticky;top:calc(env(safe-area-inset-top) + 58px);z-index:25;margin-bottom:.7rem}
+
+/* 记账 */
+.money-sum{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.8rem}
+.ms{background:var(--card);border-radius:16px;padding:.75rem .8rem;box-shadow:0 2px 10px rgba(120,90,80,.06)}
+.ms span{font-size:.75rem;color:var(--muted)}
+.ms b{display:block;font-size:1.35rem;letter-spacing:-.5px;margin-top:.1rem}
+.ms b i{font-size:.8rem;font-style:normal;color:var(--muted);margin-left:.15rem}
+.ms.short b{color:var(--accent)}
+.cat-row{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem}
+.cat-chip{font-size:.72rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:.15rem .4rem}
+.rec{display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.rec:last-child{border:none}
+.rec-ico{width:2.3rem;height:2.3rem;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex:0 0 2.3rem}
+.rec-b{flex:1;min-width:0}
+.rec-b b{font-size:.92rem;font-weight:700;display:block}
+.rec-b span{font-size:.74rem;color:var(--muted)}
+.rec-amt{font-size:1.02rem;font-weight:800;font-variant-numeric:tabular-nums}
+.rec-img{width:2.3rem;height:2.3rem;border-radius:10px;object-fit:cover;flex:0 0 2.3rem;border:1px solid var(--line)}
+.rec-body{display:flex;align-items:center;gap:.6rem;flex:1;min-width:0;cursor:pointer}
+.day-h{font-size:.76rem;color:var(--muted);font-weight:700;margin:.7rem 0 .25rem}
+.pic-del{color:#C4553F;background:#FBE9E4;border:none;font-size:.8rem;font-weight:700;padding:.4rem .6rem;border-radius:10px}
+
+/* 弹层 */
+.mask{position:fixed;inset:0;background:rgba(50,35,30,.42);z-index:60;display:none;align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  max-height:92vh;overflow:auto;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+.sheet-h{display:flex;align-items:center;margin-bottom:.8rem}
+.sheet-h b{flex:1;font-size:1.05rem}
+.sheet-h button{background:none;border:none;font-size:1.1rem;color:var(--muted);padding:.2rem .4rem}
+.amt-box{background:var(--bg);border-radius:14px;padding:.7rem .9rem;display:flex;align-items:center;gap:.4rem;margin-bottom:.8rem}
+.amt-box span{font-size:1.3rem;font-weight:800;color:var(--muted)}
+.amt-box input{flex:1;min-width:0;border:none;background:none;font-size:1.9rem;font-weight:800;
+  color:var(--ink);font-family:inherit;outline:none;font-variant-numeric:tabular-nums}
+.lbl{font-size:.78rem;color:var(--muted);font-weight:700;margin:.7rem 0 .35rem}
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.cat{background:var(--bg);border-radius:13px;padding:.6rem .3rem;text-align:center;border:1.5px solid transparent}
+.cat.on{border-color:var(--accent);background:var(--soft)}
+.cat i{display:block;font-size:1.3rem;font-style:normal}
+.cat span{font-size:.76rem;font-weight:700}
+.inp{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;
+  padding:.62rem .7rem;font-size:.95rem;font-family:inherit;color:var(--ink);outline:none}
+.inp:focus{border-color:var(--accent)}
+.inp.ro{opacity:.75;background:var(--line);border-color:transparent}
+
+/* 设置 */
+.row{display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border:none}
+.row .rk{flex:1;font-size:.92rem;font-weight:700}
+.row .rv{font-size:.85rem;color:var(--muted)}
+.swatch{display:flex;gap:.6rem;margin-top:.4rem}
+.sw{width:2.5rem;height:2.5rem;border-radius:50%;border:3px solid transparent;position:relative}
+.sw.on{border-color:var(--ink)}
+.sw.on:after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1rem}
+.fs-tabs{display:flex;gap:.4rem;margin-top:.4rem}
+.fs-tab{flex:1;text-align:center;padding:.5rem .2rem;border-radius:11px;background:var(--bg);font-weight:700;border:1.5px solid transparent}
+.fs-tab.on{border-color:var(--accent);background:var(--soft);color:var(--accent-d)}
+
+/* 底栏 */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(180%) blur(14px);border-top:1px solid var(--line);
+  display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.nav-in{display:flex;width:100%;max-width:520px}
+.nav-i{flex:1;text-align:center;padding:.42rem .1rem .34rem;color:var(--muted);position:relative}
+.nav-i i{display:block;font-size:1.28rem;line-height:1.25;font-style:normal}
+.nav-i span{font-size:.68rem;font-weight:700;letter-spacing:.3px}
+.nav-i.on{color:var(--accent)}
+.nav-i.on:before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:1.5rem;height:3px;border-radius:2px;background:var(--accent)}
+.dot{position:absolute;top:.3rem;right:calc(50% - 1.35rem);min-width:1.1rem;height:1.1rem;border-radius:999px;
+  background:#E2453C;color:#fff;font-size:.62rem;font-weight:800;line-height:1.1rem;padding:0 .2rem}
+
+/* 提示 */
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,10px);
+  background:rgba(45,32,30,.92);color:#fff;font-size:.86rem;font-weight:600;padding:.6rem 1rem;border-radius:12px;
+  opacity:0;transition:.24s;z-index:99;max-width:80%;text-align:center;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.page{display:none}
+.page.on{display:block}
+.hint{font-size:.76rem;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body data-theme="taosha">
+<div class="top">
+  <div class="top-in">
+    <div class="hello">
+      <b id="greet">酒窝妈妈，下午好</b>
+      <div class="dateline"><span id="today">11月16日 星期一</span><b class="tclk" id="clock">14:30</b></div>
+      <div class="luneline" id="lunar">农历加载中…</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ========== 今日 ========== -->
+  <section class="page on" id="pg-today">
+    <div class="card" id="wxCard">
+      <div class="wx-top">
+        <div class="wx-ico" id="wxIco">☁️</div>
+        <div class="wx-main">
+          <div class="wx-t" id="wxT">--<i>°</i></div>
+          <div class="wx-s" id="wxS">正在看天气…</div>
+        </div>
+        <div class="wx-hl" id="wxHL"></div>
+      </div>
+      <div class="wx-tip calm" id="wxTip">正在看今天会不会下雨 ☁️</div>
+      <div class="wx-next" id="wxNext"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec">📦 今天要取的快递 <span class="cnt" id="pcCnt"></span></div>
+      <div class="pc-big" id="pcBig" style="display:none"><b id="pcNum">0</b><span>件在驿站等你</span></div>
+      <div class="pc-wrap" id="pcList"></div>
+    </div>
+
+    <div class="card flat">
+      <div class="sec">💛 妈妈今天 </div>
+      <div class="row"><div class="rk">要取的快递</div><div class="rv" id="sumPc">0 件</div></div>
+      <div class="row"><div class="rk">今天花了</div><div class="rv" id="sumToday">¥0</div></div>
+      <div class="row"><div class="rk">防骗提示已看</div><div class="rv" id="sumScam">0 / 10</div></div>
+    </div>
+  </section>
+
+  <!-- ========== 防骗 ========== -->
+  <section class="page" id="pg-scam">
+    <a class="btn block dial" id="dialBtn" href="tel:">📞 拿不准？给家里人打电话</a>
+    <div class="hint" style="margin:-.3rem 0 .7rem;text-align:center">紧急情况直接拨 <b>110</b>，反诈专线 <b>96110</b></div>
+    <div class="card flat" style="margin-bottom:.8rem">
+      <div class="sec">🛡️ 最近骗子在用的招 <span class="cnt" id="scamCnt"></span></div>
+      <div class="hint">点开一条就算看过了。看完记住一句话就够：<b style="color:var(--accent-d)">凡是提到钱的电话，先挂掉，给家里人打个电话。</b></div>
+    </div>
+    <div id="scamList"></div>
+  </section>
+
+  <!-- ========== 记账 ========== -->
+  <section class="page" id="pg-money">
+    <div class="money-sum">
+      <div class="ms"><span>这个月花了</span><b id="msMonth">¥0<i>元</i></b><div class="cat-row" id="msMonthCat"></div></div>
+      <div class="ms short"><span>今年一共花了</span><b id="msYear">¥0<i>元</i></b><div class="cat-row" id="msYearCat"></div></div>
+    </div>
+    <button class="btn block" onclick="openMoney()">＋ 记一笔</button>
+    <div class="card" style="margin-top:.8rem">
+      <div class="sec">📒 最近的账 <span class="cnt" id="recCnt"></span></div>
+      <div id="recList"></div>
+    </div>
+  </section>
+
+  <!-- ========== 设置 ========== -->
+  <section class="page" id="pg-set">
+    <div class="card">
+      <div class="sec">🎨 颜色</div>
+      <div class="swatch">
+        <div class="sw on" data-th="taosha" style="background:#D2607A" onclick="setTheme('taosha')"></div>
+        <div class="sw" data-th="ju" style="background:#E08A47" onclick="setTheme('ju')"></div>
+        <div class="sw" data-th="zhu" style="background:#4E8C6A" onclick="setTheme('zhu')"></div>
+        <div class="sw" data-th="lan" style="background:#4A7CA8" onclick="setTheme('lan')"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec">🔤 字的大小</div>
+      <div class="fs-tabs">
+        <div class="fs-tab" data-fs="normal" onclick="setFs('normal')">标准</div>
+        <div class="fs-tab on" data-fs="big" onclick="setFs('big')">大</div>
+        <div class="fs-tab" data-fs="huge" onclick="setFs('huge')">特大</div>
+        <div class="fs-tab" data-fs="max" onclick="setFs('max')">超大</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec">📞 家人电话</div>
+      <div class="hint" style="margin-bottom:.6rem">防骗页那个大按钮就打这个号码。填好保存后会锁住，不怕误删；要改点「修改」。</div>
+      <div class="lbl" style="margin-top:0">怎么称呼（比如 媛媛、闺女）</div>
+      <input class="inp" id="telName" readonly placeholder="媛媛" maxlength="8">
+      <div class="lbl">手机号</div>
+      <input class="inp" id="telNum" readonly placeholder="11 位手机号码" inputmode="tel" maxlength="11">
+      <div style="display:flex;gap:.5rem;margin-top:.6rem">
+        <button class="btn ghost" style="flex:1" id="telEditBtn" onclick="telBtnTap()">✏️ 修改</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec">☁️ 快递同步</div>
+      <div class="hint" style="margin-bottom:.6rem">孩子在她手机上整理好取件码，会推到这里。第一次用，把这串同步码填进去就行。</div>
+      <input class="inp" id="syGist" placeholder="同步码（Gist 编号）">
+      <div class="row" style="margin-top:.5rem;border:none;padding:.4rem 0">
+        <div class="rk" style="font-size:.82rem;font-weight:600;color:var(--muted)" id="syState">还没有更新过</div>
+      </div>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn ghost" style="flex:1" onclick="saveGist()">保存同步码</button>
+        <button class="btn" style="flex:1" onclick="pullParcels(false)">立即更新</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec">🌤️ 我的城市</div>
+      <div class="row" style="border:none;padding-top:0">
+        <div class="rk" id="cityNow">还没设置</div>
+        <button class="btn sm ghost" onclick="useGeo()">用我的位置</button>
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.3rem">
+        <input class="inp" id="cityInp" placeholder="输入城市，比如 成都">
+        <button class="btn sm" onclick="searchCity()">查</button>
+      </div>
+      <div id="cityHits" style="margin-top:.4rem"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec">⚙️ 关于</div>
+      <img src="./logo.png" alt="酒窝妈妈" style="width:100%;border-radius:14px;border:1px solid var(--line);margin-bottom:.6rem">
+      <div class="hint" style="text-align:center;margin-bottom:.6rem">酒窝妈妈 · 笑一笑，快递到 🌹</div>
+      <div class="row"><div class="rk">版本</div><div class="rv" id="appVer">v1.0</div></div>
+      <div class="row"><div class="rk">检查有没有新版本</div><button class="btn sm ghost" onclick="checkSwVer(true)">检查更新</button></div>
+      <div class="row"><div class="rk">清空所有记录</div><button class="btn sm line" onclick="wipe()" style="color:#C4553F">清空</button></div>
+      <div class="hint" style="margin-top:.6rem">遇到要转账、要验证码、让下载 App 的电话，一律挂掉。拿不准就打 96110。</div>
+    </div>
+  </section>
+</div>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="nav-i on" data-p="today" onclick="go('today')"><i>🏠</i><span>今天</span><b class="dot" id="dotToday" style="display:none"></b></div>
+    <div class="nav-i" data-p="scam" onclick="go('scam')"><i>🛡️</i><span>防骗</span><b class="dot" id="dotScam" style="display:none"></b></div>
+    <div class="nav-i" data-p="money" onclick="go('money')"><i>💰</i><span>记账</span></div>
+    <div class="nav-i" data-p="set" onclick="go('set')"><i>⚙️</i><span>设置</span></div>
+  </div>
+</nav>
+
+<!-- 记账弹层 -->
+<div class="mask" id="maskMoney" onclick="if(event.target===this)closeMoney()">
+  <div class="sheet">
+    <div class="sheet-h"><b>记一笔</b><button onclick="closeMoney()">✕</button></div>
+    <div class="amt-box"><span>¥</span><input id="mAmt" inputmode="decimal" placeholder="0" oninput="amtInput(this)"></div>
+    <div class="lbl">这是什么钱？</div>
+    <div class="grid9" id="catGrid"></div>
+    <div class="lbl">说一句（可不填）</div>
+    <input class="inp" id="mNote" placeholder="比如：买菜、给孙子买鞋">
+    <div class="lbl">拍一下小票（可不拍）</div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <label class="btn ghost" style="flex:1;margin:0">
+        📷 拍照 / 从相册选
+        <input type="file" accept="image/*" style="display:none" onchange="pickImg(this)">
+      </label>
+      <button class="btn line sm" onclick="clearImg()">重拍</button>
+    </div>
+    <div id="imgPrev" style="margin-top:.5rem"></div>
+    <button class="btn block" style="margin-top:.9rem" onclick="saveMoney()">✓ 记下来</button>
+  </div>
+</div>
+
+<!-- 添加快递弹层 -->
+<div class="mask" id="maskPc" onclick="if(event.target===this)closePc()">
+  <div class="sheet">
+    <div class="sheet-h"><b>＋ 添加快递</b><button onclick="closePc()">✕</button></div>
+
+    <div class="lbl">方式一：菜鸟、淘宝、京东的截图传上来，自动认取件码</div>
+    <label class="btn ghost block" style="margin:0">
+      📷 选截图，自动认取件码
+      <input type="file" accept="image/*" style="display:none" onchange="pcOcr(this)">
+    </label>
+    <div class="hint" id="ocrState" style="margin-top:.4rem">第一次使用要等十几秒下载识别组件，之后会快很多</div>
+
+    <div class="lbl">方式二：把取件码那段文字粘贴进来（截图后在相册长按文字也能复制）</div>
+    <textarea class="inp" id="pcPaste" rows="3" placeholder="比如：取件码 1-2-3456，XX驿站"></textarea>
+    <div style="display:flex;gap:.5rem;margin-top:.6rem">
+      <button class="btn ghost" style="flex:1" onclick="pcParsePaste()">认一认</button>
+      <button class="btn ghost" style="flex:1" onclick="pcAddManual()">手动填一条</button>
+    </div>
+
+    <div id="pcDraft"></div>
+    <button class="btn block" style="margin-top:.9rem" onclick="pcSaveDrafts()">✓ 加到快递列表</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+/* ================= 基础 ================= */
+const APP_VER='v1.0';
+const STORE='jiuwoMamaV1';
+const $id=x=>document.getElementById(x);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const WD=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+let toastTimer=null;
+function toast(m){const t=$id('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),2400)}
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function hmStr(ts){const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+
+function defaultData(){return {v:1,name:'妈妈',theme:'taosha',fs:'big',city:null,parcels:[],scamSeen:{},ledger:[],sync:{gist:'',lastAt:0,lastN:0},tel:'',telName:''}}
+let D=defaultData();
+function load(){try{const r=localStorage.getItem(STORE);if(r)Object.assign(D,JSON.parse(r))}catch(e){D=defaultData()}
+  D.parcels=D.parcels||[];D.ledger=D.ledger||[];D.scamSeen=D.scamSeen||{};
+  D.sync=Object.assign({gist:'',lastAt:0,lastN:0},D.sync||{});D.city=D.city||null;D.theme=D.theme||'taosha';D.fs=D.fs||'big';
+  D.tel=D.tel||'';D.telName=D.telName||''}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(D))}catch(e){toast('手机存储快满了，删几张小票照片吧')}}
+
+function applyLook(){document.body.dataset.theme=D.theme;document.documentElement.dataset.fs=D.fs;
+  document.querySelectorAll('.sw').forEach(x=>x.classList.toggle('on',x.dataset.th===D.theme));
+  document.querySelectorAll('.fs-tab').forEach(x=>x.classList.toggle('on',x.dataset.fs===D.fs));
+  const m={taosha:'#FBF3EE',ju:'#FFF7EC',zhu:'#F1F7F2',lan:'#F0F5FA'};
+  const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',m[D.theme]||'#FBF3EE')}
+function setTheme(t){D.theme=t;save();applyLook()}
+function setFs(f){D.fs=f;save();applyLook()}
+
+function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$id('pg-'+p).classList.add('on');
+  document.querySelectorAll('.nav-i').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
+  if(p==='today')renderToday();if(p==='scam')renderScam();if(p==='money')renderMoney();if(p==='set')renderSet();
+  window.scrollTo(0,0)}
+
+function greet(){const d=new Date(),h=d.getHours();
+  const g=h<5?'夜深了，早点休息':h<9?'早上好':h<12?'上午好':h<13?'中午好':h<17?'下午好':h<19?'傍晚好':'晚上好';
+  $id('greet').textContent='酒窝妈妈，'+g;
+  $id('today').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日 '+WD[d.getDay()]}
+function loadScript(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+let lunarP=null;
+function ensureLunar(){if(window.Lunar)return Promise.resolve(true);
+  if(!lunarP)lunarP=(async()=>{
+    const us=['https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js','https://fastly.jsdelivr.net/npm/lunar-javascript/lunar.js','https://unpkg.com/lunar-javascript/lunar.js'];
+    for(const u of us){try{await loadScript(u);if(window.Lunar)return true}catch(e){}}
+    return false})();
+  return lunarP}
+function lunarText(d){try{const L=Lunar.fromDate(d);
+  return '农历 '+L.getYearInGanZhi()+'【'+L.getYearShengXiao()+'】年 '+L.getMonthInChinese()+'月'+L.getDayInChinese()+(L.getJieQi()?' · '+L.getJieQi():'')}catch(e){return ''}}
+async function refreshTop(){
+  greet();
+  const d=new Date();
+  $id('clock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const ok=await ensureLunar();
+  $id('lunar').textContent=ok?lunarText(d):'农历暂时显示不了（网络问题）';
+}
+
+/* ================= 天气 ================= */
+const WMO={0:['☀️','晴'],1:['🌤️','晴间多云'],2:['⛅','多云'],3:['☁️','阴'],45:['🌫️','有雾'],48:['🌫️','有雾'],
+ 51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨'],56:['🌧️','冻雨'],57:['🌧️','冻雨'],
+ 61:['🌦️','小雨'],63:['🌧️','中雨'],65:['🌧️','大雨'],66:['🌧️','冻雨'],67:['🌧️','冻雨'],
+ 71:['🌨️','小雪'],73:['🌨️','中雪'],75:['❄️','大雪'],77:['🌨️','小雪'],
+ 80:['🌦️','阵雨'],81:['🌧️','阵雨'],82:['⛈️','暴雨'],85:['🌨️','阵雪'],86:['❄️','阵雪'],
+ 95:['⛈️','雷阵雨'],96:['⛈️','雷雨'],99:['⛈️','雷雨']};
+const SNOW=[71,73,75,77,85,86];
+function wIco(c){return (WMO[c]||['🌡️',''])[0]}
+function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
+let wxJ=null;
+async function loadWeather(force){
+  if(!D.city){$id('wxS').textContent='设置里选个城市，就能看天气';$id('wxTip').textContent='还没设置城市 ☁️';$id('wxTip').className='wx-tip calm';return}
+  const c=D.city;
+  try{
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
+      '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2');
+    if(!r.ok)throw 0; wxJ=await r.json(); renderWeather();
+  }catch(e){ if(force||!$id('wxT').textContent.includes('--'))$id('wxTip').textContent='天气没取到，连上网再打开试试 🌤️' }
+}
+function segName(h){return h<6?'凌晨':h<9?'早上':h<12?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':'晚上'}
+function renderWeather(){
+  const j=wxJ;if(!j||!D.city)return;const c=D.city;
+  const cur=j.current||{};
+  $id('wxIco').textContent=wIco(cur.weather_code);
+  $id('wxT').innerHTML=Math.round(cur.temperature_2m)+'<i>°</i>';
+  $id('wxS').textContent=c.name+' · '+wName(cur.weather_code);
+  const dl=j.daily;
+  $id('wxHL').innerHTML='最高 '+Math.round(dl.temperature_2m_max[0])+'° 最低 '+Math.round(dl.temperature_2m_min[0])+'°<br>降水可能 '+dl.precipitation_probability_max[0]+'%';
+  const today=todayStr(),T=j.hourly.time,P=j.hourly.precipitation,C=j.hourly.weather_code;
+  let seg=null,curSeg=null;
+  for(let i=0;i<T.length;i++){
+    if(!T[i].startsWith(today))continue;
+    const h=+T[i].slice(11,13); if(h<6||h>22){curSeg=null;continue}
+    const wet=P[i]>=0.15, snow=SNOW.includes(C[i]);
+    if(wet||snow){ if(!curSeg)curSeg={h0:h,h1:h,mm:0,snow}; else {curSeg.h1=h;curSeg.mm+=P[i];curSeg.snow=curSeg.snow||snow} if(!seg||curSeg.mm>seg.mm)seg=curSeg }
+    else curSeg=null;
+  }
+  const tip=$id('wxTip');
+  if(seg){
+    const what=seg.snow?'有雪':'有雨';
+    const extra=seg.snow?'路滑，慢慢走 🙅‍♀️':'出门记得带伞 ☂️';
+    tip.className='wx-tip';
+    tip.innerHTML='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+' 点到 '+String(seg.h1+1).padStart(2,'0')+' 点'+what+(seg.mm>=2?'（雨不小）':'')+','+extra;
+  }else{
+    tip.className='wx-tip calm';
+    tip.textContent='✅ 白天（6点-22点）没雨没雪，放心出门';
+  }
+  const nC=dl.weather_code[1];
+  $id('wxNext').textContent='明天 '+wName(nC)+' '+wIco(nC)+' '+Math.round(dl.temperature_2m_min[1])+'~'+Math.round(dl.temperature_2m_max[1])+'°';
+}
+
+async function useGeo(){
+  if(!navigator.geolocation){toast('这部手机不支持定位，手动输入城市吧');return}
+  toast('正在定位…');$id('cityHits').innerHTML='';
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const la=pos.coords.latitude.toFixed(3),lo=pos.coords.longitude.toFixed(3);
+    let name='我的位置';
+    try{
+      const r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+la+'&longitude='+lo+'&localityLanguage=zh');
+      const j=await r.json(); name=j.city||j.locality||j.principalSubdivision||name;
+    }catch(e){}
+    D.city={name:name,lat:+la,lon:+lo};save();renderSet();loadWeather(true);toast('定位好了：'+name);
+  },()=>toast('没拿到定位，手动输入城市吧'),{timeout:9000});
+}
+async function searchCity(){
+  const q=$id('cityInp').value.trim();if(!q){toast('先输入城市名');return}
+  try{
+    const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json');
+    const j=await r.json();const rs=j.results||[];
+    $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn sm ghost" onclick="pickCity('+i+')">'+esc(x.name)+'（'+esc(x.admin1||'')+' '+esc(x.admin2||'')+'）</button>').join(' '):'没找到这个城市';
+    window.__cityHits=rs;
+  }catch(e){toast('查城市失败，检查网络')}
+}
+function pickCity(i){const x=window.__cityHits[i];if(!x)return;
+  D.city={name:x.name,lat:x.latitude,lon:x.longitude};save();renderSet();loadWeather(true);toast('城市设置好了：'+x.name)}
+
+/* ================= 快递 ================= */
+let pcDrafts=[];
+function openPc(){pcDrafts=[];renderDraft();$id('pcPaste').value='';$id('ocrState').textContent='第一次使用要等十几秒下载识别组件，之后会快很多';$id('maskPc').classList.add('on')}
+function closePc(){$id('maskPc').classList.remove('on')}
+function addDraft(code,site,note){
+  code=String(code||'').replace(/[–—]/g,'-').trim().toUpperCase();
+  if(!code)return false;
+  if(D.parcels.some(p=>!p.taken&&p.code===code)||pcDrafts.some(p=>p.code===code)){return false}
+  pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:code,site:site||'',note:note||''});
+  return true;
+}
+function renderDraft(){
+  $id('pcDraft').innerHTML=pcDrafts.length?pcDrafts.map((d,i)=>
+    '<div class="pc" style="flex-wrap:wrap"><input class="inp" style="flex:1 1 38%;min-width:0" value="'+esc(d.code)+'" oninput="pcDrafts['+i+'].code=this.value">'+
+    '<input class="inp" style="flex:1 1 42%;min-width:0" placeholder="驿站/备注" value="'+esc(d.site)+'" oninput="pcDrafts['+i+'].site=this.value">'+
+    '<button class="pic-del" onclick="pcDrafts.splice('+i+',1);renderDraft()">删掉</button></div>').join(''):'';
+}
+function pcParsePaste(){
+  const t=$id('pcPaste').value;
+  const r=parseParcelText(t);
+  if(!r.length){toast('没认出取件码，检查一下文字');return}
+  let n=0;r.forEach(x=>{if(addDraft(x.code,x.site,x.note))n++});
+  $id('pcPaste').value='';
+  toast(n?('认出 '+n+' 条，检查一下再保存'):'这些取件码已经在列表里啦');
+}
+function pcAddManual(){
+  const v=$id('pcPaste').value.trim().replace(/[–—]/g,'-');
+  if(!v){toast('先在框里输入取件码');return}
+  if(addDraft(v,'','')){$id('pcPaste').value='';toast('加了一条，保存前可以补驿站名')}
+  else toast('这个取件码已经在列表里啦');
+}
+function parseParcelText(txt){
+  const out=[];const seen={};
+  const lines=String(txt||'').split(/[\n\r]+/);
+  const pats=[
+    /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{1,4}(?:-[0-9]{2,8}){1,2})/g,
+    /(^|[^0-9A-Za-z-])([0-9]{1,3}-[0-9]{1,3}-[0-9]{2,8})(?![0-9-])/g,
+    /(^|[^0-9A-Za-z-])([A-Z][0-9]{1,3}-[0-9]{3,12})(?![0-9-])/g,
+    /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{4,12})(?![0-9A-Za-z-])/g
+  ];
+  const siteRes=/(菜鸟|妈妈驿站|兔喜|丰巢|中通|圆通|韵达|申通|极兔|京东|邮政|EMS)?[\u4e00-\u9fa5A-Za-z0-9]{0,18}?(驿站|快递柜|代收点|服务中心|超市|便利店|门卫|物业|驿站柜)/;
+  for(const line of lines){
+    let found=null;
+    for(const re of pats){re.lastIndex=0;const m=re.exec(line);if(m){found=(m[2]||m[1]);break}}
+    if(!found)continue;
+    found=found.replace(/[–—]/g,'-').trim().toUpperCase();
+    if(seen[found])continue;seen[found]=1;
+    const sm=siteRes.exec(line);
+    const phm=/尾号?\s*([0-9]{4})/.exec(line)||/1[3-9][0-9]{9}/.exec(line);
+    out.push({code:found,site:sm?sm[0].replace(/^[，。,、\s]+/,''):'',note:phm?('尾号 '+(phm[1].length===4?phm[1]:phm[1].slice(-4))):''});
+    if(out.length>=20)break;
+  }
+  return out;
+}
+function loadScript(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+async function ensureTess(){
+  if(window.Tesseract)return true;
+  const bases=['https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','https://fastly.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js'];
+  for(const u of bases){try{await loadScript(u);if(window.Tesseract)return true}catch(e){}}
+  return false;
+}
+async function pcOcr(input){
+  const f=input.files&&input.files[0];if(!f)return;
+  const st=$id('ocrState');
+  st.textContent='正在准备识别…（第一次要等十几秒）';
+  const ok=await ensureTess();
+  if(!ok){st.textContent='识别组件没下载成功（网络问题）。改用下面「粘贴文字」的方式：截图后在相册长按文字复制';return}
+  const url=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
+  const b='https://cdn.jsdelivr.net/npm';
+  try{
+    const ret=await Tesseract.recognize(url,'eng',{
+      workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',
+      corePath:b+'/tesseract.js-core@5.1.0',
+      langPath:'https://tessdata.projectnaptha.com/4.0.0',
+      logger:m=>{if(m.status==='recognizing text')st.textContent='正在认字… '+Math.round(m.progress*100)+'%'}});
+    const r=parseParcelText(ret.data.text||'');
+    if(r.length){let n=0;r.forEach(x=>{if(addDraft(x.code,x.site,x.note))n++});
+      st.textContent='认完啦！下面是认出的取件码，检查一下再保存';
+      toast(n?('从截图认出 '+n+' 条取件码'):'截图里的取件码已经在列表里啦');
+    }else{
+      st.textContent='这张截图没认出取件码。试试：相册里打开截图 → 长按取件码那行字 → 拷贝 → 用下面「粘贴文字」';
+    }
+  }catch(e){st.textContent='识别出错了（'+(e.message||'网络')+'）。改用「粘贴文字」方式吧'}
+  input.value='';
+}
+function pcSaveDrafts(){
+  if(!pcDrafts.length){toast('先识别或填写取件码');return}
+  const now=Date.now();
+  pcDrafts.forEach(d=>D.parcels.push({id:d.id,code:d.code,site:d.site,note:d.note,ts:now,taken:0}));
+  save();renderToday();markDot();closePc();toast('加好了，'+pcDrafts.length+' 件快递');
+}
+
+/* 云端拉取（女儿推送） */
+async function pullParcels(silent){
+  const g=(D.sync.gist||'').trim();
+  if(!g){if(!silent)toast('先在设置里填好同步码');return}
+  try{
+    const r=await fetch('https://api.github.com/gists/'+g+'?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    const f=j.files&&j.files['jiuwo-sync.json'];
+    if(!f||!f.content){if(!silent)toast('孩子那边还没推送过快递');return}
+    const data=JSON.parse(f.content);
+    const items=data.items||[];let n=0;
+    items.forEach(it=>{
+      if(!it||!it.code)return;
+      if(D.parcels.some(p=>p.code===String(it.code).replace(/[–—]/g,'-').toUpperCase()))return;
+      D.parcels.push({id:String(it.id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5))),
+        code:String(it.code).replace(/[–—]/g,'-').toUpperCase(),site:it.site||'',note:it.note||'',ts:it.ts||data.at||Date.now(),taken:0});
+      n++;
+    });
+    D.sync.lastAt=Date.now();D.sync.lastN=n;save();
+    renderToday();markDot();
+    if(!silent)toast(n?('收到 '+n+' 件新快递 📦'):'没有新快递，都是最新的');
+  }catch(e){if(!silent)toast('没连上云端，检查网络再试试')}
+}
+function saveGist(){D.sync.gist=$id('syGist').value.trim();save();renderSet();toast('同步码保存好了');pullParcels(true)}
+
+function dayTag(ts){const d=new Date(ts),t=new Date();
+  const same=d.toDateString()===t.toDateString();
+  return same?'今天':(d.getMonth()+1)+'月'+d.getDate()+'日'}
+function pcRow(p){
+  const meta=[p.site,p.note].filter(Boolean).join(' · ');
+  return '<div class="pc" onclick="takePc(\''+p.id+'\')"><div class="pc-body"><div class="pc-code">'+esc(p.code)+'</div>'+
+    '<div class="pc-meta">'+esc(meta||' ')+(meta?' · ':'')+dayTag(p.ts)+'</div></div>'+
+    '<div class="pc-tap">👆 点一下<br>就取到啦</div></div>';
+}
+function takePc(id){const p=D.parcels.find(x=>x.id===id);if(!p)return;
+  p.taken=1;p.takenAt=Date.now();save();renderToday();markDot();toast('取到啦，真棒 😊')}
+function renderToday(){
+  greet();
+  const list=D.parcels.filter(p=>!p.taken).sort((a,b)=>b.ts-a.ts);
+  const done=D.parcels.filter(p=>p.taken);
+  $id('pcCnt').textContent=list.length?list.length+' 件待取':'';
+  $id('pcBig').style.display=list.length?'flex':'none';
+  $id('pcNum').textContent=list.length;
+  let html='';
+  if(list.length){
+    html=list.map(pcRow).join('')+'<div class="hint" style="margin-top:.5rem">👆 点一下快递卡片，就算取到啦</div>';
+    if(done.length)html+='<div class="hint" style="margin-top:.55rem">✓ 已经取走 '+done.length+' 件</div>';
+    html+='<button class="btn ghost block" style="margin-top:.55rem" onclick="openPc()">＋ 妈妈自己添加快递（截图认取件码）</button>';
+  }else{
+    html='<div class="empty"><span class="e">📦</span>今天没有要取的快递<br><span class="hint">孩子推来的会自动出现；自己买的点下面添加</span></div>'+
+      '<button class="btn ghost block" onclick="openPc()">＋ 添加快递（截图认取件码）</button>';
+  }
+  $id('pcList').innerHTML=html;
+  $id('sumPc').textContent=list.length+' 件';
+  const t=todayStr();
+  const td=D.ledger.filter(x=>x.date===t).reduce((s,x)=>s+x.amt,0);
+  $id('sumToday').textContent='¥'+td;
+  const seen=SCAMS.filter((s,i)=>D.scamSeen[i]).length;
+  $id('sumScam').textContent=seen+' / '+SCAMS.length;
+}
+
+/* ================= 防骗 ================= */
+const WB='https://weibo.com/u/7548696560';
+const SCAMS=[
+ {t:'「双十一后最危险的一通电话：快递丢了，三倍理赔」',tag:'快递理赔',
+  body:'54岁的王阿姨接到“快递公司客服”电话，对方连姓名、地址、买过什么都报得出来，还说包裹丢了按三倍赔。她按对方说的下载了 App、开了“屏幕共享”，银行卡里 8.6 万元两分钟就被转走了。',
+  tip:'理赔只会在官方 App 里原路退回。凡是要你下载 App、开屏幕共享的“理赔”，100% 是诈骗。',
+  u:'https://finance.sina.com.cn/wm/2026-11-10/doc-iniyfzhy9273893.shtml'},
+ {t:'「不关服务每月扣 800 元」——一句话吓住七旬老人',tag:'虚假扣费',
+  body:'李大爷收到“快递待领取”短信，拨了上面的电话。对方说他在平台开了付费服务，今晚不关每月扣 800 元。老人一慌，按对方要求下载 App、做了人脸验证、交了验证码，手机瞬间被远程接管，22 万养老钱差点被划走，好在民警及时赶到。',
+  tip:'说“要扣费、不关就扣钱”的陌生电话，都是吓唬你的。先挂掉，给家里人打个电话问一句。',
+  u:'https://www.nxrb.cn/nxrb/template/displayTemplate/news/newsDetail/21464/8179988.html'},
+ {t:'「公安局来电：你涉嫌洗钱」',tag:'冒充公检法',
+  body:'张大妈接到“王警官”电话，说她涉嫌洗钱案，要配合冻结账户。她瞒着家人去银行办手续，交出 U 盾动态码，100 万元被转走。骗子还会发伪造的“通缉令”“警官证”。',
+  tip:'公检法绝不会电话办案，也根本没有“安全账户”。凡提到“涉嫌犯罪+转账”的，直接挂断。',
+  u:'https://m.thepaper.cn/newsDetail_forward_34305152'},
+ {t:'「视频里是女儿的脸，声音也是」——AI 换脸借钱',tag:'AI 换脸',
+  body:'现在骗子用 AI 换脸拟声，视频通话里“老板”“孩子”“老同学”的脸和声音都是对的，以急事为由催你转账。已经有很多人中招。',
+  tip:'涉及转账，不管视频里是谁：挂掉，用原来的号码打回去，或让对方做个指定动作（比如挥手挡脸）验证。',
+  u:WB,v:1},
+ {t:'「记住这几句，骗子拿你没办法」',tag:'防骗口诀',
+  body:'不轻信：陌生来电、中奖返利，一律多留个心眼。不透露：验证码等于钱，银行、公安、客服来要都不给。不转账：没核实清楚，一分钱都不转。多核实：拿不准就给家里人打电话，或者拨 96110。手机上做四件事：装“国家反诈中心”App 并开预警；把 96110 存进通讯录；银行 App 开 24 小时转账延迟；陌生 Facetime 一律不接。',
+  tip:'黄金 30 分钟：万一被骗，立刻打 110、保留聊天记录和转账凭证、联系银行紧急止付。被骗不丢人，沉默才会扩大损失。',
+  u:WB,v:1}
+];
+let scamOpen={};
+let _telEdit=false;
+function telLockUI(){
+  const n=$id('telNum'),m=$id('telName'),btn=$id('telEditBtn');
+  n.readOnly=!_telEdit;m.readOnly=!_telEdit;
+  n.classList.toggle('ro',!_telEdit);m.classList.toggle('ro',!_telEdit);
+  btn.textContent=_telEdit?'💾 保存':'✏️ 修改';
+  btn.className='btn ' + (_telEdit?'':'ghost');
+  btn.style.flex='1';
+}
+function telBtnTap(){
+  if(!_telEdit){_telEdit=true;telLockUI();$id('telNum').focus();return}
+  const num=$id('telNum').value.replace(/[^0-9]/g,'');
+  if(num&&!/^1[3-9]\d{9}$/.test(num)){toast('手机号好像不对，11 位数字');return}
+  D.tel=num;D.telName=($id('telName').value||'').trim()||'家里人';
+  save();_telEdit=false;telLockUI();renderScam();renderSet();
+  toast(num?'保存好了，防骗页按钮就打这个号':'电话已清空');
+}
+function renderScam(){
+  const seen=SCAMS.filter((s,i)=>D.scamSeen[i]).length;
+  $id('scamCnt').textContent='已看 '+seen+' / '+SCAMS.length;
+  const tel=(D.tel||'').trim(),btn=$id('dialBtn');
+  if(tel){btn.setAttribute('href','tel:'+tel);btn.onclick=null;
+    btn.textContent='📞 拿不准？给'+(D.telName||'家里人')+'打电话';btn.style.opacity='1'}
+  else{btn.removeAttribute('href');btn.onclick=()=>{_telEdit=true;go('set');telLockUI();setTimeout(()=>$id('telNum').focus(),300)};
+    btn.textContent='📞 还没设家人电话，点这里去设置';btn.style.opacity='.85'}
+  $id('scamList').innerHTML=SCAMS.map((s,i)=>{
+    const open=scamOpen[i],seenOne=!!D.scamSeen[i];
+    return '<div class="scam'+(open?' open':'')+(seenOne?' scam-seen':'')+'" id="scam'+i+'">'+
+      '<div class="scam-h" onclick="scamToggle('+i+')"><span class="scam-tag">'+esc(s.tag)+'</span>'+
+      '<div class="t">'+esc(s.t)+'</div><div class="arw">'+(open?'▾':'▸')+'</div></div>'+
+      '<div class="scam-b"><p>'+esc(s.body)+'</p><div class="scam-tip">💡 '+esc(s.tip)+'</div>'+
+      '<div class="scam-acts">'+(s.v?'<a class="btn sm" href="'+s.u+'" target="_blank" rel="noopener">▶ 看视频（国家反诈中心）</a>':'<a class="btn sm" href="'+s.u+'" target="_blank" rel="noopener">📄 看原文报道</a>')+
+      (s.u!==WB&&!s.v?'<a class="btn sm ghost" href="'+WB+'" target="_blank" rel="noopener">▶ 更多反诈视频</a>':'')+
+      '</div></div></div>';
+  }).join('');
+}
+function scamToggle(i){
+  scamOpen[i]=!scamOpen[i];
+  if(scamOpen[i]&&!D.scamSeen[i]){D.scamSeen[i]=1;save();markDot()}
+  renderScam();
+}
+function markDot(){
+  const unread=SCAMS.filter((s,i)=>!D.scamSeen[i]).length;
+  const ds=$id('dotScam');ds.style.display=unread?'block':'none';ds.textContent=unread;
+  const p=D.parcels.filter(x=>!x.taken).length;
+  const dt=$id('dotToday');dt.style.display=p?'block':'none';dt.textContent=p;
+}
+
+/* ================= 记账 ================= */
+const CATS=[{k:'caicai',n:'买菜',e:'🥬'},{k:'chifan',n:'吃饭',e:'🍚'},{k:'yaopin',n:'买药',e:'💊'},
+ {k:'riyong',n:'日用品',e:'🧻'},{k:'yifu',n:'衣服',e:'👗'},{k:'shuidian',n:'水电',e:'💡'},
+ {k:'chuxing',n:'出行',e:'🚌'},{k:'renqing',n:'人情',e:'🎁'},{k:'kanbing',n:'看病',e:'🏥'},{k:'qita',n:'其他',e:'📦'}];
+let mCat=null,mImg=null,editId=null;
+function openMoney(id){
+  editId=id||null;mCat=null;mImg=null;
+  $id('mAmt').value='';$id('mNote').value='';$id('imgPrev').innerHTML='';
+  if(id){const r=D.ledger.find(x=>x.id===id);
+    if(r){$id('mAmt').value=r.amt;$id('mNote').value=r.note||'';mCat=r.cat;mImg=r.img||null;
+      if(mImg)$id('imgPrev').innerHTML='<img class="rec-img" style="width:100%;height:auto" src="'+mImg+'">'}}
+  renderCatGrid();$id('maskMoney').classList.add('on');
+}
+function closeMoney(){$id('maskMoney').classList.remove('on')}
+function renderCatGrid(){
+  $id('catGrid').innerHTML=CATS.map(c=>'<div class="cat'+(mCat===c.k?' on':'')+'" onclick="pickCat(\''+c.k+'\')"><i>'+c.e+'</i><span>'+c.n+'</span></div>').join('');
+}
+function pickCat(k){mCat=k;renderCatGrid()}
+function amtInput(el){el.value=el.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1')}
+function pickImg(input){
+  const f=input.files&&input.files[0];if(!f)return;
+  const img=new Image(),url=URL.createObjectURL(f);
+  img.onload=()=>{
+    const sc=Math.min(1,520/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    mImg=c.toDataURL('image/jpeg',.55);
+    URL.revokeObjectURL(url);
+    $id('imgPrev').innerHTML='<img class="rec-img" style="width:100%;height:auto;border-radius:12px;border:1px solid var(--line)" src="'+mImg+'">';
+  };
+  img.src=url;input.value='';
+}
+function clearImg(){mImg=null;$id('imgPrev').innerHTML=''}
+function saveMoney(){
+  const a=parseFloat($id('mAmt').value);
+  if(!a||a<=0){toast('先填花了多少钱');return}
+  if(!mCat){toast('选一下这是什么钱');return}
+  const note=$id('mNote').value.trim();
+  if(editId){const r=D.ledger.find(x=>x.id===editId);
+    if(r){r.amt=a;r.cat=mCat;r.note=note;r.img=mImg}}
+  else D.ledger.push({id:'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),date:todayStr(),amt:a,cat:mCat,note:note,img:mImg});
+  save();renderMoney();renderToday();closeMoney();toast(editId?'改好了':'记好了，'+a+' 元');
+}
+function catOf(k){return CATS.find(c=>c.k===k)||CATS[8]}
+function delRec(id){if(confirm('把这笔账删掉吗？')){D.ledger=D.ledger.filter(x=>x.id!==id);save();renderMoney();renderToday()}}
+function renderMoney(){
+  const t=todayStr(),month=t.slice(0,7),year=t.slice(0,4);
+  const mL=D.ledger.filter(x=>x.date.slice(0,7)===month);
+  const yL=D.ledger.filter(x=>x.date.slice(0,4)===year);
+  const ms=mL.reduce((s,x)=>s+x.amt,0),ys=yL.reduce((s,x)=>s+x.amt,0);
+  $id('msMonth').innerHTML='¥'+ms+'<i>元</i>';
+  $id('msYear').innerHTML='¥'+ys+'<i>元</i>';
+  const top=k=>{const m={};k.forEach(x=>m[x.cat]=(m[x.cat]||0)+x.amt);
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,3)
+      .map(x=>{const c=catOf(x[0]);return '<span class="cat-chip">'+c.e+' '+c.n+' '+x[1]+'</span>'}).join('')};
+  $id('msMonthCat').innerHTML=top(mL);
+  $id('msYearCat').innerHTML=top(yL);
+  $id('recCnt').textContent=D.ledger.length?D.ledger.length+' 笔':'';
+  if(!D.ledger.length){$id('recList').innerHTML='<div class="empty"><span class="e">📒</span>还没记过账，点上面「记一笔」</div>';return}
+  const sorted=[...D.ledger].sort((a,b)=>b.date<a.date?-1:b.date>a.date?1:0).slice(0,40);
+  let html='',lastDay='';
+  sorted.forEach(r=>{
+    if(r.date!==lastDay){lastDay=r.date;
+      const d=new Date(r.date+'T12:00');
+      html+='<div class="day-h">'+(r.date===t?'今天':(d.getMonth()+1)+'月'+d.getDate()+'日 '+WD[d.getDay()])+'</div>'}
+    const c=catOf(r.cat);
+    const dd=new Date(r.date+'T12:00');
+    html+='<div class="rec"><div class="rec-body" onclick="openMoney(\''+r.id+'\')">'+
+      '<div class="rec-ico">'+c.e+'</div><div class="rec-b"><b>'+c.n+(r.note?' · '+esc(r.note):'')+'</b>'+
+      '<span>'+(dd.getMonth()+1)+'月'+dd.getDate()+'日 '+WD[dd.getDay()]+' · '+c.n+'</span></div>'+
+      (r.img?'<img class="rec-img" src="'+r.img+'">':'')+
+      '</div><div class="rec-amt">¥'+r.amt+'</div>'+
+      '<button class="pic-del" onclick="event.stopPropagation();delRec(\''+r.id+'\')">删</button></div>';
+  });
+  $id('recList').innerHTML=html;
+}
+
+/* ================= 设置 ================= */
+function renderSet(){
+  $id('syGist').value=D.sync.gist||'';
+  $id('appVer').textContent=APP_VER;
+  $id('telNum').value=D.tel||'';
+  $id('telName').value=D.telName||'';
+  telLockUI();
+  $id('syState').textContent=D.sync.lastAt?('上次更新：'+hmStr(D.sync.lastAt)+(D.sync.lastN?('，收到 '+D.sync.lastN+' 件新快递'):'，没有新快递')):'还没有更新过';
+  $id('cityNow').textContent=D.city?(D.city.name+'（天气已就绪）'):'还没设置';
+}
+
+/* ================= 版本检查 ================= */
+async function checkSwVer(manual){
+  try{
+    const r=await fetch('./sw.js?t='+Date.now(),{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/jiuwo-v[0-9a-z]+/);if(!m)return;
+    const cur=m[0],known=localStorage.getItem('jiuwoSwVer');
+    if(cur&&known&&cur!==known){
+      localStorage.setItem('jiuwoSwVer',cur);
+      if(Date.now()-(+localStorage.getItem('jiuwoSwAt')||0)>5000){
+        localStorage.setItem('jiuwoSwAt',String(Date.now()));location.reload()}
+      return;
+    }
+    if(cur&&!known)localStorage.setItem('jiuwoSwVer',cur);
+  }catch(e){}
+  if(manual)toast('已经是最新版本 '+APP_VER);
+}
+
+/* ================= 清空 ================= */
+function wipe(){
+  if(!confirm('确定清空所有记录吗？快递、账本都会没有'))return;
+  if(!confirm('再确认一次：真的要清空吗？'))return;
+  localStorage.removeItem(STORE);location.reload();
+}
+
+/* ================= 启动 ================= */
+load();applyLook();refreshTop();renderToday();renderScam();renderMoney();renderSet();markDot();
+loadWeather();
+pullParcels(true);
+checkSwVer();
+setInterval(refreshTop,20000);
+setInterval(()=>pullParcels(true),240000);
+setInterval(()=>loadWeather(),1800000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){pullParcels(true);loadWeather()}});
+window.addEventListener('pageshow',()=>{pullParcels(true)});
+</script>
+</body>
+</html>
