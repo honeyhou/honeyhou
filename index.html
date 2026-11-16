@@ -586,6 +586,10 @@ textarea.inp{resize:none;line-height:1.5}
           <input type="file" accept="image/*" multiple style="display:none" onchange="pcOcr(this)">
         </label>
         <p class="hint" id="pcOcrState" style="margin-top:8px">菜鸟/淘宝/京东的取件截图直接传，X-X-XXXX 格式一次全认出来（首次要等十几秒加载识别组件）</p>
+        <details id="pcRawBox" style="display:none;margin-top:6px">
+          <summary style="cursor:pointer;font-size:.78rem;color:var(--muted);font-weight:700">👀 看识别原文（排查用）</summary>
+          <div class="hint" id="pcRaw" style="white-space:pre-wrap;margin-top:4px;word-break:break-all"></div>
+        </details>
       </div>
       <div class="card">
         <div class="sec-title">📝 贴取件信息 <span class="en">Paste</span></div>
@@ -9208,7 +9212,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.4';
+const APP_VER='v2.5';
 const APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9518,10 +9522,10 @@ function renderParcel(){
 }
 function renderPcDrafts(){
   $id('pcDrafts').innerHTML=pcDrafts.length?'<div class="sec-title" style="margin-top:14px">📋 待推送 '+pcDrafts.length+' 条</div>'+pcDrafts.map((d,i)=>
-    `<div style="display:flex;gap:6px;margin-top:6px">
-      <input class="inp" style="flex:1.1" value="${esc(d.code)}" oninput="pcDrafts[${i}].code=this.value">
-      <input class="inp" style="flex:1.3" placeholder="驿站/备注" value="${esc(d.site)}" oninput="pcDrafts[${i}].site=this.value">
-      <button class="btn ghost" onclick="pcDrafts.splice(${i},1);renderPcDrafts()">删</button>
+    `<div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+      <input class="inp" style="flex:1 1 34%;min-width:0" value="${esc(d.code)}" oninput="pcDrafts[${i}].code=this.value">
+      <input class="inp" style="flex:1 1 40%;min-width:0" placeholder="驿站/备注" value="${esc(d.site)}" oninput="pcDrafts[${i}].site=this.value">
+      <button class="btn ghost" style="width:auto;flex:0 0 auto;padding:9px 16px" onclick="pcDrafts.splice(${i},1);renderPcDrafts()">删</button>
     </div>`).join('')+(pcDrafts.length?'<p class="hint">推送前检查一眼，可直接改字</p>':''):'<p class="hint" style="margin-top:10px">认出来的取件码会出现在这里，检查后一键推给妈妈。</p>';
 }
 function pcParseIn(){
@@ -9577,6 +9581,7 @@ async function pcOcr(input){
   const files=[...(input.files||[])];
   const st=$id('pcOcrState');
   if(!files.length)return;
+  window.__pcRaw='';
   const ok=await pcEnsureTess();
   if(!ok){st.textContent='识别组件没下载成功（网络问题），可以改用下面的「粘贴文字」方式';input.value='';return}
   const b='https://cdn.jsdelivr.net/npm';
@@ -9588,6 +9593,7 @@ async function pcOcr(input){
       const url=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
       const pre=await pcPrepImg(url);
       const txt=await pcOcrText(pre);
+      window.__pcRaw+='--- 第'+(i+1)+'张 ---\n'+(txt||'(空)').trim()+'\n';
       const r=parseParcelText(txt);
       let n=0;
       r.forEach(x=>{x.code=x.code.replace(/[–—]/g,'-').toUpperCase();
@@ -9598,6 +9604,7 @@ async function pcOcr(input){
   }
   renderPcDrafts();
   st.textContent=total?('认完啦！从截图认出 '+total+' 条取件码，在下面检查一下再推送'):'这几张截图没认出新的取件码（可能已经在列表里，或照片太糊）';
+  if(window.__pcRaw&&window.__pcRaw.trim()){$id('pcRaw').textContent=window.__pcRaw;$id('pcRawBox').style.display='block'}
   input.value='';
 }
 async function pushMamaParcels(){
