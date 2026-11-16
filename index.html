@@ -73,10 +73,12 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC",sans-serif;font-
 .ring-in b{font-size:18px;color:var(--accent)}
 .ring-in span{font-size:9px;color:var(--muted)}
 .ov-list{flex:1}
-.ov-item{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.ov-item{display:flex;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.ov-item>span{flex:1;min-width:0}
 .ov-item:active{opacity:.6}
 .ov-item:last-child{border:none}
-.ov-item b{color:var(--accent)}
+.ov-item b{color:var(--accent);min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+.ov-mk{flex:0 0 15px;text-align:right;font-style:normal;font-size:11px;font-weight:800;color:#2FB57C}
 .ov-anni{margin-top:10px}
 .ov-anni-t{font-size:12.5px;font-weight:700;color:var(--accent);margin-bottom:2px}
 .ov-anni-i{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line)}
@@ -226,6 +228,10 @@ textarea.inp{resize:none;line-height:1.5}
 
 /* 只读输入框（防误删） */
 .inp.ro,.inp[readonly]{opacity:.72;cursor:default;background:var(--line);border-color:transparent}
+
+/* 今日概览：未开始的项，数字与其他行同粗细、只标红 */
+.ov-item.zero b{color:#E60012}
+.ov-item.full b{color:#2FB57C;font-weight:800}
 
 /* ===== 版本3 · 墨绿丝绒 ===== */
 :root{
@@ -9175,7 +9181,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v1.9';
+const APP_VER='v2.0';
 const APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9397,8 +9403,12 @@ function renderDesktop(){
   const pct=tot?Math.round(dn/tot*100):0;
   $id('ovPct').textContent=pct+'%';
   $id('ovRing').style.background='conic-gradient(var(--accent) '+pct+'%, var(--line) 0)';
-  $id('ovList').innerHTML=ov.map(x=>
-    `<div class="ov-item" onclick="go('${x[3]}')"><span>${x[0]}</span><b>${x[1]}/${x[2]}</b></div>`).join('');
+  $id('ovList').innerHTML=ov.map(x=>{
+    const zero=x[2]>0&&x[1]===0,full=x[2]>0&&x[1]>=x[2];
+    const cls=zero?'zero':(full?'full':'');
+    const mark=full?' ✔':'';
+    return `<div class="ov-item ${cls}" onclick="go('${x[3]}')"><span>${x[0]}</span><b>${x[1]}/${x[2]}</b><i class="ov-mk">${mark}</i></div>`;
+  }).join('');
   // 临近1个月的纪念日预告
   const annis30=D.annis.map(a=>({a,d:cdDays(a)})).filter(x=>x.d>=0&&x.d<=30).sort((x,y)=>x.d-y.d);
   $id('ovAnni').innerHTML=annis30.length?'<div class="ov-anni-t">🎉 一个月内的纪念日</div>'+annis30.map(x=>{
