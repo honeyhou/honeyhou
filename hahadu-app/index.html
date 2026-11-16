@@ -81,6 +81,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 /* 进度条 */
 .bar{height:8px;background:var(--card2);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#FF5E62);border-radius:6px;transition:width .3s}
+#hmWx::before{content:"";display:block;height:3px;width:56px;margin:0 auto 8px;border-radius:99px;background:linear-gradient(90deg,var(--accent),#F2B8CB)}
 .bar-txt{font-size:11px;color:var(--sub);margin-top:4px}
 /* 项目卡 */
 .pj-card{position:relative}
@@ -420,7 +421,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.13', APP_VER_DATE='2026-11-16';
+const APP_VER='v1.14', APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -1289,8 +1290,8 @@ function renderWxLine(){
   if(seg){const what=seg.snow?'有雪':'有雨';
     tip='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+'点-'+String(seg.h1+1).padStart(2,'0')+'点'+what+(seg.mm>=2?'（雨不小）':'')+(seg.snow?'，路滑慢行':'，带伞 ☂️');
   }else tip='✅ 白天没雨没雪';
-  $id('hmWx').innerHTML='<b style="color:var(--sub)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span>最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'° · </span>'+
-    (seg?'<b style="color:#F2B8CB">'+tip+'</b>':'<span>'+tip+'</span>');
+  $id('hmWx').innerHTML='<b style="color:var(--sub)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span>最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'°</span>'+
+    (seg?'<div style="margin-top:3px"><b style="color:#F2B8CB">'+tip+'</b></div>':'<div style="margin-top:3px"><span>'+tip+'</span></div>');
 }
 async function useGeo(){
   if(!navigator.geolocation){alert('这部设备不支持定位，手动输入城市吧');return}
