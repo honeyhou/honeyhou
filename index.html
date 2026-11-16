@@ -580,9 +580,16 @@ textarea.inp{resize:none;line-height:1.5}
     <section class="page" id="p-parcel">
       <div class="pg-head"><h2>📦 快递</h2><p>Parcel · 把取件码一键推给妈妈的酒窝妈妈</p></div>
       <div class="card">
+        <div class="sec-title">📷 截图识别 <span class="en">Snap</span></div>
+        <label class="btn" style="width:100%;justify-content:center;cursor:pointer">
+          📷 选截图，自动认取件码
+          <input type="file" accept="image/*" multiple style="display:none" onchange="pcOcr(this)">
+        </label>
+        <p class="hint" id="pcOcrState" style="margin-top:8px">菜鸟/淘宝/京东的取件截图直接传，X-X-XXXX 格式一次全认出来（首次要等十几秒加载识别组件）</p>
+      </div>
+      <div class="card">
         <div class="sec-title">📝 贴取件信息 <span class="en">Paste</span></div>
-        <textarea class="inp" id="pcIn" rows="4" placeholder="把菜鸟/淘宝/京东里取件码那段文字粘进来，比如：&#10;取件码 1-2-3456 幸福小区菜鸟驿站"></textarea>
-        <p class="hint">小技巧：菜鸟 App 里截图 → 相册打开截图 → 长按取件码那行字 → 拷贝 → 粘到这里</p>
+        <textarea class="inp" id="pcIn" rows="4" placeholder="也可以把取件码文字粘进来，比如：&#10;取件码 1-2-3456 幸福小区菜鸟驿站"></textarea>
         <div class="btns-row" style="display:flex;gap:8px;margin-top:10px">
           <button class="btn" style="flex:1" onclick="pcParseIn()">🔍 认一认</button>
           <button class="btn ghost" style="flex:1" onclick="pcAddIn()">➕ 直接加一条</button>
@@ -9201,7 +9208,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.1';
+const APP_VER='v2.2';
 const APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9291,6 +9298,8 @@ function defaultData(){
     ],
     projects:[{id:uid(),name:'🌸 2026 年度还款大计',total:20000,paid:8000}],
     moods:{},
+    pcSeen:{},
+    parcelPush:{at:0,n:0},
     supps:[{id:uid(),name:'维生素C',days:[],daily:true,once:t},{id:uid(),name:'胶原蛋白肽',days:[],daily:true,once:t},{id:uid(),name:'钙片',days:[],daily:true,once:t}],
     annis:[{id:uid(),name:'我的生日',type:'生日',rel:'自己',date:'1998-06-18',remind:3,cycle:'year',note:'蛋糕+火锅',cal:'solar'}],
     anniTypes:['生日','纪念日','倒数日','节日','其他'],
@@ -9306,7 +9315,7 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
-  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};
+  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};d.pcSeen=d.pcSeen||{};
   if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
   delete d.project;
   d.projects.forEach(p=>{if(!p.id)p.id=uid()});
@@ -9512,7 +9521,7 @@ function pcParseIn(){
   if(!r.length)return alert('没认出取件码，检查一下粘贴的文字');
   let n=0;
   r.forEach(x=>{x.code=x.code.replace(/[–—]/g,'-').toUpperCase();
-    if(!pcDrafts.some(d=>d.code===x.code)){pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:x.code,site:x.site,note:x.note});n++}});
+    if(!pcDrafts.some(d=>d.code===x.code)&&!D.pcSeen[x.code]){pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:x.code,site:x.site,note:x.note});n++}});
   $id('pcIn').value='';
   renderPcDrafts();
   alert(n?('认出 '+n+' 条，检查一下再推送'):'这些取件码已经在待推送列表里啦');
@@ -9524,6 +9533,46 @@ function pcAddIn(){
   pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:v,site:'',note:''});
   $id('pcIn').value='';renderPcDrafts();
 }
+/* 截图 OCR 识别取件码 */
+function pcLoadScript(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+let _tessP=null;
+function pcEnsureTess(){
+  if(window.Tesseract)return Promise.resolve(true);
+  if(!_tessP)_tessP=(async()=>{
+    const us=['https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','https://fastly.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js'];
+    for(const u of us){try{await pcLoadScript(u);if(window.Tesseract)return true}catch(e){}}
+    return false})();
+  return _tessP;
+}
+async function pcOcr(input){
+  const files=[...(input.files||[])];
+  const st=$id('pcOcrState');
+  if(!files.length)return;
+  const ok=await pcEnsureTess();
+  if(!ok){st.textContent='识别组件没下载成功（网络问题），可以改用下面的「粘贴文字」方式';input.value='';return}
+  const b='https://cdn.jsdelivr.net/npm';
+  let total=0;
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    try{
+      st.textContent='正在识别第 '+(i+1)+'/'+files.length+' 张…';
+      const url=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
+      const ret=await Tesseract.recognize(url,'eng',{
+        workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',
+        corePath:b+'/tesseract.js-core@5.1.0',
+        langPath:'https://tessdata.projectnaptha.com/4.0.0'});
+      const r=parseParcelText(ret.data.text||'');
+      let n=0;
+      r.forEach(x=>{x.code=x.code.replace(/[–—]/g,'-').toUpperCase();
+        if(!pcDrafts.some(d=>d.code===x.code)&&!D.pcSeen[x.code]){
+          pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:x.code,site:x.site,note:x.note});n++}});
+      total+=n;
+    }catch(e){st.textContent='第 '+(i+1)+' 张识别出错，跳过';}
+  }
+  renderPcDrafts();
+  st.textContent=total?('认完啦！从截图认出 '+total+' 条取件码，在下面检查一下再推送'):'这几张截图没认出新的取件码（可能已经在列表里，或照片太糊）';
+  input.value='';
+}
 async function pushMamaParcels(){
   if(!pcDrafts.length)return alert('先在上面认出或填写取件码');
   const s=D.sync;
@@ -9534,7 +9583,9 @@ async function pushMamaParcels(){
       headers:{'Authorization':'Bearer '+s.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
       body:JSON.stringify({files:{'jiuwo-sync.json':{content:JSON.stringify({at:Date.now(),items:pcDrafts.map(d=>({id:d.id,code:d.code,site:d.site,note:d.note}))})}}})
     });
-    if(r.ok){D.parcelPush={at:Date.now(),n:pcDrafts.length};save();pcDrafts=[];renderParcel();
+    if(r.ok){D.parcelPush={at:Date.now(),n:pcDrafts.length};
+      pcDrafts.forEach(d=>{D.pcSeen[d.code]=1});
+      save();pcDrafts=[];renderParcel();
       alert('推送成功 📦 妈妈打开「酒窝妈妈」就能看到啦（她那边几分钟内自动更新）');}
     else alert('推送失败（'+r.status+'），检查网络或 Token 是否过期');
   }catch(e){alert('推送失败：网络问题，稍后再试')}
