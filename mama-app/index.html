@@ -849,19 +849,42 @@ function renderSet(){
 }
 
 /* ================= 版本检查 ================= */
+/* 带 ?u=时间戳 硬刷新，绕过 GitHub Pages 的 max-age=600 强缓存 */
+function hardReload(){
+  const p=location.pathname.replace(/\/$/,'/index.html');
+  location.replace(p+'?u='+Date.now());
+}
+async function serverAppVer(){
+  try{
+    const r=await fetch('./index.html?_v='+Date.now(),{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/APP_VER='([^']+)'/);
+    return m?m[1]:''
+  }catch(e){return ''}
+}
 async function checkSwVer(manual){
   try{
     const r=await fetch('./sw.js?t='+Date.now(),{cache:'no-store'});
     const t=await r.text();
-    const m=t.match(/jiuwo-v[0-9a-z]+/);if(!m)return;
-    const cur=m[0],known=localStorage.getItem('jiuwoSwVer');
-    if(cur&&known&&cur!==known){
+    const m=t.match(/jiuwo-v[0-9a-z]+/);
+    let need=false;
+    if(m){
+      const cur=m[0],known=localStorage.getItem('jiuwoSwVer');
+      if(cur&&known&&cur!==known)need=true;
       localStorage.setItem('jiuwoSwVer',cur);
-      if(Date.now()-(+localStorage.getItem('jiuwoSwAt')||0)>5000){
-        localStorage.setItem('jiuwoSwAt',String(Date.now()));location.reload()}
-      return;
     }
-    if(cur&&!known)localStorage.setItem('jiuwoSwVer',cur);
+    // 二次保险：页面版本也对一下（只在需要时或手动检查时拉，省流量）
+    const last=+localStorage.getItem('jiuwoChkAt')||0;
+    if(need||manual||Date.now()-last>1800000){
+      if(!manual)localStorage.setItem('jiuwoChkAt',String(Date.now()));
+      const sv=await serverAppVer();
+      if(sv&&sv!==APP_VER)need=true;
+    }
+    if(need&&Date.now()-(+localStorage.getItem('jiuwoSwAt')||0)>8000){
+      localStorage.setItem('jiuwoSwAt',String(Date.now()));
+      if(manual)toast('发现新版本，正在更新…');
+      hardReload();return;
+    }
   }catch(e){}
   if(manual)toast('已经是最新版本 '+APP_VER);
 }
