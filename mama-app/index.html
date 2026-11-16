@@ -378,7 +378,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.0';
+const APP_VER='v1.1', APP_VER_DATE='2026-11-16';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -852,7 +852,7 @@ function renderMoney(){
 /* ================= 设置 ================= */
 function renderSet(){
   $id('syGist').value=D.sync.gist||'';
-  $id('appVer').textContent=APP_VER;
+  $id('appVer').textContent=APP_VER+' · '+APP_VER_DATE;
   $id('telNum').value=D.tel||'';
   $id('telName').value=D.telName||'';
   telLockUI();
