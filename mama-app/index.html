@@ -544,8 +544,11 @@ function parseParcelText(txt){
   const lines=String(txt||'').split(/[\n\r]+/);
   const pats=[
     /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{1,4}(?:-[0-9]{2,8}){1,2})/g,
+    /(^|[^0-9A-Za-z-])([0-9]{1,3}\s*[-–]\s*[0-9]{1,3}\s*[-–]\s*[0-9]{2,8})(?![0-9-])/g,
     /(^|[^0-9A-Za-z-])([0-9]{1,3}-[0-9]{1,3}-[0-9]{2,8})(?![0-9-])/g,
     /(^|[^0-9A-Za-z-])([A-Z][0-9]{1,3}-[0-9]{3,12})(?![0-9-])/g,
+    /取件码[^0-9A-Za-z]{0,10}([0-9]{3,8})(?![0-9])/g,
+    /后四位[^0-9]{0,6}([0-9]{4})(?![0-9])/g,
     /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{4,12})(?![0-9A-Za-z-])/g
   ];
   const siteRes=/(菜鸟|妈妈驿站|兔喜|丰巢|中通|圆通|韵达|申通|极兔|京东|邮政|EMS)?[\u4e00-\u9fa5A-Za-z0-9]{0,18}?(驿站|快递柜|代收点|服务中心|超市|便利店|门卫|物业|驿站柜)/;
@@ -553,11 +556,16 @@ function parseParcelText(txt){
     let found=null;
     for(const re of pats){re.lastIndex=0;const m=re.exec(line);if(m){found=(m[2]||m[1]);break}}
     if(!found)continue;
-    found=found.replace(/[–—]/g,'-').trim().toUpperCase();
+    found=found.replace(/[–—]/g,'-').replace(/\s+/g,'').trim().toUpperCase();
+    if(!/\d/.test(found))continue;
+    if((found.match(/\d/g)||[]).length<2)continue;
+    if(found.length<4||found.length>14)continue;
+    if(/[A-Z]/.test(found)&&!found.includes('-'))continue;
     if(seen[found])continue;seen[found]=1;
     const sm=siteRes.exec(line);
     const phm=/尾号?\s*([0-9]{4})/.exec(line)||/1[3-9][0-9]{9}/.exec(line);
-    out.push({code:found,site:sm?sm[0].replace(/^[，。,、\s]+/,''):'',note:phm?('尾号 '+(phm[1].length===4?phm[1]:phm[1].slice(-4))):''});
+    const isTail=/后四位|后4位/.test(line)&&found.length<=6;
+    out.push({code:found,site:sm?sm[0].replace(/^[，。,、\s]+/,''):'',note:isTail?'取件码后四位':(phm?('尾号 '+(phm[1].length===4?phm[1]:phm[1].slice(-4))):'')});
     if(out.length>=20)break;
   }
   return out;
@@ -569,6 +577,27 @@ async function ensureTess(){
   for(const u of bases){try{await loadScript(u);if(window.Tesseract)return true}catch(e){}}
   return false;
 }
+function pcPrepImg(url){return new Promise(res=>{const im=new Image();
+  im.onload=()=>{try{
+    const sc=Math.max(1,Math.min(2.5,1400/im.width));
+    const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+    const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+    res(c.toDataURL('image/png'));
+  }catch(e){res(url)}};
+  im.onerror=()=>res(url);im.src=url})}
+async function pcOcrText(url){
+  const b='https://cdn.jsdelivr.net/npm';
+  try{
+    const worker=await Tesseract.createWorker('eng',1,{workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',corePath:b+'/tesseract.js-core@5.1.0',langPath:'https://tessdata.projectnaptha.com/4.0.0'});
+    try{
+      await worker.setParameters({tessedit_char_whitelist:'0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ',tessedit_pageseg_mode:'6'});
+      return (await worker.recognize(url)).data.text||'';
+    }finally{worker.terminate()}
+  }catch(e){
+    const ret=await Tesseract.recognize(url,'eng',{workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',corePath:b+'/tesseract.js-core@5.1.0',langPath:'https://tessdata.projectnaptha.com/4.0.0'});
+    return ret.data.text||'';
+  }
+}
 async function pcOcr(input){
   const f=input.files&&input.files[0];if(!f)return;
   const st=$id('ocrState');
@@ -576,14 +605,10 @@ async function pcOcr(input){
   const ok=await ensureTess();
   if(!ok){st.textContent='识别组件没下载成功（网络问题）。改用下面「粘贴文字」的方式：截图后在相册长按文字复制';return}
   const url=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
-  const b='https://cdn.jsdelivr.net/npm';
   try{
-    const ret=await Tesseract.recognize(url,'eng',{
-      workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',
-      corePath:b+'/tesseract.js-core@5.1.0',
-      langPath:'https://tessdata.projectnaptha.com/4.0.0',
-      logger:m=>{if(m.status==='recognizing text')st.textContent='正在认字… '+Math.round(m.progress*100)+'%'}});
-    const r=parseParcelText(ret.data.text||'');
+    const pre=await pcPrepImg(url);
+    const txt=await pcOcrText(pre);
+    const r=parseParcelText(txt);
     if(r.length){let n=0;r.forEach(x=>{if(addDraft(x.code,x.site,x.note))n++});
       st.textContent='认完啦！下面是认出的取件码，检查一下再保存';
       toast(n?('从截图认出 '+n+' 条取件码'):'截图里的取件码已经在列表里啦');
