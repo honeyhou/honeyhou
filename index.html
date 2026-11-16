@@ -576,6 +576,26 @@ textarea.inp{resize:none;line-height:1.5}
       </div>
     </section>
 
+    <!-- 快递 Parcel -->
+    <section class="page" id="p-parcel">
+      <div class="pg-head"><h2>📦 快递</h2><p>Parcel · 把取件码一键推给妈妈的酒窝妈妈</p></div>
+      <div class="card">
+        <div class="sec-title">📝 贴取件信息 <span class="en">Paste</span></div>
+        <textarea class="inp" id="pcIn" rows="4" placeholder="把菜鸟/淘宝/京东里取件码那段文字粘进来，比如：&#10;取件码 1-2-3456 幸福小区菜鸟驿站"></textarea>
+        <p class="hint">小技巧：菜鸟 App 里截图 → 相册打开截图 → 长按取件码那行字 → 拷贝 → 粘到这里</p>
+        <div class="btns-row" style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn" style="flex:1" onclick="pcParseIn()">🔍 认一认</button>
+          <button class="btn ghost" style="flex:1" onclick="pcAddIn()">➕ 直接加一条</button>
+        </div>
+        <div id="pcDrafts"></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">🚀 推送给妈妈 <span class="en">Push</span><span class="bar-txt" id="pcPushState"></span></div>
+        <p class="hint">走的是语录云同步同一个通道（Gist），妈妈打开「酒窝妈妈」就自动出现。</p>
+        <button class="btn" style="width:100%" onclick="pushMamaParcels()">📦 一键推送给妈妈</button>
+      </div>
+    </section>
+
     <!-- 设置 Settings -->
     <section class="page" id="p-settings">
       <div class="pg-head"><h2>设置</h2><p>Settings · 改变一点点会变得更好</p></div>
@@ -9181,7 +9201,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.0';
+const APP_VER='v2.1';
 const APP_VER_DATE='2026-11-14';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9190,6 +9210,7 @@ const MENUS=[
  ['fuel','🧋','营养充电','Fuel Up'],
  ['anni','💝','纪念','Anniversary'],['yummy','🍰','想吃','Yummy'],
  ['wish','🌟','心愿单','Honey Wish'],['meme','🔥','热梗','Meme'],
+ ['parcel','📦','快递','Parcel'],
  ['settings','⚙️','设置','Settings']
 ];
 const MOODS=['😄','🥰','🙂','😌','🤩','😐','😟','😢','😡','😴'];
@@ -9248,6 +9269,7 @@ let D, tdTabK='day', mdY, mdM, lkY, lkM, lkOff=0, anY, anM, editAnniId=null, tmp
 function pad(n){return n<10?'0'+n:''+n}
 function fmt(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
 function todayStr(){return fmt(new Date())}
+function hmStr(ts){const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function uid(){return Date.now()+Math.random().toString(16).slice(2,6)}
 function esc(s){return (s||'').toString().replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function $id(x){return document.getElementById(x)}
@@ -9284,7 +9306,7 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
-  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});
+  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};
   if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
   delete d.project;
   d.projects.forEach(p=>{if(!p.id)p.id=uid()});
@@ -9308,6 +9330,7 @@ function go(p){
 function renderPage(p){
   ({desktop:renderDesktop,todo:renderTodo,money:renderMoney,mood:renderMood,fuel:renderFuel,
     lucky:renderLucky,anni:renderAnni,yummy:renderYummy,wish:renderWish,meme:renderMeme,
+    parcel:renderParcel,
     settings:renderSettings})[p]();
 }
 
@@ -9446,6 +9469,75 @@ function pushQuoteCloud(t,en){
     headers:{'Authorization':'Bearer '+s.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
     body:JSON.stringify({files:{'honey-sync.json':{content:JSON.stringify({t:t,en:en,at:Date.now()})}}})
   }).then(r=>r.ok).catch(()=>false);
+}
+/* ---------- 快递：解析 + 推送给妈妈 ---------- */
+let pcDrafts=[];
+function parseParcelText(txt){
+  const out=[];const seen={};
+  const lines=String(txt||'').split(/[\n\r]+/);
+  const pats=[
+    /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{1,4}(?:-[0-9]{2,8}){1,2})/g,
+    /(^|[^0-9A-Za-z-])([0-9]{1,3}-[0-9]{1,3}-[0-9]{2,8})(?![0-9-])/g,
+    /(^|[^0-9A-Za-z-])([A-Z][0-9]{1,3}-[0-9]{3,12})(?![0-9-])/g,
+    /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{4,12})(?![0-9A-Za-z-])/g
+  ];
+  const siteRes=/(菜鸟|妈妈驿站|兔喜|丰巢|中通|圆通|韵达|申通|极兔|京东|邮政|EMS)?[\u4e00-\u9fa5A-Za-z0-9]{0,18}?(驿站|快递柜|代收点|服务中心|超市|便利店|门卫|物业|驿站柜)/;
+  for(const line of lines){
+    let found=null;
+    for(const re of pats){re.lastIndex=0;const m=re.exec(line);if(m){found=(m[2]||m[1]);break}}
+    if(!found)continue;
+    found=found.replace(/[–—]/g,'-').trim().toUpperCase();
+    if(seen[found])continue;seen[found]=1;
+    const sm=siteRes.exec(line);
+    const phm=/尾号?\s*([0-9]{4})/.exec(line)||/1[3-9][0-9]{9}/.exec(line);
+    out.push({code:found,site:sm?sm[0].replace(/^[，。,、\s]+/,''):'',note:phm?('尾号 '+(phm[1].length===4?phm[1]:phm[1].slice(-4))):''});
+    if(out.length>=20)break;
+  }
+  return out;
+}
+function renderParcel(){
+  $id('pcPushState').textContent=D.parcelPush&&D.parcelPush.at?('上次 '+hmStr(D.parcelPush.at)+' 推了 '+D.parcelPush.n+' 条'):'还没推过';
+  renderPcDrafts();
+}
+function renderPcDrafts(){
+  $id('pcDrafts').innerHTML=pcDrafts.length?'<div class="sec-title" style="margin-top:14px">📋 待推送 '+pcDrafts.length+' 条</div>'+pcDrafts.map((d,i)=>
+    `<div style="display:flex;gap:6px;margin-top:6px">
+      <input class="inp" style="flex:1.1" value="${esc(d.code)}" oninput="pcDrafts[${i}].code=this.value">
+      <input class="inp" style="flex:1.3" placeholder="驿站/备注" value="${esc(d.site)}" oninput="pcDrafts[${i}].site=this.value">
+      <button class="btn ghost" onclick="pcDrafts.splice(${i},1);renderPcDrafts()">删</button>
+    </div>`).join('')+(pcDrafts.length?'<p class="hint">推送前检查一眼，可直接改字</p>':''):'<p class="hint" style="margin-top:10px">认出来的取件码会出现在这里，检查后一键推给妈妈。</p>';
+}
+function pcParseIn(){
+  const r=parseParcelText($id('pcIn').value);
+  if(!r.length)return alert('没认出取件码，检查一下粘贴的文字');
+  let n=0;
+  r.forEach(x=>{x.code=x.code.replace(/[–—]/g,'-').toUpperCase();
+    if(!pcDrafts.some(d=>d.code===x.code)){pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:x.code,site:x.site,note:x.note});n++}});
+  $id('pcIn').value='';
+  renderPcDrafts();
+  alert(n?('认出 '+n+' 条，检查一下再推送'):'这些取件码已经在待推送列表里啦');
+}
+function pcAddIn(){
+  const v=$id('pcIn').value.trim().replace(/[–—]/g,'-').toUpperCase();
+  if(!v)return alert('先在框里输入取件码');
+  if(pcDrafts.some(d=>d.code===v))return alert('已经在列表里啦');
+  pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:v,site:'',note:''});
+  $id('pcIn').value='';renderPcDrafts();
+}
+async function pushMamaParcels(){
+  if(!pcDrafts.length)return alert('先在上面认出或填写取件码');
+  const s=D.sync;
+  if(!s.gist||!s.token)return alert('先去「设置」配好语录云同步（Gist 和 Token）——快递走的是同一个通道');
+  try{
+    const r=await fetch('https://api.github.com/gists/'+s.gist,{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+s.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({files:{'jiuwo-sync.json':{content:JSON.stringify({at:Date.now(),items:pcDrafts.map(d=>({id:d.id,code:d.code,site:d.site,note:d.note}))})}}})
+    });
+    if(r.ok){D.parcelPush={at:Date.now(),n:pcDrafts.length};save();pcDrafts=[];renderParcel();
+      alert('推送成功 📦 妈妈打开「酒窝妈妈」就能看到啦（她那边几分钟内自动更新）');}
+    else alert('推送失败（'+r.status+'），检查网络或 Token 是否过期');
+  }catch(e){alert('推送失败：网络问题，稍后再试')}
 }
 function fallbackCopy(txt,done){
   const ta=document.createElement('textarea');ta.value=txt;
