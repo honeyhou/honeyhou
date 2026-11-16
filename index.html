@@ -9212,7 +9212,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.6';
+const APP_VER='v2.7';
 const APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -10473,8 +10473,21 @@ $id('anDate').value=todayStr();
 renderDesktop();
 setTimeout(autoPushQuote,1500);
 
-/* 自动版本检查：发现服务器 sw 版本变化就刷新一次（先记版本再刷 + 5秒防抖，防死循环） */
+/* 自动版本检查：发现服务器 sw 版本变化、或服务器页面版本比本机新，就硬刷新一次
+   （带 ?u=时间戳 绕过 GitHub Pages 的 max-age=600 强缓存；先记版本再刷 + 8秒防抖，防死循环） */
 let _swChecking=false;
+async function serverAppVer(){
+  try{
+    const r=await fetch('./index.html?_v='+Date.now(),{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/APP_VER='([^']+)'/);
+    return m?m[1]:''
+  }catch(e){return ''}
+}
+function hardReload(){
+  const p=location.pathname.replace(/\/$/,'/index.html');
+  location.replace(p+'?u='+Date.now());
+}
 async function checkSwVer(){
   if(_swChecking)return;_swChecking=true;
   try{
@@ -10483,15 +10496,22 @@ async function checkSwVer(){
     const m=t.match(/honey-v[0-9a-z]+/);
     const cur=m?m[0]:'';
     const known=localStorage.getItem('honeySwVer');
-    if(cur&&known&&cur!==known){
-      localStorage.setItem('honeySwVer',cur);
-      if(Date.now()-(+localStorage.getItem('honeySwAt')||0)>5000){
-        localStorage.setItem('honeySwAt',String(Date.now()));
-        location.reload();
-      }
-      return
-    }
+    let need=false;
+    if(cur&&known&&cur!==known)need=true;
     if(cur)localStorage.setItem('honeySwVer',cur);
+    if(!need){
+      // 二次保险：每 30 分钟比对一次服务器页面版本，防止 sw 号相同但页面被旧缓存顶住
+      const last=+localStorage.getItem('honeyHtmlChkAt')||0;
+      if(Date.now()-last>1800000){
+        localStorage.setItem('honeyHtmlChkAt',String(Date.now()));
+        const sv=await serverAppVer();
+        if(sv&&sv!==APP_VER)need=true;
+      }
+    }
+    if(need&&Date.now()-(+localStorage.getItem('honeySwAt')||0)>8000){
+      localStorage.setItem('honeySwAt',String(Date.now()));
+      hardReload();return
+    }
   }catch(e){}
   _swChecking=false;
 }
@@ -10503,13 +10523,13 @@ async function checkUpdateManual(){
     const t=await r.text();
     const m=t.match(/honey-v[0-9a-z]+/);
     const cur=m?m[0]:'';
-    const known=localStorage.getItem('honeySwVer');
-    if(cur&&known&&cur!==known){
-      localStorage.setItem('honeySwVer',cur);
-      alert('发现新版本，正在更新…');
-      location.reload();return
-    }
     if(cur)localStorage.setItem('honeySwVer',cur);
+    const sv=await serverAppVer();
+    if(sv&&sv!==APP_VER){
+      localStorage.setItem('honeySwAt',String(Date.now()));
+      alert('发现新版本 '+sv+'（当前 '+APP_VER+'），正在更新…');
+      hardReload();return
+    }
     alert('已经是最新版啦 ✅ 当前 '+APP_VER);
   }catch(e){alert('检查失败：网络不通？稍后再试')}
 }
