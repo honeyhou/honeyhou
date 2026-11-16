@@ -9212,7 +9212,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.5';
+const APP_VER='v2.6';
 const APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9523,8 +9523,8 @@ function renderParcel(){
 function renderPcDrafts(){
   $id('pcDrafts').innerHTML=pcDrafts.length?'<div class="sec-title" style="margin-top:14px">📋 待推送 '+pcDrafts.length+' 条</div>'+pcDrafts.map((d,i)=>
     `<div style="display:flex;gap:6px;margin-top:6px;align-items:center">
-      <input class="inp" style="flex:1 1 34%;min-width:0" value="${esc(d.code)}" oninput="pcDrafts[${i}].code=this.value">
-      <input class="inp" style="flex:1 1 40%;min-width:0" placeholder="驿站/备注" value="${esc(d.site)}" oninput="pcDrafts[${i}].site=this.value">
+      <input class="inp" style="flex:1 1 46%;min-width:0" value="${esc(d.code)}" oninput="pcDrafts[${i}].code=this.value">
+      <input class="inp" style="flex:1 1 26%;min-width:0" placeholder="驿站" value="${esc(d.site)}" oninput="pcDrafts[${i}].site=this.value">
       <button class="btn ghost" style="width:auto;flex:0 0 auto;padding:9px 16px" onclick="pcDrafts.splice(${i},1);renderPcDrafts()">删</button>
     </div>`).join('')+(pcDrafts.length?'<p class="hint">推送前检查一眼，可直接改字</p>':''):'<p class="hint" style="margin-top:10px">认出来的取件码会出现在这里，检查后一键推给妈妈。</p>';
 }
