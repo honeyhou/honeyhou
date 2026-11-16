@@ -662,6 +662,16 @@ function pcRow(p){
 }
 function takePc(id){const p=D.parcels.find(x=>x.id===id);if(!p)return;
   p.taken=1;p.takenAt=Date.now();save();renderToday();markDot();toast('取到啦，真棒 😊')}
+function unTakePc(id){const p=D.parcels.find(x=>x.id===id);if(!p)return;
+  p.taken=0;delete p.takenAt;save();renderToday();markDot();toast('放回去啦，记得去取哦')}
+let _doneOpen=false;
+function toggleDone(){_doneOpen=!_doneOpen;renderToday()}
+function doneRow(p){
+  return '<div class="pc" style="opacity:.6;background:transparent;border:1.5px dashed var(--line)"><div class="pc-body">'+
+    '<div class="pc-code" style="font-size:1.05rem;text-decoration:line-through">'+esc(p.code)+'</div>'+
+    '<div class="pc-meta">'+dayTag(p.ts)+(p.takenAt?' · '+hmStr(p.takenAt).split(' ').pop()+' 取走':'')+'</div></div>'+
+    '<button class="btn ghost" style="width:auto;flex:0 0 auto;padding:6px 12px;font-size:.82rem" onclick="event.stopPropagation();unTakePc(\''+p.id+'\')">↩ 放回去</button></div>';
+}
 function renderToday(){
   greet();
   const list=D.parcels.filter(p=>!p.taken).sort((a,b)=>b.ts-a.ts);
@@ -670,12 +680,14 @@ function renderToday(){
   $id('pcBig').style.display=list.length?'flex':'none';
   $id('pcNum').textContent=list.length;
   let html='';
+  const doneHtml=()=>done.length?'<div class="hint" style="margin-top:.55rem;display:flex;align-items:center;cursor:pointer" onclick="toggleDone()"><span style="flex:1">✓ 已经取走 '+done.length+' 件'+(_doneOpen?' ▲':' ▼')+'</span><span style="font-size:.72rem;opacity:.75">'+(_doneOpen?'收起':'点开看')+'</span></div>'+
+    (_doneOpen?done.map(doneRow).join('')+'<p class="hint" style="margin-top:.4rem">点错了？点「放回去」就恢复成待取啦</p>':''):'';
   if(list.length){
-    html=list.map(pcRow).join('')+'<div class="hint" style="margin-top:.5rem">👆 点一下快递卡片，就算取到啦</div>';
-    if(done.length)html+='<div class="hint" style="margin-top:.55rem">✓ 已经取走 '+done.length+' 件</div>';
+    html=list.map(pcRow).join('')+'<div class="hint" style="margin-top:.5rem">👆 点一下快递卡片，就算取到啦</div>'+doneHtml();
     html+='<button class="btn ghost block" style="margin-top:.55rem" onclick="openPc()">＋ 妈妈自己添加快递（截图认取件码）</button>';
   }else{
     html='<div class="empty"><span class="e">📦</span>今天没有要取的快递<br><span class="hint">孩子推来的会自动出现；自己买的点下面添加</span></div>'+
+      doneHtml()+
       '<button class="btn ghost block" onclick="openPc()">＋ 添加快递（截图认取件码）</button>';
   }
   $id('pcList').innerHTML=html;
