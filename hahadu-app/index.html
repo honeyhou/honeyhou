@@ -400,6 +400,8 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
         <div class="sec-title">ℹ️ 版本 <span class="en">Version</span></div>
         <div id="appVer" style="font-size:18px;font-weight:700;color:var(--accent)"></div>
         <div id="appVerDate" style="font-size:11px;font-weight:500;color:var(--text);opacity:.75;margin-top:2px"></div>
+        <p class="hint">每次更新后这里的版本号都会变。看到新版本号 = 更新成功！</p>
+        <div class="form-row2"><button class="btn ghost" onclick="checkUpdateManual()">🔄 检查更新</button></div>
       </div>
     </section>
 
@@ -410,7 +412,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.9', APP_VER_DATE='2026-11-14';
+const APP_VER='v1.10', APP_VER_DATE='2026-11-16';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -1244,8 +1246,21 @@ function importData(inp){
 
 /* 启动 */
 apApply();
-/* 自动版本检查：App 每次激活时对比服务器 sw 版本，有新版自动刷新（防主屏缓存旧页面） */
+/* 自动版本检查：发现服务器 sw 版本变化、或服务器页面版本比本机新，就硬刷新一次
+   （带 ?u=时间戳 绕过 GitHub Pages 的 max-age=600 强缓存；先记版本再刷 + 8秒防抖，防死循环） */
 let _swChecking=false;
+async function serverAppVer(){
+  try{
+    const r=await fetch('./index.html?_v='+Date.now(),{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/APP_VER='([^']+)'/);
+    return m?m[1]:''
+  }catch(e){return ''}
+}
+function hardReload(){
+  const p=location.pathname.replace(/\/$/,'/index.html');
+  location.replace(p+'?u='+Date.now());
+}
 async function checkSwVer(){
   if(_swChecking)return;
   _swChecking=true;
@@ -1255,17 +1270,39 @@ async function checkSwVer(){
     const m=t.match(/hahadu-v[0-9a-z]+/);
     const cur=m?m[0]:'';
     const known=localStorage.getItem('hahaduSwVer');
-    if(cur&&known&&cur!==known){
-      localStorage.setItem('hahaduSwVer',cur);
-      if(Date.now()-(+localStorage.getItem('hahaduSwAt')||0)>5000){
-        localStorage.setItem('hahaduSwAt',String(Date.now()));
-        location.reload();
-      }
-      return
-    }
+    let need=false;
+    if(cur&&known&&cur!==known)need=true;
     if(cur)localStorage.setItem('hahaduSwVer',cur);
+    if(!need){
+      // 二次保险：每 30 分钟比对一次服务器页面版本，防止 sw 号相同但页面被旧缓存顶住
+      const last=+localStorage.getItem('hahaduHtmlChkAt')||0;
+      if(Date.now()-last>1800000){
+        localStorage.setItem('hahaduHtmlChkAt',String(Date.now()));
+        const sv=await serverAppVer();
+        if(sv&&sv!==APP_VER)need=true;
+      }
+    }
+    if(need&&Date.now()-(+localStorage.getItem('hahaduSwAt')||0)>8000){
+      localStorage.setItem('hahaduSwAt',String(Date.now()));
+      hardReload();return
+    }
   }catch(e){}
   _swChecking=false;
+}
+async function checkUpdateManual(){
+  try{
+    const r=await fetch('./sw.js',{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/hahadu-v[0-9a-z]+/);
+    if(m)localStorage.setItem('hahaduSwVer',m[0]);
+    const sv=await serverAppVer();
+    if(sv&&sv!==APP_VER){
+      localStorage.setItem('hahaduSwAt',String(Date.now()));
+      alert('发现新版本 '+sv+'（当前 '+APP_VER+'），正在更新…');
+      hardReload();return
+    }
+    alert('已经是最新版啦 ✅ 当前 '+APP_VER);
+  }catch(e){alert('检查失败：网络不通？稍后再试')}
 }
 window.addEventListener('pageshow',e=>{checkSwVer();cloudPullQuote()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkSwVer();cloudPullQuote()}});
