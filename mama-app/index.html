@@ -251,7 +251,6 @@ body{margin:0;background:var(--bg);color:var(--ink);
   <!-- ========== 设置 ========== -->
   <section class="page" id="pg-set">
     <div class="card">
-      <div class="sec">🖼️ 我的图片</div>
       <img id="aboutImg" alt="酒窝妈妈" style="width:100%;border-radius:14px;border:1px solid var(--line);margin-bottom:.6rem;cursor:pointer" onclick="aboutPickClick()">
       <div class="hint" style="text-align:center;margin-bottom:.6rem">酒窝妈妈，笑一笑，辛苦啦，妈妈健康身体棒！🌹</div>
       <div style="display:flex;gap:.5rem">
@@ -260,6 +259,31 @@ body{margin:0;background:var(--bg);color:var(--ink);
       </div>
       <input type="file" accept="image/*" id="aboutFile" style="display:none" onchange="aboutPick(this)">
       <p class="hint" style="margin-top:.5rem">点图片或「换一张」，选张自己喜欢的照片或漫画放这里，会自动压缩保存。</p>
+    </div>
+
+    <div class="card">
+      <div class="sec">📞 家人电话</div>
+      <div class="hint" style="margin-bottom:.6rem">防骗页那个大按钮就打这个号码。填好保存后会锁住，不怕误删；要改点「修改」。</div>
+      <div class="lbl" style="margin-top:0">怎么称呼（比如 媛媛、闺女）</div>
+      <input class="inp" id="telName" readonly placeholder="媛媛" maxlength="8">
+      <div class="lbl">手机号</div>
+      <input class="inp" id="telNum" readonly placeholder="11 位手机号码" inputmode="tel" maxlength="11">
+      <div style="display:flex;gap:.5rem;margin-top:.6rem">
+        <button class="btn ghost" style="flex:1" id="telEditBtn" onclick="telBtnTap()">✏️ 修改</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec">🌤️ 我的城市</div>
+      <div class="row" style="border:none;padding-top:0">
+        <div class="rk" id="cityNow">还没设置</div>
+        <button class="btn sm ghost" onclick="useGeo()">用我的位置</button>
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.3rem">
+        <input class="inp" id="cityInp" placeholder="输入城市，比如 成都">
+        <button class="btn sm" onclick="searchCity()">查</button>
+      </div>
+      <div id="cityHits" style="margin-top:.4rem"></div>
     </div>
 
     <div class="card">
@@ -283,18 +307,6 @@ body{margin:0;background:var(--bg);color:var(--ink);
     </div>
 
     <div class="card">
-      <div class="sec">📞 家人电话</div>
-      <div class="hint" style="margin-bottom:.6rem">防骗页那个大按钮就打这个号码。填好保存后会锁住，不怕误删；要改点「修改」。</div>
-      <div class="lbl" style="margin-top:0">怎么称呼（比如 媛媛、闺女）</div>
-      <input class="inp" id="telName" readonly placeholder="媛媛" maxlength="8">
-      <div class="lbl">手机号</div>
-      <input class="inp" id="telNum" readonly placeholder="11 位手机号码" inputmode="tel" maxlength="11">
-      <div style="display:flex;gap:.5rem;margin-top:.6rem">
-        <button class="btn ghost" style="flex:1" id="telEditBtn" onclick="telBtnTap()">✏️ 修改</button>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="sec">☁️ 快递同步</div>
       <div class="hint" style="margin-bottom:.6rem">孩子在她手机上整理好取件码，会推到这里。第一次用，把这串同步码填进去就行。</div>
       <input class="inp" id="syGist" placeholder="同步码（Gist 编号）">
@@ -305,19 +317,6 @@ body{margin:0;background:var(--bg);color:var(--ink);
         <button class="btn ghost" style="flex:1" onclick="saveGist()">保存同步码</button>
         <button class="btn" style="flex:1" onclick="pullParcels(false)">立即更新</button>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="sec">🌤️ 我的城市</div>
-      <div class="row" style="border:none;padding-top:0">
-        <div class="rk" id="cityNow">还没设置</div>
-        <button class="btn sm ghost" onclick="useGeo()">用我的位置</button>
-      </div>
-      <div style="display:flex;gap:.5rem;margin-top:.3rem">
-        <input class="inp" id="cityInp" placeholder="输入城市，比如 成都">
-        <button class="btn sm" onclick="searchCity()">查</button>
-      </div>
-      <div id="cityHits" style="margin-top:.4rem"></div>
     </div>
 
     <div class="card">
