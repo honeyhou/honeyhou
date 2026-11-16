@@ -280,7 +280,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
         <button class="btn sm ghost" onclick="useGeo()">用我的位置</button>
       </div>
       <div style="display:flex;gap:.5rem;margin-top:.3rem">
-        <input class="inp" id="cityInp" placeholder="输入城市，比如 成都">
+        <input class="inp" id="cityInp" placeholder="输入城市或区，比如 金水区、成都">
         <button class="btn sm" onclick="searchCity()">查</button>
       </div>
       <div id="cityHits" style="margin-top:.4rem"></div>
@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.3', APP_VER_DATE='2026-11-16';
+const APP_VER='v1.4', APP_VER_DATE='2026-11-16';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -504,26 +504,56 @@ async function useGeo(){
   if(!navigator.geolocation){toast('这部手机不支持定位，手动输入城市吧');return}
   toast('正在定位…');$id('cityHits').innerHTML='';
   navigator.geolocation.getCurrentPosition(async pos=>{
-    const la=pos.coords.latitude.toFixed(3),lo=pos.coords.longitude.toFixed(3);
+    const la=pos.coords.latitude,lo=pos.coords.longitude;
     let name='我的位置';
+    // 优先 Nominatim 逆地理：精确到区
     try{
-      const r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+la+'&longitude='+lo+'&localityLanguage=zh');
-      const j=await r.json(); name=j.city||j.locality||j.principalSubdivision||name;
-    }catch(e){}
-    D.city={name:name,lat:+la,lon:+lo};save();renderSet();loadWeather(true);toast('定位好了：'+name);
-  },()=>toast('没拿到定位，手动输入城市吧'),{timeout:9000});
+      const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+la+'&lon='+lo+'&accept-language=zh&zoom=13');
+      const j=await r.json();
+      const a=j.address||{};
+      const dist=a.city_district||a.suburb||a.district||a.county||'';
+      const city=a.city||a.town||a.village||a.municipality||'';
+      if(dist&&city&&dist!==city)name=city+' · '+dist;
+      else if(dist)name=dist;
+      else if(city)name=city;
+      else name=a.state||name;
+    }catch(e){
+      try{
+        const r2=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+la.toFixed(3)+'&longitude='+lo.toFixed(3)+'&localityLanguage=zh');
+        const j2=await r2.json();
+        name=j2.city||j2.locality||j2.principalSubdivision||name;
+      }catch(e2){}
+    }
+    D.city={name:name,lat:la,lon:lo};save();renderSet();loadWeather(true);toast('定位好了：'+name);
+  },()=>toast('没拿到定位，手动输入城市吧'),{timeout:9000,enableHighAccuracy:true});
 }
 async function searchCity(){
-  const q=$id('cityInp').value.trim();if(!q){toast('先输入城市名');return}
+  const q=$id('cityInp').value.trim();if(!q){toast('先输入城市或区名');return}
+  $id('cityHits').innerHTML='<span class="hint">正在查…</span>';
+  let rs=[];
+  // 优先 Nominatim：区级最准（金水区/浦东新区/朝阳区…）
   try{
-    const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json');
-    const j=await r.json();const rs=j.results||[];
-    $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn sm ghost" onclick="pickCity('+i+')">'+esc(x.name)+'（'+esc(x.admin1||'')+' '+esc(x.admin2||'')+'）</button>').join(' '):'没找到这个城市';
-    window.__cityHits=rs;
-  }catch(e){toast('查城市失败，检查网络')}
+    const load=async kw=>{
+      const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn');
+      const j=await r.json();
+      return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
+    };
+    rs=await load(q);
+    if(!rs.length&&!/[区县市州]$/.test(q))rs=await load(q+'区');
+  }catch(e){}
+  // 兜底 Open-Meteo（国内区级收录不全，但国外/小地方可用）
+  if(!rs.length){
+    try{
+      const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json');
+      const j=await r.json();
+      rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
+    }catch(e){}
+  }
+  window.__cityHits=rs;
+  $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn sm ghost" onclick="pickCity('+i+')">'+esc(x.name)+(x.mid&&x.mid!==x.name?'（'+esc(x.mid)+'）':'')+'</button>').join(' '):'没找到，试试带上「区」字，比如 金水区';
 }
 function pickCity(i){const x=window.__cityHits[i];if(!x)return;
-  D.city={name:x.name,lat:x.latitude,lon:x.longitude};save();renderSet();loadWeather(true);toast('城市设置好了：'+x.name)}
+  D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};save();renderSet();loadWeather(true);toast('设置好了：'+D.city.name)}
 
 /* ================= 快递 ================= */
 let pcDrafts=[];
