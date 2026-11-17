@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.7', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.8', APP_VER_DATE='2026-11-17';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -478,20 +478,21 @@ function renderWeather(){
   const dl=j.daily;
   $id('wxHL').innerHTML='最高 '+Math.round(dl.temperature_2m_max[0])+'° 最低 '+Math.round(dl.temperature_2m_min[0])+'°<br>降雨可能 '+dl.precipitation_probability_max[0]+'%';
   const today=todayStr(),T=j.hourly.time,P=j.hourly.precipitation,C=j.hourly.weather_code;
-  let seg=null,curSeg=null;
+  let segs=[],curSeg=null;
   for(let i=0;i<T.length;i++){
     if(!T[i].startsWith(today))continue;
-    const h=+T[i].slice(11,13); if(h<6||h>22){curSeg=null;continue}
+    const h=+T[i].slice(11,13); if(h<6||h>22){if(curSeg){segs.push(curSeg);curSeg=null}continue}
     const wet=P[i]>=0.15, snow=SNOW.includes(C[i]);
-    if(wet||snow){ if(!curSeg)curSeg={h0:h,h1:h,mm:0,snow}; else {curSeg.h1=h;curSeg.mm+=P[i];curSeg.snow=curSeg.snow||snow} if(!seg||curSeg.mm>seg.mm)seg=curSeg }
-    else curSeg=null;
+    if(wet||snow){ if(!curSeg)curSeg={h0:h,h1:h,mm:0,snow}; else {curSeg.h1=h;curSeg.mm+=P[i];curSeg.snow=curSeg.snow||snow} }
+    else if(curSeg){segs.push(curSeg);curSeg=null}
   }
+  if(curSeg)segs.push(curSeg);
   const tip=$id('wxTip');
-  if(seg){
-    const what=seg.snow?'有雪':'有雨';
-    const extra=seg.snow?'路滑，慢慢走 🙅‍♀️':'出门记得带伞 ☂️';
+  if(segs.length){
+    const parts=segs.slice(0,3).map(s=>segName(s.h0)+' '+String(s.h0).padStart(2,'0')+' 点到 '+String(s.h1+1).padStart(2,'0')+' 点'+(s.snow?'有雪':'有雨'));
+    const heavy=segs.some(s=>s.mm>=2),snowAny=segs.some(s=>s.snow);
     tip.className='wx-tip';
-    tip.innerHTML='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+' 点到 '+String(seg.h1+1).padStart(2,'0')+' 点'+what+(seg.mm>=2?'（雨不小）':'')+','+extra;
+    tip.innerHTML='⚠️ '+parts.join('，')+(heavy?'（雨不小）':'')+'，'+(snowAny?'路滑，慢慢走 🙅‍♀️':'出门记得带伞 ☂️');
   }else{
     tip.className='wx-tip calm';
     tip.textContent='✅ 白天（6点-22点）没雨没雪，放心出门';
@@ -533,6 +534,16 @@ async function searchCity(){
   const q=$id('cityInp').value.trim();if(!q){toast('先输入城市或区名');return}
   $id('cityHits').innerHTML='<span class="hint">正在查…</span>';
   let rs=[];
+  /* 「市+区」连写也能查：连云港市海州区 → 连云港市 海州区 / 海州区, 连云港市 / 海州区
+     （qs/m 定义在 try 外：Photon 备源也要用，放里面会 ReferenceError） */
+  const qs=[q];
+  const m=q.match(/^(.+?[市州盟])((?:.+)?[区县旗])$/);
+  if(m&&m[2].length>=2&&m[2]!==q){
+    if(!qs.includes(m[1]+' '+m[2]))qs.push(m[1]+' '+m[2]);
+    if(!qs.includes(m[2]+', '+m[1]))qs.push(m[2]+', '+m[1]);
+    if(!qs.includes(m[2]))qs.push(m[2]);
+  }
+  if(!/[区县市州旗]$/.test(q)&&!m)qs.push(q+'区');
   // 优先 Nominatim：区级最准（金水区/浦东新区/朝阳区…）
   try{
     const load=async kw=>{
@@ -540,18 +551,26 @@ async function searchCity(){
       const j=await r.json();
       return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
     };
-    /* 「市+区」连写也能查：连云港市海州区 → 连云港市 海州区 / 海州区, 连云港市 / 海州区 */
-    const qs=[q];
-    const m=q.match(/^(.+?[市州盟])((?:.+)?[区县旗])$/);
-    if(m&&m[2].length>=2&&m[2]!==q){
-      if(!qs.includes(m[1]+' '+m[2]))qs.push(m[1]+' '+m[2]);
-      if(!qs.includes(m[2]+', '+m[1]))qs.push(m[2]+', '+m[1]);
-      if(!qs.includes(m[2]))qs.push(m[2]);
+    /* Nominatim 主源：逐变体试，单次失败不中断，间隔 1.1 秒防限流 */
+    for(const kw of qs){
+      try{rs=await load(kw)}catch(e){rs=[]}
+      if(rs.length)break;
+      if(kw!==qs[qs.length-1])await new Promise(r=>setTimeout(r,1100));
     }
-    if(!/[区县市州旗]$/.test(q)&&!m)qs.push(q+'区');
-    for(const kw of qs){rs=await load(kw);if(rs.length)break}
   }catch(e){}
-  // 兜底 Open-Meteo（国内区级收录不全，但国外/小地方可用）
+  /* Photon 备源（同为 OSM 数据，主源挂了顶上） */
+  if(!rs.length){
+    try{
+      const loadP=async kw=>{
+        const r=await fetchTO('https://photon.komoot.io/api/?q='+encodeURIComponent(kw)+'&limit=6',7000);
+        const j=await r.json();
+        return (j.features||[]).filter(f=>f.geometry&&f.geometry.coordinates).map(f=>{const p=f.properties||{};const nm=p.name||p.city||p.county||p.state||kw;const md=p.city&&p.city!==nm?p.city:(p.county&&p.county!==nm?p.county:'');return {name:nm,mid:md,lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}});
+      };
+      const pqs=(m&&m[2].length>=2)?[m[2],m[1]+' '+m[2],m[2]+', '+m[1]].filter((v,i,a)=>a.indexOf(v)===i):qs;
+      for(const kw of pqs){rs=await loadP(kw);if(rs.length)break}
+    }catch(e){}
+  }
+  /* Open-Meteo 末位兜底（国内区级常缺，国外/大城市可用） */
   if(!rs.length){
     try{
       for(const kw of qs){
