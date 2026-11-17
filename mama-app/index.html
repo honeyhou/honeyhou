@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.6', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.7', APP_VER_DATE='2026-11-17';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -540,15 +540,26 @@ async function searchCity(){
       const j=await r.json();
       return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
     };
-    rs=await load(q);
-    if(!rs.length&&!/[区县市州]$/.test(q))rs=await load(q+'区');
+    /* 「市+区」连写也能查：连云港市海州区 → 连云港市 海州区 / 海州区, 连云港市 / 海州区 */
+    const qs=[q];
+    const m=q.match(/^(.+?[市州盟])((?:.+)?[区县旗])$/);
+    if(m&&m[2].length>=2&&m[2]!==q){
+      if(!qs.includes(m[1]+' '+m[2]))qs.push(m[1]+' '+m[2]);
+      if(!qs.includes(m[2]+', '+m[1]))qs.push(m[2]+', '+m[1]);
+      if(!qs.includes(m[2]))qs.push(m[2]);
+    }
+    if(!/[区县市州旗]$/.test(q)&&!m)qs.push(q+'区');
+    for(const kw of qs){rs=await load(kw);if(rs.length)break}
   }catch(e){}
   // 兜底 Open-Meteo（国内区级收录不全，但国外/小地方可用）
   if(!rs.length){
     try{
-      const r=await fetchTO('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json',8000);
-      const j=await r.json();
-      rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
+      for(const kw of qs){
+        const r=await fetchTO('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(kw)+'&count=6&language=zh&format=json',8000);
+        const j=await r.json();
+        rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
+        if(rs.length)break;
+      }
     }catch(e){}
   }
   window.__cityHits=rs;
