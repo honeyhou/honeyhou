@@ -1,0 +1,12 @@
+{
+  "updated": "11月17日",
+  "news": [
+    {"cat":"🎼 演出","d":"11月14日","s":"中国青年报","t":"国乐+AI《零·壹|中国色》亮相上海大歌剧院","sum":"上海民族乐团 × 腾讯音乐天琴实验室：AI 作曲系统生成初稿与旋律框架，演奏家再「二次创作」注入灵魂。开场曲《东方既白》里，笙在 AI 影响下演绎出西方管风琴般的空灵气质。「AI 出框架、人做二度创作」的协作范式，正在国有院团正式舞台上跑通，配乐方向可以参考这套分工。","url":"https://www.163.com/dy/article/LBPR7RQ20514CDBK.html"},
+    {"cat":"🤖 AI音乐","d":"11月13日","s":"AI Musicpreneur","t":"全球首届 SIQA AI 音乐奖颁出：虚拟歌手 Xania Monet 独揽四项大奖","sum":"11月13日洛杉矶，首届 SIQA AI Music Awards：虚拟艺人 Xania Monet（幕后创作者为词曲人 Telisha Jones）拿下年度 AI 歌曲/艺人/专辑、最佳 AI R&B 四奖；还细分成 AI 辅助、人机合作两个赛道。AI 音乐已经有了自己的奖项与榜单体系，投 AI 相关作品时，留意各平台对「AI 参与度」的标注与披露要求。","url":"https://www.audiartist.com/ai-music-awards-2026-xania-monet-virtual-artists-trophies"},
+    {"cat":"🤖 AI音乐","d":"11月13日","s":"AI Musicpreneur","t":"首支 AI 人声歌曲登顶韩国 Melon 榜首","sum":"Meomuru《The Adult I Dreamed Of》登上 Melon Top100 第一名——AI 人声歌曲首次登顶主流大榜。项目幕后是 Glorywave 制作二人组：真人写词，Suno 负责旋律、编曲与演唱。「真人写词 + AI 演唱」的打法已被市场验证到榜首级别，接单时可以主动提供这种人机混合方案。","url":"https://www.aimusicpreneur.com/ai-music-news/musical-ai-first-rule-fully-licensed-generative-ai-music-production-tools"},
+    {"cat":"🤖 AI音乐","d":"11月11日","s":"Digital Music News","t":"Suno 官司再升级：Eminem 出版方起诉盗用 269 首，Reservoir 索赔总额冲到 4.5 亿美元","sum":"Eminem 出版方 Eight Mile Style 起诉 Suno 未经授权用 269 首作品训练，诉状还举出疑似逐字复现《Lose Yourself》歌词的例子；版权公司 Reservoir 把对 Suno 的诉讼扩到 1368 首作品、合计最高索赔 4.457 亿美元。授权训练、出处追踪、署名分成正在成为 AI 音乐的硬门槛——用 AI 出货前，先确认平台的授权与商用条款。","url":"https://auaimusic.com/news/ai-music-weekly-brief-2026-11-15?lang=en"},
+    {"cat":"🏢 平台","d":"11月09日","s":"Digital Music News","t":"Spotify AI Remix 明年上线：艺人可选加入，业内争议不断","sum":"Spotify 计划明年初推出 AI 混音功能，听众可改变歌曲风格甚至「换声」，但只能在站内收听；已与环球、Merlin、Believe、Kobalt 达成协议，单个艺人自主决定是否参与。补偿、署名、版税怎么分仍是悬案——「艺人 opt-in」并不能解决衍生作品的全部权利问题，国内平台跟进大概率也是这套「白名单」模式。","url":"https://www.aimusicpreneur.com/ai-music-news/musical-ai-first-rule-fully-licensed-generative-ai-music-production-tools"},
+    {"cat":"🎧 制作人","d":"11月09日","s":"新浪娱乐","t":"钱雷包办马嘉祺《致年少的自己》编曲、制作与钢琴","sum":"上线首日登顶 QQ 音乐在听热度榜（实时在听 7.4 万人），35 分钟收藏破 100 万。制作思路：钢琴打底不堆配器、把重心让给人声与词意，混音母带也由钱雷本人操刀——「少即是多」的静水系制作再次被市场验证。","url":"https://ent.sina.cn/2026-11-09/detail-iniycmtw2911977.d.html"},
+    {"cat":"🏢 平台","d":"11月13日","s":"新浪福建","t":"中国数字音乐产业大会落地厦门：AI 作歌、AI 母带、两岸创作营全链条展示","sum":"腾讯音乐启明星 AI 作歌、AI 编曲与声音设计工具、AI 母带处理在厦门湖里集中落地，「创作端 AI 出词曲初稿 + 制作分发端 AI 提效」正成为产业园区招商的标准叙事；两岸（厦门）青年音乐人创作营两季已孵化 50 首正式发行作品。行业活动与版权试点都在往「AI 全流程」靠，独立音乐人对接园区资源时可以关注这波政策红利。","url":"https://fj.sina.com.cn/news/2026-11-13/detail-iniypzqc1098716.shtml"}
+  ]
+}

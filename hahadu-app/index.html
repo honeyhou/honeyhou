@@ -82,6 +82,9 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 .bar{height:8px;background:var(--card2);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#FF5E62);border-radius:6px;transition:width .3s}
 #hmWx::before{content:"";display:block;height:3px;width:56px;margin:0 auto 8px;border-radius:99px;background:linear-gradient(90deg,var(--accent),#F2B8CB)}
+.wx-city{color:var(--text);font-weight:800}
+/* 雨雪提示横幅（配色随本主题：橙） */
+.wx-tipbox{display:block;background:rgba(255,138,61,.14);color:#FFB27E;border-radius:12px;padding:5px 10px;font-weight:700;line-height:1.5;font-size:11px}
 .bar-txt{font-size:11px;color:var(--sub);margin-top:4px}
 /* 项目卡 */
 .pj-card{position:relative}
@@ -421,7 +424,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.14', APP_VER_DATE='2026-11-16';
+const APP_VER='v1.17', APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -567,39 +570,50 @@ function cloudPullQuote(){
       if(!old||q.at>(old.at||0)){D.quoteCloud={t:q.t,en:q.en||'',at:q.at||0};save();renderHome();}
     }).catch(()=>{});
 }
-/* ---------- 行业动态（随版本更新补充） ---------- */
+/* ---------- 行业动态（人工精选，随版本更新补充；本次更新至 2026-11-17） ---------- */
 const NEWS=[
- {cat:'🤖 AI音乐',d:'11月13日',s:'网易科技',t:'苏诺之音上线浏览器版「AI 音乐工作站」，主攻中文咬字',
-  sum:'免安装网页端即可做多轨精修：选区无痕改词补唱（Inpainting）、AI 人声音色替换、无缝续写延长、多轨混音与 24-bit 母带导出；还整合人声伴奏分离、音频转 MIDI / 五线谱简谱、LRC 歌词轴等 20 余项工具，并配套 AI MV 成片管线。网页 DAW + AI 精修的工作流，值得上手体验。',
-  url:'https://www.163.com/tech/article/LBK59O7000099BK0.html'},
- {cat:'🏢 平台',d:'11月13日',s:'腾讯新闻',t:'网易云音乐 × 索尼音乐娱乐达成多年期战略合作',
-  sum:'网易云接入索尼全球正版曲库，合作从「版权采购」升级为「内容共创 + 艺人宣发协同」：为华语音乐人搭面向全球的宣发渠道，也为海外艺人触达国内年轻用户铺路。上游正版生态和发行通路都在变宽。',
-  url:'https://news.qq.com/rain/a/20261113A07V3700'},
- {cat:'🤖 AI音乐',d:'11月12日',s:'钛媒体·显微故事',t:'Suno v6：首个全部用「授权曲库」训练的 AI 音乐模型',
-  sum:'华纳与 Suno 和解并签授权协议后，Suno 于今年 9 月发布 v6，训练曲库来自华纳、BMG、Believe/TuneCore 三家。「授权训练」正成为 AI 音乐与版权方的和解范式——AI 歌曲的商用与确权路径越来越清晰，接单时可留意平台对 AI 内容的标注与授权要求。',
-  url:'https://www.jiemian.com/article/15324550.html'},
- {cat:'🤖 AI音乐',d:'11月12日',s:'钛媒体·显微故事',t:'深度｜被 AI 改写行情的音乐圈：5000 元编曲报价被砍到 300',
-  sum:'国内平台日新入库歌已超 10 万首，其中 20% 以上是 AI 生成。冲击之外新通路也在打开：汽水音乐 AI 歌曲千次播放分成约 1-2 元；腾讯音乐推 AI 创作激励金（年播 1000 次可签约）；网易云 AI 创作大赛第二届收到近 16 万首作品、冠军奖金 30 万。「审美与人味」仍是职业音乐人的护城河。',
-  url:'https://www.163.com/dy/article/LBHMDSCG05118O92.html'},
+ {cat:'🎼 演出',d:'11月14日',s:'中国青年报',t:'国乐+AI《零·壹|中国色》亮相上海大歌剧院',
+  sum:'上海民族乐团 × 腾讯音乐天琴实验室：AI 作曲系统生成初稿与旋律框架，演奏家再「二次创作」注入灵魂。开场曲《东方既白》里，笙在 AI 影响下演绎出西方管风琴般的空灵气质。「AI 出框架、人做二度创作」的协作范式，正在国有院团正式舞台上跑通，配乐方向可以参考这套分工。',
+  url:'https://www.163.com/dy/article/LBPR7RQ20514CDBK.html'},
+ {cat:'🤖 AI音乐',d:'11月13日',s:'AI Musicpreneur',t:'全球首届 SIQA AI 音乐奖颁出：虚拟歌手 Xania Monet 独揽四项大奖',
+  sum:'11月13日洛杉矶，首届 SIQA AI Music Awards：虚拟艺人 Xania Monet（幕后创作者为词曲人 Telisha Jones）拿下年度 AI 歌曲/艺人/专辑、最佳 AI R&B 四奖；还细分成 AI 辅助、人机合作两个赛道。AI 音乐已经有了自己的奖项与榜单体系，投 AI 相关作品时，留意各平台对「AI 参与度」的标注与披露要求。',
+  url:'https://www.audiartist.com/ai-music-awards-2026-xania-monet-virtual-artists-trophies'},
+ {cat:'🤖 AI音乐',d:'11月13日',s:'AI Musicpreneur',t:'首支 AI 人声歌曲登顶韩国 Melon 榜首',
+  sum:'Meomuru《The Adult I Dreamed Of》登上 Melon Top100 第一名——AI 人声歌曲首次登顶主流大榜。项目幕后是 Glorywave 制作二人组：真人写词，Suno 负责旋律、编曲与演唱。「真人写词 + AI 演唱」的打法已被市场验证到榜首级别，接单时可以主动提供这种人机混合方案。',
+  url:'https://www.aimusicpreneur.com/ai-music-news/musical-ai-first-rule-fully-licensed-generative-ai-music-production-tools'},
+ {cat:'🤖 AI音乐',d:'11月11日',s:'Digital Music News',t:'Suno 官司再升级：Eminem 出版方起诉盗用 269 首，Reservoir 索赔总额冲到 4.5 亿美元',
+  sum:'Eminem 出版方 Eight Mile Style 起诉 Suno 未经授权用 269 首作品训练，诉状还举出疑似逐字复现《Lose Yourself》歌词的例子；版权公司 Reservoir 把对 Suno 的诉讼扩到 1368 首作品、合计最高索赔 4.457 亿美元。授权训练、出处追踪、署名分成正在成为 AI 音乐的硬门槛——用 AI 出货前，先确认平台的授权与商用条款。',
+  url:'https://auaimusic.com/news/ai-music-weekly-brief-2026-11-15?lang=en'},
+ {cat:'🏢 平台',d:'11月09日',s:'Digital Music News',t:'Spotify AI Remix 明年上线：艺人可选加入，业内争议不断',
+  sum:'Spotify 计划明年初推出 AI 混音功能，听众可改变歌曲风格甚至「换声」，但只能在站内收听；已与环球、Merlin、Believe、Kobalt 达成协议，单个艺人自主决定是否参与。补偿、署名、版税怎么分仍是悬案——「艺人 opt-in」并不能解决衍生作品的全部权利问题，国内平台跟进大概率也是这套「白名单」模式。',
+  url:'https://www.aimusicpreneur.com/ai-music-news/musical-ai-first-rule-fully-licensed-generative-ai-music-production-tools'},
  {cat:'🎧 制作人',d:'11月09日',s:'新浪娱乐',t:'钱雷包办马嘉祺《致年少的自己》编曲、制作与钢琴',
   sum:'上线首日登顶 QQ 音乐在听热度榜（实时在听 7.4 万人），35 分钟收藏破 100 万。制作思路：钢琴打底不堆配器、把重心让给人声与词意，混音母带也由钱雷本人操刀——「少即是多」的静水系制作再次被市场验证。',
   url:'https://ent.sina.cn/2026-11-09/detail-iniycmtw2911977.d.html'},
- {cat:'🤖 AI音乐',d:'11月上旬',s:'音集协 CAVCA',t:'小柯、《黑神话：悟空》音频总监李佳骐到访音集协，共话「AI 乐谈」',
-  sum:'共识：AI 是提效工具，但词曲核心应当由人完成（小柯）；交互音频的叙事节奏与东方听觉美学离不开声音设计师（李佳骐）。行业发展要恪守「内容为本、版权为先」。做游戏 / 交互音频方向可以重点关注李佳骐的实践路径。',
-  url:'https://www.cavca.org/newsDetail/2440'},
- {cat:'🎧 制作人',d:'11月上旬',s:'网易新闻',t:'首届中国影视音乐艺术周落幕：AI 时代影视音乐怎么教、怎么写',
-  sum:'上海音乐学院牵头：彭飞谈《AI 如何影响人类创作》（把 AI 当镜子、守住真实情感）、《黑神话：悟空》翟锦彦拆民族元素「形与神」、项珏讲沉浸式声场与全景声、潘攀提出 AI 音乐确权与标准的四层模型。影视 / 游戏配乐方向的一手风向标。',
-  url:'https://c.m.163.com/news/a/LB0E3L970516BNNT.html'},
- {cat:'🏢 平台',d:'11月中旬',s:'今日头条',t:'对话酷狗董事长傅鸿城：目标是全球前五的版权公司',
-  sum:'广州出台推动音乐产业高质量发展的若干措施；酷狗把《一路生花》改编成印尼语版成功出海，计划 3-5 年把厂牌做到世界前五。出海改编与产业集聚（羊城创意产业园：制作、版权、演出一体）是两个值得注意的信号。',
-  url:'https://www.toutiao.com/article/7706434601710862858/'},
- {cat:'🤖 AI音乐',d:'今年3月',s:'腾讯×清华',t:'开源回看：SongGeneration 2 开源音乐大模型，中文咬字指标超 Suno v5',
-  sum:'4B 参数开源模型，音素错误率 8.55%（优于 Suno v5 的 12.4%），支持中英多语言，消费级显卡（22GB 显存）可本地部署，HuggingFace 提供 Fast 版一分钟出一整曲。想搭私有 AI 音乐管线的开发者值得收藏。',
-  url:'https://www.haomings.com/ai/suno-v5-songgeneration2'}
+ {cat:'🏢 平台',d:'11月13日',s:'新浪福建',t:'中国数字音乐产业大会落地厦门：AI 作歌、AI 母带、两岸创作营全链条展示',
+  sum:'腾讯音乐启明星 AI 作歌、AI 编曲与声音设计工具、AI 母带处理在厦门湖里集中落地，「创作端 AI 出词曲初稿 + 制作分发端 AI 提效」正成为产业园区招商的标准叙事；两岸（厦门）青年音乐人创作营两季已孵化 50 首正式发行作品。行业活动与版权试点都在往「AI 全流程」靠，独立音乐人对接园区资源时可以关注这波政策红利。',
+  url:'https://fj.sina.com.cn/news/2026-11-13/detail-iniypzqc1098716.shtml'}
 ];
+/* 自动抓取：每天由定时任务更新 news.json（与 index.html 同目录），启动时拉最新；
+   拉不到/格式不对就用内置 NEWS 兜底 */
+let LIVE_NEWS=null,LIVE_DATE='';
+function newsArr(){return (LIVE_NEWS&&LIVE_NEWS.length)?LIVE_NEWS:NEWS}
+async function loadNewsRemote(){
+  try{
+    const r=await fetchTO('news.json?u='+Date.now(),8000);
+    if(!r.ok)return;
+    const j=await r.json();
+    const arr=(Array.isArray(j.news)?j.news:[]).filter(n=>n&&n.t&&n.url&&n.cat).slice(0,10);
+    if(!arr.length)return;
+    LIVE_NEWS=arr;LIVE_DATE=j.updated||'';
+    newsOpen={};
+    if($id('news'))renderNews();
+  }catch(e){}
+}
 function renderNews(){
-  $id('newsCnt').textContent='已看 '+NEWS.filter((n,i)=>D.newsSeen[i]).length+'/'+NEWS.length;
-  $id('newsList').innerHTML=NEWS.map((n,i)=>{
+  const list=newsArr();
+  $id('newsCnt').textContent='已看 '+list.filter((n,i)=>D.newsSeen[i]).length+'/'+list.length+(LIVE_DATE?' · 更新至 '+LIVE_DATE:'');
+  $id('newsList').innerHTML=list.map((n,i)=>{
     const open=!!newsOpen[i],seen=!!D.newsSeen[i];
     return `<div class="card news-i${open?' open':''}" style="cursor:pointer" onclick="newsToggle(${i})">
      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tag blue">${n.cat}</span><span style="font-size:11px;color:var(--sub)">${n.d} · ${n.s}</span><span style="margin-left:auto;font-size:11px;color:var(--sub)">${seen?'✔ 已看':'👀 未看'}</span></div>
@@ -657,7 +671,7 @@ function renderHome(){
     ['🚀 发歌进度',relTot?relDone+'/'+relTot:'-','release'],['🎧 已拆歌',D.studies.length+' 首','study'],
     ['🤝 伙伴',D.contacts.length+' 位','contact'],
     ['🎧 演出排期',D.shows.length+' 场','show'],
-    ['📰 行业动态',NEWS.filter((n,i)=>D.newsSeen[i]).length+'/'+NEWS.length,'news']
+    ['📰 行业动态',newsArr().filter((n,i)=>D.newsSeen[i]).length+'/'+newsArr().length,'news']
   ].map(x=>`<div class="li" onclick="go('${x[2]}')"><div class="li-main"><div class="li-t">${x[0]}</div></div><span class="tag acc">${x[1]}</span></div>`).join('');
 }
 
@@ -1269,8 +1283,8 @@ async function loadWeather(force){
   if(!D.city){el.innerHTML='🌤️ 去设置里加个城市，工作台就有天气啦';return}
   const c=D.city;
   try{
-    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
-      '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2');
+    const r=await fetchTO('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
+      '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',10000);
     if(!r.ok)throw 0; wxJ=await r.json(); renderWxLine();
   }catch(e){ if(force)el.innerHTML='🌤️ 天气没取到，连上网再打开试试' }
 }
@@ -1290,9 +1304,10 @@ function renderWxLine(){
   if(seg){const what=seg.snow?'有雪':'有雨';
     tip='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+'点-'+String(seg.h1+1).padStart(2,'0')+'点'+what+(seg.mm>=2?'（雨不小）':'')+(seg.snow?'，路滑慢行':'，带伞 ☂️');
   }else tip='✅ 白天没雨没雪';
-  $id('hmWx').innerHTML='<b style="color:var(--sub)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span>最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'°</span>'+
-    (seg?'<div style="margin-top:3px"><b style="color:#F2B8CB">'+tip+'</b></div>':'<div style="margin-top:3px"><span>'+tip+'</span></div>');
+  $id('hmWx').innerHTML='<span class="wx-city">'+esc(D.city.name)+'</span> · <b style="color:var(--sub)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span style="white-space:nowrap">最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'°</span> <span style="white-space:nowrap">降雨可能 '+dl.precipitation_probability_max[0]+'%</span>'+
+    (seg?'<div style="margin-top:5px"><span class="wx-tipbox">'+tip+'</span></div>':'<div style="margin-top:3px"><span>'+tip+'</span></div>');
 }
+function fetchTO(url,ms){return Promise.race([fetch(url),new Promise((_,rej)=>setTimeout(()=>rej(new Error('超时')),ms))])}
 async function useGeo(){
   if(!navigator.geolocation){alert('这部设备不支持定位，手动输入城市吧');return}
   $id('cityNow').textContent='正在定位…';$id('cityHits').innerHTML='';
@@ -1300,7 +1315,7 @@ async function useGeo(){
     const la=pos.coords.latitude,lo=pos.coords.longitude;
     let name='我的位置';
     try{
-      const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+la+'&lon='+lo+'&accept-language=zh&zoom=13');
+      const r=await fetchTO('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+la+'&lon='+lo+'&accept-language=zh&zoom=13',5000);
       const j=await r.json();
       const a=j.address||{};
       const dist=a.city_district||a.suburb||a.district||a.county||'';
@@ -1320,7 +1335,7 @@ async function searchCity(){
   let rs=[];
   try{
     const loadN=async kw=>{
-      const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn');
+      const r=await fetchTO('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn',5000);
       const j=await r.json();
       return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
     };
@@ -1329,7 +1344,7 @@ async function searchCity(){
   }catch(e){}
   if(!rs.length){
     try{
-      const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json');
+      const r=await fetchTO('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json',8000);
       const j=await r.json();
       rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
     }catch(e){}
@@ -1410,6 +1425,9 @@ cloudPullQuote();
 setInterval(cloudPullQuote,180000);
 loadWeather();
 setInterval(loadWeather,1800000);
+loadNewsRemote();
+/* 第一次打开自动请求定位授权，自动设置天气城市（只问一次，拒绝过就不再弹） */
+if(!D.city&&!localStorage.getItem('wxGeoAsked')){localStorage.setItem('wxGeoAsked','1');useGeo()}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
