@@ -645,7 +645,7 @@ textarea.inp{resize:none;line-height:1.5}
       <div class="card">
         <div class="sec-title">🌤️ 天气城市 <span class="en">Weather</span></div>
         <div class="set-row"><span id="cityNow">还没设置</span><button class="mini-btn" onclick="useGeo()">📍 用我的位置</button></div>
-        <div class="form-row" style="display:flex;gap:6px"><input class="inp" id="cityInp" style="flex:1;min-width:0" placeholder="输入城市或区，比如 金水区、成都"><button class="btn ghost" style="flex:0 0 auto;padding:9px 16px" onclick="searchCity()">查</button></div>
+        <div class="form-row" style="display:flex;gap:6px"><input class="inp" id="cityInp" style="flex:1;min-width:0" placeholder="输入城市或区，比如 金水区、成都"><button class="btn ghost" style="flex:0 0 auto;width:auto;padding:9px 16px" onclick="searchCity()">查</button></div>
         <div id="cityHits" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
         <p class="hint">天气每 30 分钟自动更新；想精确到区就填区名（如 金水区）。</p>
       </div>
@@ -9232,7 +9232,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.17';
+const APP_VER='v2.18';
 const APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
