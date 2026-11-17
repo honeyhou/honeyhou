@@ -1,454 +1,1276 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<title>酒窝妈妈</title>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="酒窝妈妈">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FBF3EE">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="哈哈杜">
+<title>哈哈杜 · 音乐工作台</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="apple-touch-icon" href="./icon-180.jpg">
+<link rel="apple-touch-icon" href="./hahadu-icon.png?v=3">
 <style>
 :root{
-  --bg:#FBF3EE; --card:#FFFFFF; --ink:#3A2B2A; --muted:#9C8681; --line:#EFE1DA;
-  --accent:#D2607A; --accent-d:#B94A64; --soft:#FBE6EC; --ok:#3D9E74; --warn:#D9822B;
-  --radius:18px; --tap:52px;
+  --bg:#0E1217;--card:#171D26;--card2:#1D2430;--line:#2A323E;
+  --text:#DDE5EE;--sub:#8A97A8;--accent:#FF8A3D;--accent2:#3ECFB2;
+  --hot:#FF6B6B;--ok:#3ECFB2;--warn:#F5B942;--blue:#5BA8F5;
 }
-body[data-theme="ju"]{--bg:#FFF7EC;--card:#fff;--ink:#3B2E23;--muted:#9C8875;--line:#F1E3D2;--accent:#E08A47;--accent-d:#C97433;--soft:#FCEBDB;--ok:#4C9A6B;--warn:#D9691F}
-body[data-theme="zhu"]{--bg:#F1F7F2;--card:#fff;--ink:#2B3A31;--muted:#82968A;--line:#DDEBE0;--accent:#4E8C6A;--accent-d:#3D7557;--soft:#E2F1E7;--ok:#3D9E74;--warn:#C97B2C}
-body[data-theme="lan"]{--bg:#F0F5FA;--card:#fff;--ink:#28323D;--muted:#7F8FA0;--line:#DCE7F1;--accent:#4A7CA8;--accent-d:#3A6A93;--soft:#E3EEF8;--ok:#3D9E74;--warn:#C97B2C}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{font-size:16px;-webkit-text-size-adjust:100%}
-html[data-fs="big"]{font-size:17.6px}
-html[data-fs="huge"]{font-size:19.2px}
-html[data-fs="max"]{font-size:21px}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  line-height:1.55;-webkit-font-smoothing:antialiased}
-
-.wrap{max-width:520px;margin:0 auto;padding:0 .95rem calc(92px + env(safe-area-inset-bottom))}
-
-/* 顶栏 */
-.top{position:sticky;top:0;z-index:30;background:var(--bg);padding-top:env(safe-area-inset-top)}
-.top-in{max-width:520px;margin:0 auto;padding:.7rem .95rem .5rem;display:flex;align-items:center;gap:.6rem}
-.hello{flex:1;min-width:0}
-.hello b{display:block;font-size:1.28rem;letter-spacing:.5px}
-.dateline{font-size:.88rem;font-weight:800;margin-top:.12rem;display:flex;align-items:baseline;gap:.5rem}
-.tclk{font-size:1.3rem;font-weight:900;color:var(--accent-d);letter-spacing:.5px;font-variant-numeric:tabular-nums}
-.luneline{font-size:.74rem;color:var(--muted);margin-top:.15rem;font-weight:600}
-.badge{font-size:.72rem;color:var(--accent);background:var(--soft);border-radius:999px;padding:.2rem .55rem;font-weight:700}
-
-/* 卡片 */
-.card{background:var(--card);border-radius:var(--radius);padding:.95rem;margin-bottom:.8rem;
-  box-shadow:0 2px 10px rgba(120,90,80,.06)}
-.card.flat{box-shadow:none;border:1px solid var(--line)}
-.sec{display:flex;align-items:center;gap:.45rem;font-size:1rem;font-weight:800;margin:0 0 .7rem}
-.sec .cnt{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:600}
-
-/* 天气 */
-.wx-top{display:flex;align-items:center;gap:.7rem}
-.wx-ico{font-size:2.4rem;line-height:1}
-.wx-main{flex:1;min-width:0}
-.wx-t{font-size:1.9rem;font-weight:800;letter-spacing:-.5px}
-.wx-t i{font-size:.95rem;font-weight:600;vertical-align:super;margin-left:.1rem}
-.wx-s{font-size:.82rem;color:var(--muted)}
-.wx-hl{text-align:right;font-size:.82rem;color:var(--muted);line-height:1.7}
-.wx-tip{margin-top:.65rem;font-size:.88rem;background:var(--soft);color:var(--accent-d);
-  border-radius:12px;padding:.5rem .65rem;font-weight:700;display:flex;gap:.4rem}
-.wx-tip.calm{background:#F4F4F2;color:#6E6A66;font-weight:600}
-.wx-next{margin-top:.45rem;font-size:.8rem;color:var(--muted)}
-
-/* 快递 */
-.pc-big{display:flex;align-items:baseline;gap:.4rem;margin-bottom:.7rem}
-.pc-big b{font-size:2.1rem;color:var(--accent);line-height:1}
-.pc-big span{font-size:.86rem;color:var(--muted)}
-.pc{display:flex;align-items:center;gap:.7rem;background:var(--soft);border-radius:14px;padding:.7rem .8rem;margin-bottom:.55rem;cursor:pointer}
-.pc:active{opacity:.6}
-.pc-tap{font-size:.7rem;color:var(--accent-d);font-weight:800;text-align:center;line-height:1.5;white-space:nowrap;opacity:.85}
-.pc:last-child{margin-bottom:0}
-.pc-code{font-size:1.35rem;font-weight:800;letter-spacing:1px;color:var(--accent-d);font-variant-numeric:tabular-nums}
-.pc-meta{font-size:.76rem;color:var(--muted);margin-top:.1rem}
-.pc-body{flex:1;min-width:0}
-.pc-done{border:none;background:var(--card);color:var(--muted);font-size:.82rem;font-weight:700;
-  padding:.55rem .7rem;border-radius:11px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.pc-wrap{display:flex;flex-direction:column}
-.pc .ok-go{background:var(--card);color:var(--accent);border:1.5px solid var(--accent);font-weight:800}
-.empty{text-align:center;color:var(--muted);font-size:.9rem;padding:1.4rem 0}
-.empty .e{font-size:2rem;display:block;margin-bottom:.3rem}
-
-/* 防骗 */
-.scam{background:var(--card);border-radius:var(--radius);padding:.85rem .95rem;margin-bottom:.65rem;box-shadow:0 2px 10px rgba(120,90,80,.06)}
-.scam-h{display:flex;gap:.55rem;align-items:flex-start;cursor:pointer}
-.scam-h .t{flex:1;font-size:.98rem;font-weight:800;line-height:1.4}
-.scam-tag{font-size:.68rem;background:var(--soft);color:var(--accent-d);border-radius:8px;padding:.12rem .4rem;font-weight:700;white-space:nowrap}
-.scam-h .arw{color:var(--muted);font-size:.9rem;font-weight:800}
-.scam-seen .t{color:var(--muted);font-weight:700}
-.scam-b{margin-top:.65rem;border-top:1px dashed var(--line);padding-top:.6rem;display:none}
-.scam.open .scam-b{display:block}
-.scam-b p{margin:0 0 .5rem;font-size:.88rem;color:#4A3A37}
-.scam-tip{font-size:.86rem;background:var(--soft);border-radius:12px;padding:.55rem .65rem;color:var(--accent-d);font-weight:700;margin-bottom:.6rem}
-.scam-acts{display:flex;gap:.5rem;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:none;
-  background:var(--accent);color:#fff;font-size:.9rem;font-weight:800;padding:.62rem .9rem;border-radius:12px;
-  text-decoration:none;cursor:pointer;min-height:44px;font-family:inherit}
-.btn.ghost{background:var(--soft);color:var(--accent-d)}
-.btn.line{background:transparent;border:1.5px solid var(--line);color:var(--ink);font-weight:700}
-.btn.sm{font-size:.82rem;padding:.45rem .7rem;min-height:38px}
-.btn.block{display:flex;width:100%}
-.dial{position:sticky;top:calc(env(safe-area-inset-top) + 58px);z-index:25;margin-bottom:.7rem}
-
-/* 记账 */
-.money-sum{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.8rem}
-.ms{background:var(--card);border-radius:16px;padding:.75rem .8rem;box-shadow:0 2px 10px rgba(120,90,80,.06)}
-.ms span{font-size:.75rem;color:var(--muted)}
-.ms b{display:block;font-size:1.35rem;letter-spacing:-.5px;margin-top:.1rem}
-.ms b i{font-size:.8rem;font-style:normal;color:var(--muted);margin-left:.15rem}
-.ms.short b{color:var(--accent)}
-.cat-row{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem}
-.cat-chip{font-size:.72rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:.15rem .4rem}
-.rec{display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
-.rec:last-child{border:none}
-.rec-ico{width:2.3rem;height:2.3rem;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex:0 0 2.3rem}
-.rec-b{flex:1;min-width:0}
-.rec-b b{font-size:.92rem;font-weight:700;display:block}
-.rec-b span{font-size:.74rem;color:var(--muted)}
-.rec-amt{font-size:1.02rem;font-weight:800;font-variant-numeric:tabular-nums}
-.rec-img{width:2.3rem;height:2.3rem;border-radius:10px;object-fit:cover;flex:0 0 2.3rem;border:1px solid var(--line)}
-.rec-body{display:flex;align-items:center;gap:.6rem;flex:1;min-width:0;cursor:pointer}
-.day-h{font-size:.76rem;color:var(--muted);font-weight:700;margin:.7rem 0 .25rem}
-.pic-del{color:#C4553F;background:#FBE9E4;border:none;font-size:.8rem;font-weight:700;padding:.4rem .6rem;border-radius:10px}
-
-/* 弹层 */
-.mask{position:fixed;inset:0;background:rgba(50,35,30,.42);z-index:60;display:none;align-items:flex-end;justify-content:center}
-.mask.on{display:flex}
-.sheet{background:var(--card);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));
-  max-height:92vh;overflow:auto;animation:up .22s ease}
-@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
-.sheet-h{display:flex;align-items:center;margin-bottom:.8rem}
-.sheet-h b{flex:1;font-size:1.05rem}
-.sheet-h button{background:none;border:none;font-size:1.1rem;color:var(--muted);padding:.2rem .4rem}
-.amt-box{background:var(--bg);border-radius:14px;padding:.7rem .9rem;display:flex;align-items:center;gap:.4rem;margin-bottom:.8rem}
-.amt-box span{font-size:1.3rem;font-weight:800;color:var(--muted)}
-.amt-box input{flex:1;min-width:0;border:none;background:none;font-size:1.9rem;font-weight:800;
-  color:var(--ink);font-family:inherit;outline:none;font-variant-numeric:tabular-nums}
-.lbl{font-size:.78rem;color:var(--muted);font-weight:700;margin:.7rem 0 .35rem}
-.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-.cat{background:var(--bg);border-radius:13px;padding:.6rem .3rem;text-align:center;border:1.5px solid transparent}
-.cat.on{border-color:var(--accent);background:var(--soft)}
-.cat i{display:block;font-size:1.3rem;font-style:normal}
-.cat span{font-size:.76rem;font-weight:700}
-.inp{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;
-  padding:.62rem .7rem;font-size:.95rem;font-family:inherit;color:var(--ink);outline:none}
-.inp:focus{border-color:var(--accent)}
-.inp.ro{opacity:.75;background:var(--line);border-color:transparent}
-
-/* 设置 */
-.row{display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
-.row:last-child{border:none}
-.row .rk{flex:1;font-size:.92rem;font-weight:700}
-.row .rv{font-size:.85rem;color:var(--muted)}
-.swatch{display:flex;gap:.6rem;margin-top:.4rem}
-.sw{width:2.5rem;height:2.5rem;border-radius:50%;border:3px solid transparent;position:relative}
-.sw.on{border-color:var(--ink)}
-.sw.on:after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1rem}
-.fs-tabs{display:flex;gap:.4rem;margin-top:.4rem}
-.fs-tab{flex:1;text-align:center;padding:.5rem .2rem;border-radius:11px;background:var(--bg);font-weight:700;border:1.5px solid transparent}
-.fs-tab.on{border-color:var(--accent);background:var(--soft);color:var(--accent-d)}
-
-/* 底栏 */
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(255,255,255,.94);
-  backdrop-filter:saturate(180%) blur(14px);border-top:1px solid var(--line);
-  display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
-.nav-in{display:flex;width:100%;max-width:520px}
-.nav-i{flex:1;text-align:center;padding:.42rem .1rem .34rem;color:var(--muted);position:relative}
-.nav-i i{display:block;font-size:1.28rem;line-height:1.25;font-style:normal}
-.nav-i span{font-size:.68rem;font-weight:700;letter-spacing:.3px}
-.nav-i.on{color:var(--accent)}
-.nav-i.on:before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:1.5rem;height:3px;border-radius:2px;background:var(--accent)}
-.dot{position:absolute;top:.3rem;right:calc(50% - 1.35rem);min-width:1.1rem;height:1.1rem;border-radius:999px;
-  background:#E2453C;color:#fff;font-size:.62rem;font-weight:800;line-height:1.1rem;padding:0 .2rem}
-
-/* 提示 */
-#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,10px);
-  background:rgba(45,32,30,.92);color:#fff;font-size:.86rem;font-weight:600;padding:.6rem 1rem;border-radius:12px;
-  opacity:0;transition:.24s;z-index:99;max-width:80%;text-align:center;pointer-events:none}
-#toast.on{opacity:1;transform:translate(-50%,0)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
+#app{display:flex;min-height:100vh}
+/* 侧边导航 */
+#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 8px;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+#side::-webkit-scrollbar{display:none}
+.brand{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 4px 14px;text-align:center}
+.brand .bico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#FF5E62);display:flex;align-items:center;justify-content:center;font-size:22px}
+.brand b{font-size:14px;color:var(--text)}
+.brand .en{font-size:9px;color:var(--sub);letter-spacing:.5px}
+.menu-item{display:block;text-align:center;padding:9px 2px;border-radius:14px;cursor:pointer;margin-bottom:5px;color:var(--sub)}
+.menu-item .mi{font-size:24px;line-height:1;display:block}
+.menu-item .mz{font-size:12px;font-weight:700;display:block;margin-top:3px}
+.menu-item .me{display:block;font-size:8px;letter-spacing:.4px;opacity:.65;margin-top:1px}
+.ap-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ap-lab{font-size:13px;font-weight:600}
+.ap-dot{width:26px;height:26px;border-radius:50%;display:inline-block;cursor:pointer;margin-left:6px;border:2px solid transparent;vertical-align:middle;position:relative}
+.ap-dot.on{border-color:#DDE5EE;box-shadow:0 0 0 2px rgba(221,229,238,.25)}
+.menu-item.active{background:linear-gradient(135deg,rgba(255,138,61,.16),rgba(255,94,98,.08));color:var(--accent);transform:scale(1.04)}
+.menu-item.active .mz{color:var(--accent)}
+.menu-item:active{opacity:.6}
+/* 内容区 */
+#main{flex:1;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
 .page{display:none}
-.page.on{display:block}
-.hint{font-size:.76rem;color:var(--muted);line-height:1.6}
+.page.active{display:block}
+.pg-head{margin-bottom:12px}
+.pg-head h2{font-size:20px;color:var(--text)}
+.pg-head p{font-size:12px;color:var(--sub);margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.sec-title{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;margin-bottom:10px}
+.sec-title .en{font-size:10px;color:var(--sub);font-weight:400;margin-left:2px}
+.sec-title .sp{margin-left:auto}
+.btn{background:linear-gradient(135deg,var(--accent),#FF5E62);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:linear-gradient(135deg,#E5484D,#B3261E)}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+.mini-btn{background:var(--card2);border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer}
+.mini-btn.on{color:var(--accent);border-color:var(--accent)}
+.del{background:none;border:none;color:var(--sub);font-size:14px;cursor:pointer;padding:4px 6px}
+.inp.ro,.inp[readonly]{opacity:.72;cursor:default;background:var(--line);border-color:transparent}
+.inp{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;outline:none}
+.inp:focus{border-color:var(--accent)}
+textarea.inp{resize:vertical;line-height:1.6}
+select.inp{appearance:none;-webkit-appearance:none}
+input[type=date].inp,input[type=number].inp{color-scheme:dark}
+.form-row{margin-top:8px}
+.form-row2{display:flex;gap:8px;margin-top:8px}
+.form-row2 .inp{flex:1;min-width:0}
+.hint{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6}
+.empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0}
+/* 列表 */
+.li{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--line)}
+.li:last-child{border-bottom:none}
+.li-main{flex:1;min-width:0}
+.li-t{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li.done .li-t{color:var(--sub);text-decoration:line-through}
+.li-sub{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5}
+.tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--sub);margin-right:4px}
+.tag.acc{background:rgba(255,138,61,.15);color:var(--accent)}
+.tag.ok{background:rgba(62,207,178,.15);color:var(--ok)}
+.tag.hot{background:rgba(255,107,107,.15);color:var(--hot)}
+.tag.blue{background:rgba(91,168,245,.15);color:var(--blue)}
+.tag.warn{background:rgba(245,185,66,.15);color:var(--warn)}
+/* 进度条 */
+.bar{height:8px;background:var(--card2);border-radius:6px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#FF5E62);border-radius:6px;transition:width .3s}
+/* 横杠：跟农历文字走，居中在农历正下方 */
+#hmLunar{width:fit-content}
+#hmLunar::after{content:"";display:block;height:3px;width:56px;margin:5px auto 0;border-radius:99px;background:linear-gradient(90deg,var(--accent),#F2B8CB)}
+.wx-city{color:var(--text);font-weight:800}
+/* 天气提示横幅：雨天橙、安心青（都随本主题色） */
+.wx-tipbox{display:block;background:rgba(255,138,61,.14);color:#FFB27E;border-radius:12px;padding:5px 10px;font-weight:700;line-height:1.5;font-size:11px}
+.wx-tipbox.calm{background:rgba(62,207,178,.12);color:#6FD8BE}
+.bar-txt{font-size:11px;color:var(--sub);margin-top:4px}
+/* 项目卡 */
+.pj-card{position:relative}
+.pj-name{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pj-due{font-size:12px;color:var(--sub);margin-top:4px}
+.pj-due b.hot{color:var(--hot)} .pj-due b.ok{color:var(--ok)} .pj-due b.warn{color:var(--warn)}
+.pj-nums{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+.pj-nums b{color:var(--text);font-size:14px}
+.pj-nums .hot b{color:var(--accent)}
+.pj-ops{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ver{padding:8px 0;border-bottom:1px dashed var(--line);font-size:12.5px;line-height:1.6}
+.ver:last-child{border:none}
+.ver .vt{color:var(--accent);font-weight:700;font-size:11px}
+/* 星级 */
+.stars{color:var(--warn);font-size:13px;letter-spacing:2px;cursor:pointer}
+.stars .off{opacity:.22}
+/* 工具 */
+.tool-t{font-size:13px;font-weight:700;color:var(--accent);margin:14px 0 8px}
+.tool-t:first-of-type{margin-top:0}
+.mt-dots{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.mt-dot{width:16px;height:16px;border-radius:50%;background:var(--card2);border:1px solid var(--line);transition:all .05s}
+.mt-dot.on{background:var(--accent);border-color:var(--accent);transform:scale(1.35)}
+.mt-bpm{font-size:34px;font-weight:800;color:var(--accent);text-align:center}
+.mt-btn{display:block;margin:12px auto 0;padding:12px 40px;font-size:15px}
+.delay-row{display:flex;justify-content:space-between;padding:7px 4px;border-bottom:1px dashed var(--line);font-size:12.5px}
+.delay-row:last-child{border:none}
+.delay-row b{color:var(--accent);font-variant-numeric:tabular-nums}
+.circle-wrap{display:flex;justify-content:center;margin:8px 0}
+.chord-card{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.chord-card b{color:var(--accent);font-size:14px}
+.chord-card .cf{font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.6}
+.key-grid{display:flex;flex-wrap:wrap;gap:6px}
+.key-chip{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px}
+.key-chip b{color:var(--accent)}
+/* 弹窗 */
+#modalMask{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;z-index:99;padding:16px}
+#modalMask.show{display:flex}
+#modalBox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;width:100%;max-width:420px;max-height:82vh;overflow-y:auto}
+#modalBox h3{font-size:16px;margin-bottom:12px}
+.m-btns{display:flex;gap:8px;margin-top:14px}
+.m-btns .btn{flex:1}
+.card>.btn{margin-top:10px;display:inline-block}
+/* 手机：竖栏保持，稍微收窄 */
+@media (max-width:720px){
+  #side{width:78px;padding:calc(10px + env(safe-area-inset-top,0px)) 6px}
+  .m-btns .btn{padding:8px 6px;font-size:12px}
+  .brand .bico{width:36px;height:36px;font-size:19px}
+  .brand b{font-size:11.5px}
+  .menu-item .mi{font-size:21px}
+  .menu-item .mz{font-size:10.5px}
+  #main{padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(24px + env(safe-area-inset-bottom,0px))}
+}
 </style>
 </head>
-<body data-theme="taosha">
-<div class="top">
-  <div class="top-in">
-    <div class="hello">
-      <b id="greet">酒窝妈妈，下午好</b>
-      <div class="dateline"><span id="today">11月16日 星期一</span><b class="tclk" id="clock">14:30</b></div>
-      <div class="luneline" id="lunar">农历加载中…</div>
+<body>
+<div id="app">
+  <aside id="side">
+    <div class="brand">
+      <div class="bico" style="overflow:hidden"><img src="data:image/png;base64,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" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <div><b>哈哈杜</b></div>
     </div>
-  </div>
-</div>
+    <nav id="menu"></nav>
+  </aside>
+  <main id="main">
 
-<div class="wrap">
+    <!-- 桌面 Home -->
+    <section class="page active" id="p-home">
+      <div class="pg-head"><h2>🏠 工作台</h2><p>Home · 今天也要做出好听的歌哟</p></div>
+      <div class="card"><div class="sec-title" id="hmGreet">⏰ 下午好，哈哈杜 ꯁ</div>
+        <div id="hmDate" style="font-size:15px;font-weight:700"></div>
+        <div id="hmLunar" style="font-size:11.5px;color:var(--sub);margin-top:4px"></div>
+        <div id="hmWx" style="font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.5;cursor:pointer" onclick="go('set')">🌤️ 天气加载中…</div>
+      </div>
+      <div class="card"><div class="sec-title">💬 拒绝鸡汤 <span class="en">和 HONEY呦 同步</span></div>
+        <div id="hmQuote"></div>
+        <p class="hint" id="hmQuoteHint" style="margin-top:6px"></p>
+      </div>
+      <div class="card"><div class="sec-title">🚨 最近截止 <span class="en">Next Deadlines</span></div><div id="hmDue"></div></div>
+      <div class="card"><div class="sec-title">📊 一览 <span class="en">Overview</span></div><div id="hmStats"></div></div>
+      <div class="card"><div class="sec-title">🎧 最近的演出 <span class="en">Next Gigs</span></div><div id="hmShows"></div></div>
+    </section>
 
-  <!-- ========== 今日 ========== -->
-  <section class="page on" id="pg-today">
-    <div class="card" id="wxCard">
-      <div class="wx-top">
-        <div class="wx-ico" id="wxIco">☁️</div>
-        <div class="wx-main">
-          <div class="wx-t" id="wxT">--<i>°</i></div>
-          <div class="wx-s" id="wxS">正在看天气…</div>
+    <!-- 项目交付 -->
+    <section class="page" id="p-project">
+      <div class="pg-head"><h2>🎛️ 项目交付</h2><p>Projects · 词曲/编曲/混音/演出统筹，一个项目一张卡</p></div>
+      <div id="pjList"></div>
+      <div class="card">
+        <div class="sec-title">➕ 新建项目 <span class="en">New Project</span></div>
+        <div class="form-row2"><input class="inp" id="pjName" placeholder="项目名，如：夏夜漫游"><input class="inp" id="pjClient" placeholder="甲方/主办方，如：星河唱片"></div>
+        <div class="form-row2"><select class="inp" id="pjType"></select><input class="inp" type="date" id="pjDue"></div>
+        <div class="form-row2"><input class="inp" type="number" id="pjPrice" placeholder="报价 ¥"><input class="inp" type="number" id="pjDeposit" placeholder="已收定金 ¥（可空）"></div>
+        <div class="form-row"><select class="inp" id="pjStatus"></select></div>
+        <button class="btn" onclick="addProject()">创建项目</button>
+      </div>
+    </section>
+
+    <!-- 演出歌单 -->
+    <section class="page" id="p-show">
+      <div class="pg-head"><h2>🎧 演出歌单</h2><p>Sets · DJ Set / 演出统筹，BPM 调性提前排</p></div>
+      <div id="showList"></div>
+      <div class="card">
+        <div class="sec-title">➕ 新建演出 <span class="en">New Gig</span></div>
+        <div class="form-row2"><input class="inp" id="shName" placeholder="演出名，如：深空电台周五夜"><input class="inp" id="shVenue" placeholder="场地"></div>
+        <div class="form-row"><input class="inp" type="date" id="shDate"></div>
+        <button class="btn" onclick="addShow()">创建</button>
+      </div>
+    </section>
+
+    <!-- 音色库 -->
+    <section class="page" id="p-sample">
+      <div class="pg-head"><h2>🎚️ 音色采样库</h2><p>Samples · 那个很棒的采样存哪了？这里查</p></div>
+      <div class="card">
+        <div class="sec-title">🔍 搜索过滤 <span class="en">Filter</span></div>
+        <input class="inp" id="smQ" placeholder="搜名称 / 风格 / 来源 / 备注" oninput="renderSamples()">
+        <div class="form-row2">
+          <select class="inp" id="smType" onchange="renderSamples()"></select>
+          <select class="inp" id="smKey" onchange="renderSamples()"></select>
         </div>
-        <div class="wx-hl" id="wxHL"></div>
+        <div class="form-row2">
+          <input class="inp" type="number" id="smBpmMin" placeholder="BPM ≥" oninput="renderSamples()">
+          <input class="inp" type="number" id="smBpmMax" placeholder="BPM ≤" oninput="renderSamples()">
+          <select class="inp" id="smRate" onchange="renderSamples()"></select>
+        </div>
+        <div class="bar-txt" id="smCnt" style="margin-top:8px"></div>
       </div>
-      <div class="wx-tip calm" id="wxTip">正在看今天会不会下雨 ☁️</div>
-      <div class="wx-next" id="wxNext"></div>
-    </div>
-
-    <div class="card">
-      <div class="sec">📦 今天要取的快递 <span class="cnt" id="pcCnt"></span></div>
-      <div class="pc-big" id="pcBig" style="display:none"><b id="pcNum">0</b><span>件在驿站等你</span></div>
-      <div class="pc-wrap" id="pcList"></div>
-    </div>
-
-    <div class="card flat">
-      <div class="sec">💛 妈妈今天 </div>
-      <div class="row"><div class="rk">要取的快递</div><div class="rv" id="sumPc">0 件</div></div>
-      <div class="row"><div class="rk">今天花了</div><div class="rv" id="sumToday">¥0</div></div>
-      <div class="row"><div class="rk">防骗提示已看</div><div class="rv" id="sumScam">0 / 10</div></div>
-    </div>
-  </section>
-
-  <!-- ========== 防骗 ========== -->
-  <section class="page" id="pg-scam">
-    <a class="btn block dial" id="dialBtn" href="tel:">📞 拿不准？给家里人打电话</a>
-    <div class="hint" style="margin:-.3rem 0 .7rem;text-align:center">紧急情况直接拨 <b>110</b>，反诈专线 <b>96110</b></div>
-    <div class="card flat" style="margin-bottom:.8rem">
-      <div class="sec">🛡️ 最近骗子在用的招 <span class="cnt" id="scamCnt"></span></div>
-      <div class="hint">点开一条就算看过了。看完记住一句话就够：<b style="color:var(--accent-d)">凡是提到钱的电话，先挂掉，给家里人打个电话。</b></div>
-    </div>
-    <div id="scamList"></div>
-  </section>
-
-  <!-- ========== 记账 ========== -->
-  <section class="page" id="pg-money">
-    <div class="money-sum">
-      <div class="ms"><span>这个月花了</span><b id="msMonth">¥0<i>元</i></b><div class="cat-row" id="msMonthCat"></div></div>
-      <div class="ms short"><span>今年一共花了</span><b id="msYear">¥0<i>元</i></b><div class="cat-row" id="msYearCat"></div></div>
-    </div>
-    <button class="btn block" onclick="openMoney()">＋ 记一笔</button>
-    <div class="card" style="margin-top:.8rem">
-      <div class="sec">📒 最近的账 <span class="cnt" id="recCnt"></span></div>
-      <div id="recList"></div>
-    </div>
-  </section>
-
-  <!-- ========== 设置 ========== -->
-  <section class="page" id="pg-set">
-    <div class="card">
-      <img id="aboutImg" alt="酒窝妈妈" style="width:100%;border-radius:14px;border:1px solid var(--line);margin-bottom:.6rem;cursor:pointer" onclick="aboutPickClick()">
-      <div class="hint" style="text-align:center;margin-bottom:.6rem">酒窝妈妈，笑一笑，辛苦啦，妈妈健康身体棒！🌹</div>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn ghost" style="flex:1" onclick="aboutPickClick()">📷 换一张</button>
-        <button class="btn ghost" style="flex:1;display:none" id="aboutResetBtn" onclick="aboutReset()">↩ 换回原来的</button>
+      <div class="card"><div id="smList"></div></div>
+      <div class="card">
+        <div class="sec-title">➕ 收录采样 <span class="en">Add Sample</span></div>
+        <div class="form-row2"><input class="inp" id="smName" placeholder="采样名，如：闷响808鼓组"><select class="inp" id="smNewType"></select></div>
+        <div class="form-row2"><input class="inp" type="number" id="smBpm" placeholder="BPM"><select class="inp" id="smNewKey"></select></div>
+        <div class="form-row2"><input class="inp" id="smGenre" placeholder="风格，如：Lo-fi / Trap / 民谣"><input class="inp" id="smSource" placeholder="来源，如：Splice / 自录"></div>
+        <div class="form-row"><textarea class="inp" id="smNote" rows="2" placeholder="备注：音色特点、适合放哪"></textarea></div>
+        <div class="form-row"><div class="stars" id="smNewStars"></div></div>
+        <button class="btn" onclick="addSample()">收录</button>
       </div>
-      <input type="file" accept="image/*" id="aboutFile" style="display:none" onchange="aboutPick(this)">
-      <p class="hint" style="margin-top:.5rem">点图片或「换一张」，选张自己喜欢的照片或漫画放这里，会自动压缩保存。</p>
-    </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">📞 家人电话</div>
-      <div class="hint" style="margin-bottom:.6rem">防骗页那个大按钮就打这个号码。填好保存后会锁住，不怕误删；要改点「修改」。</div>
-      <div class="lbl" style="margin-top:0">怎么称呼（比如 媛媛、闺女）</div>
-      <input class="inp" id="telName" readonly placeholder="媛媛" maxlength="8">
-      <div class="lbl">手机号</div>
-      <input class="inp" id="telNum" readonly placeholder="11 位手机号码" inputmode="tel" maxlength="11">
-      <div style="display:flex;gap:.5rem;margin-top:.6rem">
-        <button class="btn ghost" style="flex:1" id="telEditBtn" onclick="telBtnTap()">✏️ 修改</button>
+    <!-- 曲库 -->
+    <section class="page" id="p-lib">
+      <div class="pg-head"><h2>💿 参考曲库</h2><p>Library · 上传的歌自动读 BPM，拆歌笔记都挂在歌下面</p></div>
+      <div id="libList"></div>
+      <div class="card">
+        <div class="sec-title">⬆️ 上传音频 <span class="en">Upload</span></div>
+        <label class="btn" style="display:inline-block;position:relative;overflow:hidden">🎵 选文件上传<input type="file" accept="audio/*" onchange="libUpload(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
+        <span id="libUpStat" style="font-size:12px;color:var(--sub);margin-left:10px"></span>
+        <p class="hint">支持 mp3 / m4a / wav 等（网页解不开 flac 就换格式）。上传后自动分析：时长、BPM 估算、波形图。<br>⚠️ 音频本体只存在这台设备的浏览器里（不当网盘用），换手机前「导出备份」能带走笔记和数据，音频文件到新设备重新传一次就行。</p>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">🌤️ 我的城市</div>
-      <div class="row" style="border:none;padding-top:0">
-        <div class="rk" id="cityNow">还没设置</div>
-        <button class="btn sm ghost" onclick="useGeo()">用我的位置</button>
+    <!-- 理论工具箱 -->
+    <section class="page" id="p-tool">
+      <div class="pg-head"><h2>🧰 理论工具箱</h2><p>Tools · 节拍器是真的会响的</p></div>
+      <div class="card">
+        <div class="sec-title">⏱️ 节拍器 <span class="en">Metronome</span></div>
+        <div class="mt-bpm"><span id="mtBpmV">100</span><span style="font-size:12px;color:var(--sub);font-weight:400"> BPM</span></div>
+        <div class="form-row"><input type="range" id="mtBpm" min="40" max="240" value="100" style="width:100%" oninput="$id('mtBpmV').textContent=this.value"></div>
+        <div class="form-row2"><select class="inp" id="mtTs"><option value="2">2/4 拍</option><option value="3">3/4 拍</option><option value="4" selected>4/4 拍</option><option value="6">6/8 拍</option></select>
+        <button class="btn mt-btn" id="mtBtn" onclick="mtToggle()" style="margin:0">▶ 开始</button></div>
+        <div class="mt-dots" id="mtDots"></div>
+        <p class="hint">重拍高音、弱拍低音。戴上耳机效果更沉浸。</p>
       </div>
-      <div style="display:flex;gap:.5rem;margin-top:.3rem">
-        <input class="inp" id="cityInp" placeholder="输入城市或区，比如 金水区、成都">
-        <button class="btn sm" onclick="searchCity()">查</button>
+      <div class="card">
+        <div class="sec-title">⏳ 延迟计算器 <span class="en">Delay Time</span></div>
+        <div class="form-row2"><input class="inp" type="number" id="dlBpm" value="120" placeholder="BPM" oninput="renderDelay()"><span class="inp" style="flex:0 0 auto;display:flex;align-items:center;color:var(--sub);background:none;border:none">BPM</span></div>
+        <div class="form-row" id="dlTable"></div>
+        <p class="hint">把算出的毫秒数填进延迟/混响效果的 Time 里，人声瞬间和节拍咬合。</p>
       </div>
-      <div id="cityHits" style="margin-top:.4rem"></div>
-    </div>
+      <div class="card">
+        <div class="sec-title">🎡 五度圈 <span class="en">Circle of Fifths</span></div>
+        <div class="circle-wrap" id="coc"></div>
+        <div class="key-grid" id="cocList"></div>
+        <p class="hint">外圈大调 · 内圈关系小调。相邻的两个调，歌听感最亲近、转调最自然。</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">🎸 常用和弦进行 <span class="en">Chord Progressions</span></div>
+        <div id="chordList"></div>
+      </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">🎨 颜色</div>
-      <div class="swatch">
-        <div class="sw on" data-th="taosha" style="background:#D2607A" onclick="setTheme('taosha')"></div>
-        <div class="sw" data-th="ju" style="background:#E08A47" onclick="setTheme('ju')"></div>
-        <div class="sw" data-th="zhu" style="background:#4E8C6A" onclick="setTheme('zhu')"></div>
-        <div class="sw" data-th="lan" style="background:#4A7CA8" onclick="setTheme('lan')"></div>
+    <!-- 灵感本 -->
+    <section class="page" id="p-idea">
+      <div class="pg-head"><h2>💡 灵感捕捉本</h2><p>Ideas · 灵感来了不接住就跑了</p></div>
+      <div class="card">
+        <div class="sec-title">🔍 筛选 <span class="en">Filter</span></div>
+        <div class="form-row2">
+          <select class="inp" id="ideaTagF" onchange="renderIdeas()"></select>
+          <input class="inp" id="ideaQ" placeholder="搜内容" oninput="renderIdeas()">
+        </div>
       </div>
-    </div>
+      <div class="card"><div id="ideaList"></div></div>
+      <div class="card">
+        <div class="sec-title">➕ 抓住灵感 <span class="en">New Idea</span></div>
+        <div class="form-row"><textarea class="inp" id="ideaText" rows="3" placeholder="旋律哼唱描述 / 歌词碎片 / 和弦动机……也可以直接录音哼一段！"></textarea></div>
+        <div class="form-row" style="display:flex;align-items:center;gap:10px">
+          <button class="btn ghost sm" id="recBtn" onclick="recToggle()">🎙️ 按下录音</button>
+          <span id="recTime" style="font-size:12px;color:var(--sub)"></span>
+        </div>
+        <audio id="recPrev" controls style="display:none;width:100%;height:38px;margin-top:8px"></audio>
+        <div class="form-row2">
+          <select class="inp" id="ideaTag"></select>
+          <input class="inp" id="ideaFrom" placeholder="来源，如：洗澡时 / 地铁上">
+        </div>
+        <button class="btn" onclick="addIdea()">抓住它</button>
+      </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">🔤 字的大小</div>
-      <div class="fs-tabs">
-        <div class="fs-tab" data-fs="normal" onclick="setFs('normal')">标准</div>
-        <div class="fs-tab on" data-fs="big" onclick="setFs('big')">大</div>
-        <div class="fs-tab" data-fs="huge" onclick="setFs('huge')">特大</div>
-        <div class="fs-tab" data-fs="max" onclick="setFs('max')">超大</div>
+    <!-- 歌词台 -->
+    <section class="page" id="p-lyric">
+      <div class="pg-head"><h2>🎤 歌词工作台</h2><p>Lyrics · 分节写，存版本，改稿不丢</p></div>
+      <div class="card">
+        <div class="sec-title">🎼 选择作品 <span class="en">Song</span>
+          <span class="sp"><button class="mini-btn" onclick="newLyric()">➕ 新建</button></span></div>
+        <select class="inp" id="lySel" onchange="loadLyric()"></select>
+        <div class="form-row"><input class="inp" id="lyTitle" placeholder="歌名"></div>
+        <div class="form-row"><textarea class="inp" id="lyText" rows="10" placeholder="【主歌1】&#10;……&#10;&#10;【副歌】&#10;……&#10;（空行分段，节名用【】标注）"></textarea></div>
+        <div class="m-btns">
+          <button class="btn" onclick="saveLyric()">💾 保存</button>
+          <button class="btn ghost" onclick="snapLyric()">📌 存为版本</button>
+          <button class="btn ghost" onclick="lyVersions()">🕘 版本历史</button>
+        </div>
+        <p class="hint">改大稿前先「存为版本」，随时可以回滚到任何一版。甲方甩锅？不存在的。</p>
       </div>
-    </div>
+      <div class="card">
+        <div class="sec-title">🌐 网上找歌词 <span class="en">LRCLIB 开放歌词库</span></div>
+        <div class="form-row2"><input class="inp" id="lrTrack" placeholder="歌名，如：晚风"><input class="inp" id="lrArtist" placeholder="歌手（可不填）"></div>
+        <div class="form-row"><button class="btn ghost sm" onclick="lrSearch()">🔍 搜索歌词</button></div>
+        <div id="lrOut"></div>
+        <p class="hint">歌词来自开放社区歌词库 LRCLIB（联网调用）。搜到后一键填入上方歌词台，再自己改稿；没搜到就手动粘贴。⚠️ 商用发行前记得核对版权。</p>
+      </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">☁️ 快递同步</div>
-      <div class="hint" style="margin-bottom:.6rem">孩子在她手机上整理好取件码，会推到这里。第一次用，把这串同步码填进去就行。</div>
-      <input class="inp" id="syGist" placeholder="同步码（Gist 编号）">
-      <div class="row" style="margin-top:.5rem;border:none;padding:.4rem 0">
-        <div class="rk" style="font-size:.82rem;font-weight:600;color:var(--muted)" id="syState">还没有更新过</div>
+    <!-- 拆歌日志 -->
+    <section class="page" id="p-study">
+      <div class="pg-head"><h2>🎧 拆歌日志</h2><p>Study · 每天拆一首歌，攒武功秘籍</p></div>
+      <div class="card"><div id="studyList"></div></div>
+      <div class="card">
+        <div class="sec-title">➕ 拆一首 <span class="en">New Study</span></div>
+        <div class="form-row2"><input class="inp" type="date" id="stDate"><input class="inp" id="stSong" placeholder="歌名"></div>
+        <div class="form-row"><input class="inp" id="stArtist" placeholder="歌手 / 制作人"></div>
+        <div class="form-row"><input class="inp" id="stStruct" placeholder="编曲结构，如：Intro(8)-Verse(16)-Pre(8)-Chorus(16)"></div>
+        <div class="form-row"><input class="inp" id="stMix" placeholder="混音亮点，如：人声延迟卡在1/8T"></div>
+        <div class="form-row"><textarea class="inp" id="stTake" rows="2" placeholder="可借鉴技巧"></textarea></div>
+        <div class="form-row"><div class="stars" id="stStars"></div></div>
+        <button class="btn" onclick="addStudy()">记录</button>
       </div>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn ghost" style="flex:1" onclick="saveGist()">保存同步码</button>
-        <button class="btn" style="flex:1" onclick="pullParcels(false)">立即更新</button>
-      </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">💾 数据管理 <span class="en">Data</span></div>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn ghost" style="flex:1" onclick="exportData()">导出备份</button>
-        <label class="btn ghost" style="flex:1;position:relative;overflow:hidden;cursor:pointer">导入备份<input type="file" accept=".json" onchange="importData(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
+    <!-- 发歌清单 -->
+    <section class="page" id="p-release">
+      <div class="pg-head"><h2>🚀 发歌清单</h2><p>Release · 一首歌要跑的流程，全勾完才算发完</p></div>
+      <div id="relList"></div>
+      <div class="card">
+        <div class="sec-title">➕ 新歌发布清单 <span class="en">New Release</span></div>
+        <div class="form-row2"><input class="inp" id="relSong" placeholder="歌名"><button class="btn" onclick="addRelease()">生成清单</button></div>
+        <p class="hint">按下方「发布模板」自动生成，生成后可在每条清单里增删。</p>
       </div>
-      <p class="hint" style="margin-top:.5rem">换手机前点「导出备份」把文件存好，新手机点「导入备份」选中它，快递和账本就都回来啦。</p>
-    </div>
+      <div class="card">
+        <div class="sec-title">🧾 发布模板 <span class="en">Template</span>
+          <span class="sp"><button class="mini-btn" onclick="addTplItem()">➕ 加一项</button></span></div>
+        <div id="tplList"></div>
+      </div>
+    </section>
 
-    <div class="card">
-      <div class="sec">⚙️ 关于</div>
-      <div class="row"><div class="rk">版本</div><div class="rv" id="appVer">v1.0</div></div>
-      <div class="row"><div class="rk">检查有没有新版本</div><button class="btn sm ghost" onclick="checkSwVer(true)">检查更新</button></div>
-      <div class="hint" style="margin-top:.6rem">遇到要转账、要验证码、让下载 App 的电话，一律挂掉。拿不准就打 96110。</div>
-    </div>
-  </section>
+    <!-- 伙伴录 -->
+    <section class="page" id="p-contact">
+      <div class="pg-head"><h2>🤝 合作伙伴录</h2><p>Contacts · 谁擅长什么，一查就有</p></div>
+      <div class="card">
+        <div class="sec-title">🔍 筛选 <span class="en">Filter</span></div>
+        <div class="form-row2">
+          <select class="inp" id="ctRoleF" onchange="renderContacts()"></select>
+          <input class="inp" id="ctQ" placeholder="搜名字 / 擅长 / 备注" oninput="renderContacts()">
+        </div>
+      </div>
+      <div class="card"><div id="ctList"></div></div>
+      <div class="card">
+        <div class="sec-title">➕ 添加伙伴 <span class="en">New Contact</span></div>
+        <div class="form-row2"><input class="inp" id="ctName" placeholder="名字/艺名"><select class="inp" id="ctRole"></select></div>
+        <div class="form-row"><input class="inp" id="ctSkill" placeholder="擅长，如：R&B和声编写"></div>
+        <div class="form-row2"><input class="inp" id="ctPrice" placeholder="报价区间，如：编曲 ¥3k-8k"><input class="inp" id="ctPhone" placeholder="微信/电话"></div>
+        <div class="form-row"><textarea class="inp" id="ctNote" rows="2" placeholder="上次合作评价"></textarea></div>
+        <button class="btn" onclick="addContact()">保存</button>
+      </div>
+    </section>
+
+    <!-- 行业动态 -->
+    <section class="page" id="p-news">
+      <div class="pg-head"><h2>📰 行业动态 <span id="newsCnt" style="font-size:12px;font-weight:600;color:var(--sub);vertical-align:2px;margin-left:4px"></span></h2><p>Industry News · 看看大拿们最近在忙什么</p></div>
+      <div id="newsList"></div>
+      <p class="hint">点开卡片即视为已看；动态在每次 App 更新时补充最新内容。</p>
+    </section>
+
+    <!-- 设置 -->
+    <section class="page" id="p-set">
+      <div class="pg-head"><h2>⚙️ 设置</h2><p>Settings</p></div>
+      <div class="card">
+        <div class="sec-title">🎨 外观设置 <span class="en">Appearance</span></div>
+        <div class="ap-row"><span class="ap-lab">主题色</span><span id="apDots1"></span></div>
+        <div class="ap-row"><span class="ap-lab">辅助色</span><span id="apDots2"></span></div>
+        <div class="ap-row"><span class="ap-lab">字体大小 <b id="apFsVal">14px</b></span><input type="range" id="apFs" min="12" max="17" step="1" oninput="apFs(this.value)" style="width:150px;accent-color:var(--accent)"></div>
+        <div class="form-row"><button class="btn ghost sm" onclick="apReset()">↩ 恢复默认配色</button></div>
+        <p class="hint">主题色管按钮和高亮，辅助色管成功的绿色点缀，改完立即生效并记住。</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">🌤️ 天气城市 <span class="en">Weather</span></div>
+        <div class="ap-row"><span class="ap-lab" id="cityNow">还没设置</span><button class="btn ghost sm" onclick="useGeo()">📍 用我的位置</button></div>
+        <div class="form-row2" style="gap:6px"><input class="inp" id="cityInp" style="flex:1;min-width:0" placeholder="输入城市或区，比如 金水区、成都"><button class="btn ghost sm" style="flex:0 0 auto" onclick="searchCity()">查</button></div>
+        <div id="cityHits" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+        <p class="hint">天气每 30 分钟自动更新；想精确到区就填区名（如 金水区）。</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">☁️ 语录云同步 <span class="en">Quote Sync</span></div>
+        <div class="form-row"><input class="inp" id="syGist" readonly placeholder="Gist ID（HONEY呦 那边填同一个）"></div>
+        <div class="form-row2"><button class="btn sm" id="syBtn" onclick="syncBtnTap()">✏️ 修改</button></div>
+        <p class="hint">填一次 Gist ID（不用 Token），默认锁定防误删；点「✏️ 修改」才能编辑。</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">💾 数据 <span class="en">Data</span></div>
+        <div class="form-row2">
+          <button class="btn ghost" onclick="exportData()">导出备份</button>
+          <label class="btn ghost" style="position:relative;overflow:hidden">导入备份<input type="file" accept=".json" onchange="importData(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
+        </div>
+        <p class="hint">数据只存在本机浏览器里，换手机前记得导出备份！</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">ℹ️ 版本 <span class="en">Version</span></div>
+        <div id="appVer" style="font-size:18px;font-weight:700;color:var(--accent)"></div>
+        <div id="appVerDate" style="font-size:11px;font-weight:500;color:var(--text);opacity:.75;margin-top:2px"></div>
+        <p class="hint">每次更新后这里的版本号都会变。看到新版本号 = 更新成功！</p>
+        <div class="form-row2"><button class="btn ghost" onclick="checkUpdateManual()">🔄 检查更新</button></div>
+      </div>
+    </section>
+
+  </main>
 </div>
+<div id="modalMask" onclick="if(event.target===this)closeModal()"><div id="modalBox"></div></div>
 
-<nav class="nav">
-  <div class="nav-in">
-    <div class="nav-i on" data-p="today" onclick="go('today')"><i>🏠</i><span>今天</span><b class="dot" id="dotToday" style="display:none"></b></div>
-    <div class="nav-i" data-p="scam" onclick="go('scam')"><i>🛡️</i><span>防骗</span><b class="dot" id="dotScam" style="display:none"></b></div>
-    <div class="nav-i" data-p="money" onclick="go('money')"><i>💰</i><span>记账</span></div>
-    <div class="nav-i" data-p="set" onclick="go('set')"><i>⚙️</i><span>设置</span></div>
-  </div>
-</nav>
-
-<!-- 记账弹层 -->
-<div class="mask" id="maskMoney" onclick="if(event.target===this)closeMoney()">
-  <div class="sheet">
-    <div class="sheet-h"><b>记一笔</b><button onclick="closeMoney()">✕</button></div>
-    <div class="amt-box"><span>¥</span><input id="mAmt" inputmode="decimal" placeholder="0" oninput="amtInput(this)"></div>
-    <div class="lbl">这是什么钱？</div>
-    <div class="grid9" id="catGrid"></div>
-    <div class="lbl">说一句（可不填）</div>
-    <input class="inp" id="mNote" placeholder="比如：买菜、给孙子买鞋">
-    <div class="lbl">拍一下小票（可不拍）</div>
-    <div style="display:flex;gap:.5rem;align-items:center">
-      <label class="btn ghost" style="flex:1;margin:0">
-        📷 拍照 / 从相册选
-        <input type="file" accept="image/*" style="display:none" onchange="pickImg(this)">
-      </label>
-      <button class="btn line sm" onclick="clearImg()">重拍</button>
-    </div>
-    <div id="imgPrev" style="margin-top:.5rem"></div>
-    <button class="btn block" style="margin-top:.9rem" onclick="saveMoney()">✓ 记下来</button>
-  </div>
-</div>
-
-<!-- 添加快递弹层 -->
-<div class="mask" id="maskPc" onclick="if(event.target===this)closePc()">
-  <div class="sheet">
-    <div class="sheet-h"><b>＋ 添加快递</b><button onclick="closePc()">✕</button></div>
-
-    <div class="lbl">方式一：菜鸟、淘宝、京东的截图传上来，自动认取件码</div>
-    <label class="btn ghost block" style="margin:0">
-      📷 选截图，自动认取件码
-      <input type="file" accept="image/*" style="display:none" onchange="pcOcr(this)">
-    </label>
-    <div class="hint" id="ocrState" style="margin-top:.4rem">第一次使用要等十几秒下载识别组件，之后会快很多</div>
-
-    <div class="lbl">方式二：把取件码那段文字粘贴进来（截图后在相册长按文字也能复制）</div>
-    <textarea class="inp" id="pcPaste" rows="3" placeholder="比如：取件码 1-2-3456，XX驿站"></textarea>
-    <div style="display:flex;gap:.5rem;margin-top:.6rem">
-      <button class="btn ghost" style="flex:1" onclick="pcParsePaste()">认一认</button>
-      <button class="btn ghost" style="flex:1" onclick="pcAddManual()">手动填一条</button>
-    </div>
-
-    <div id="pcDraft"></div>
-    <button class="btn block" style="margin-top:.9rem" onclick="pcSaveDrafts()">✓ 加到快递列表</button>
-  </div>
-</div>
-
-<div id="toast"></div>
 <script>
-/* ================= 基础 ================= */
-const APP_VER='v1.7', APP_VER_DATE='2026-11-17';
-const STORE='jiuwoMamaV1';
-const $id=x=>document.getElementById(x);
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const WD=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-let toastTimer=null;
-function toast(m){const t=$id('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),2400)}
-function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function hmStr(ts){const d=new Date(ts);return (d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+/* ================= BeatCraft · 音乐制作人工作台 ================= */
+const STORE='hahaduData_v1';
+const APP_VER='v1.19', APP_VER_DATE='2026-11-17';
+const MENUS=[
+ ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
+ ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
+ ['idea','💡','灵感本','Ideas'],['lyric','🎤','歌词台','Lyrics'],
+ ['study','🎧','拆歌日志','Study'],['release','🚀','发歌清单','Release'],
+ ['contact','🤝','伙伴录','Contacts'],
+ ['show','🎧','演出歌单','Sets'],
+ ['news','📰','行业动态','Industry'],
+ ['set','⚙️','设置','Settings']
+];
+const SAMPLE_TYPES=['鼓组','旋律','Bass','人声','氛围','音效','完整Demo','DJ组曲素材','其他'];
+const KEYS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const IDEA_TAGS=['副歌候选','主歌动机','前奏/Intro','和弦进行','歌名梗','编曲点子','歌词碎片','DJ transition 点子','其他'];
+const CONTACT_ROLES=['歌手','乐手','混音师','母带师','录音棚','厂牌/发行','作词人','DJ','舞台总监','演出场地','其他'];
+const PJ_TYPES=['作词作曲','编曲制作','混音','母带','全案制作','DJ演出','活动总监','其他'];
+const DEF_TPL=['分轨导出并核对','封面图 3000×3000','ISRC 码申请','平台元数据填写','歌词与字幕','版权登记','母带终审试听','上线日期确认'];
+const STATUS_LIST=['作曲编曲中','待甲方确认','混音中','已交付','已结清','暂停'];
+const CHORD_PROG=[
+ ['1-4-5-1','万能百搭','流行歌的起点，怎么写都不出错','C-F-G-C'],
+ ['1-5-6-4','流行神级循环','主歌副歌通吃，全球化标配','C-G-Am-F'],
+ ['1-6-4-5','50年代抒情','复古情歌味，温柔克制','C-Am-F-G'],
+ ['6-4-1-5','副歌推情绪','从小调切入，情绪一下就起来','Am-F-C-G'],
+ ['2-5-1','爵士衔接','转场、结尾、爵士味全靠它','Dm-G-C'],
+ ['4-5-3-6-2-5-1','4536251 华语抒情王','周杰伦式万能进行，卡农变体','F-G-Em-Am-Dm-G-C'],
+ ['1-4-6-5','治愈系','清新温暖，校园民谣常用','C-F-Am-G'],
+ ['1-3-4-5','怀旧民谣','淡淡忧伤的三度色彩','C-Em-F-G']
+];
+function pad(n){return n<10?'0'+n:''+n}
+function fmt(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function todayStr(){return fmt(new Date())}
+function uid(){return Date.now()+Math.random().toString(16).slice(2,6)}
+function esc(s){return (s||'').toString().replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function $id(x){return document.getElementById(x)}
+function starsHTML(n,max){let h='';for(let i=1;i<=(max||5);i++)h+='<span class="'+(i<=n?'':'off')+'">★</span>';return h}
+function daysLeft(due){if(!due)return null;const t=new Date(todayStr().replace(/-/g,'/')),d=new Date(due.replace(/-/g,'/'));return Math.round((d-t)/86400000)}
 
-function defaultData(){return {v:1,name:'妈妈',theme:'taosha',fs:'big',city:null,parcels:[],scamSeen:{},ledger:[],sync:{gist:'',lastAt:0,lastN:0},tel:'',telName:'',aboutImg:''}}
-let D=defaultData();
-function load(){try{const r=localStorage.getItem(STORE);if(r)Object.assign(D,JSON.parse(r))}catch(e){D=defaultData()}
-  D.parcels=D.parcels||[];D.ledger=D.ledger||[];D.scamSeen=D.scamSeen||{};
-  D.sync=Object.assign({gist:'',lastAt:0,lastN:0},D.sync||{});D.city=D.city||null;D.theme=D.theme||'taosha';D.fs=D.fs||'big';
-  D.tel=D.tel||'';D.telName=D.telName||''}
-function save(){try{localStorage.setItem(STORE,JSON.stringify(D))}catch(e){toast('手机存储快满了，删几张小票照片吧')}}
+function defaultData(){
+  const t=todayStr();
+  return {
+    projects:[{id:uid(),name:'夏夜漫游',client:'星河唱片',type:'全案制作',due:fmt(new Date(Date.now()+7*86400000)),price:6000,paid:2000,status:'作曲编曲中',versions:[{id:uid(),date:t,text:'v1 首版 Demo 交付，等待甲方反馈'}]}],
+    shows:[{id:uid(),name:'深空电台 · 周五夜',venue:'MAO Livehouse',date:fmt(new Date(Date.now()+10*86400000)),items:[{name:'Sunset Drive',bpm:104,key:'A',note:'开场，热场'},{name:'夏夜漫游 (Remix)',bpm:110,key:'C',note:'自作曲首放'},{name:'Midnight Bass',bpm:126,key:'F#',note:'过渡到高潮段'}]}],
+    samples:[
+      {id:uid(),name:'闷响808鼓组',type:'鼓组',bpm:90,key:'A',genre:'Trap',source:'自录合成',rate:5,note:'低频厚，副歌底鼓用这个'},
+      {id:uid(),name:'雨夜电钢 Lo-fi',type:'旋律',bpm:72,key:'F',genre:'Lo-fi',source:'Splice',rate:4,note:'自带黑胶噪底，主歌铺底'},
+      {id:uid(),name:'合成氛围垫 Pad',type:'氛围',bpm:100,key:'C',genre:'Ambient',source:'Vital 预设',rate:3,note:'长音铺底，加混响更空'}
+    ],
+    ideas:[{id:uid(),text:'副歌旋律 5-3-2-1 下行，配「夜色漫过肩膀」',tag:'副歌候选',from:'洗澡时',date:t}],
+    songs:[{id:uid(),title:'夏夜漫游',lyric:'【主歌1】\n霓虹淹没了晚风\n手机屏幕亮了又空\n\n【副歌】\n夜色漫过肩膀 我不想说晚安\n',versions:[]}],
+    studies:[{id:uid(),date:t,song:'晚风',artist:' __ ',structure:'Intro(4)-Verse(16)-Pre(8)-Chorus(16)-Bridge(8)',mix:'人声延迟卡1/8T，副歌加失谐合唱',takeaway:'副歌前留白两拍，情绪反差拉满',rate:5}],
+    relTpl:[...DEF_TPL],
+    releases:[{id:uid(),song:'夏夜漫游',items:DEF_TPL.map((t,i)=>({t,done:i<2}))}],
+    contacts:[{id:uid(),name:'阿澈',role:'混音师',skill:'流行/R&B 混音',price:'¥2k-4k/首',phone:'微信 achu-mix',note:'上手快，返稿不磨叽'}],
+    lib:[],theme:null,city:null
+  };
+}
+function load(){let d=defaultData();try{const r=localStorage.getItem(STORE);if(r){const s=JSON.parse(r);Object.assign(d,s);
+  }}catch(e){d=defaultData()}
+  d.projects=d.projects||[];d.samples=d.samples||[];d.ideas=d.ideas||[];d.songs=d.songs||[];d.studies=d.studies||[];d.releases=d.releases||[];d.contacts=d.contacts||[];d.shows=d.shows||[];d.lib=d.lib||[];if(d.city===undefined)d.city=null;d.appearance=d.appearance||{};d.sync=d.sync||{gist:''};d.quoteCloud=d.quoteCloud||null;d.quoteLocal=d.quoteLocal||null;d.newsSeen=d.newsSeen||{};
+  d.projects.forEach(p=>{if(!p.type)p.type='编曲制作';if(!p.versions)p.versions=[]});
+  if(!d.relTpl||!d.relTpl.length)d.relTpl=[...DEF_TPL];
+  return d}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(D))}catch(e){alert('保存失败：本地存储可能已满')}}
+let D=load(), smNewRate=3, stNewRate=3, curLyric=null, mtOn=false, mtTimer=null, mtBeat=0, mtCtx=null;
 
-function applyLook(){document.body.dataset.theme=D.theme;document.documentElement.dataset.fs=D.fs;
-  document.querySelectorAll('.sw').forEach(x=>x.classList.toggle('on',x.dataset.th===D.theme));
-  document.querySelectorAll('.fs-tab').forEach(x=>x.classList.toggle('on',x.dataset.fs===D.fs));
-  const m={taosha:'#FBF3EE',ju:'#FFF7EC',zhu:'#F1F7F2',lan:'#F0F5FA'};
-  const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',m[D.theme]||'#FBF3EE')}
-function setTheme(t){D.theme=t;save();applyLook()}
-function setFs(f){D.fs=f;save();applyLook()}
+/* 导航 */
+function renderMenu(){
+  $id('menu').innerHTML=MENUS.map(m=>`<div class="menu-item ${m[0]==='home'?'active':''}" data-p="${m[0]}" onclick="go('${m[0]}')"><span class="mi">${m[1]}</span><span class="mz">${m[2]}</span><span class="me">${m[3]}</span></div>`).join('');
+}
+function go(p){
+  document.querySelectorAll('.menu-item,.mi-pill').forEach(el=>el.classList.toggle('active',el.dataset.p===p));
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  $id('p-'+p).classList.add('active');
+  renderPage(p);window.scrollTo(0,0);
+}
+function renderPage(p){
+  ({home:renderHome,project:renderProjects,show:renderShows,sample:renderSamples,lib:renderLib,tool:renderTools,
+    idea:renderIdeas,lyric:renderLyrics,study:renderStudies,release:renderReleases,
+    contact:renderContacts,news:renderNews,set:renderSettings})[p]();
+}
+/* 弹窗 */
+function showModal(html){$id('modalBox').innerHTML=html;$id('modalMask').classList.add('show')}
+function closeModal(){$id('modalMask').classList.remove('show')}
 
-function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$id('pg-'+p).classList.add('on');
-  document.querySelectorAll('.nav-i').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
-  if(p==='today')renderToday();if(p==='scam')renderScam();if(p==='money')renderMoney();if(p==='set')renderSet();
-  window.scrollTo(0,0)}
+/* ---------- 农历（与 HONEY呦 同源校准，1900-2100） ---------- */
+const LTAB=[[0,8,3026],[384,0,1874],[738,0,3749],[1093,5,2858],[1476,0,1611],[1830,0,2715],[2185,4,6822],[2569,0,1386],[2923,0,2905],[3278,2,2986],[3662,0,1874],[4016,6,3493],[4400,0,2853],[4754,0,2635],[5108,5,6731],[5492,0,685],[5846,0,1387],[6201,2,1461],[6585,0,3497],[6940,7,7826],[7324,0,3730],[7678,0,3365],[8032,5,3373],[8416,0,2646],[8770,0,694],[9124,4,6869],[9509,0,1748],[9863,0,3753],[10218,2,3914],[10602,0,3730],[10956,6,1702],[11339,0,1323],[11693,0,2647],[12048,5,6486],[12432,0,2906],[12787,0,1748],[13141,3,5985],[13525,0,1865],[13879,7,6931],[14263,0,2707],[14617,0,1323],[14971,6,5403],[15355,0,2733],[15710,0,1386],[16064,4,7589],[16449,0,2980],[16803,0,2889],[17157,2,3403],[17541,0,2709],[17895,7,2733],[18279,0,1334],[18633,0,2733],[18988,5,6858],[19372,0,1458],[19726,0,3493],[20081,3,7842],[20465,0,3402],[20819,8,1429],[21202,0,2711],[21557,0,1366],[21911,6,1397],[22295,0,2773],[22650,0,1746],[23004,4,1877],[23388,0,3749],[23743,0,1610],[24096,3,1615],[24480,0,2715],[24835,7,2778],[25219,0,1386],[25573,0,2921],[25928,5,2994],[26312,0,2898],[26666,0,2853],[27020,4,2859],[27404,0,2635],[27758,8,2731],[28142,0,685],[28496,0,1389],[28851,6,5545],[29235,0,3497],[29590,0,3474],[29944,4,3733],[30328,0,3365],[30682,10,3661],[31066,0,2646],[31420,0,694],[31774,6,757],[32158,0,1749],[32513,0,3753],[32868,5,3922],[33252,0,3730],[33606,0,3366],[33960,3,1326],[34343,0,2647],[34698,8,2774],[35082,0,858],[35436,0,1749],[35791,5,2921],[36175,0,1865],[36529,0,1683],[36883,4,2715],[37267,0,1323],[37621,0,2651],[37976,2,2734],[38360,0,1386],[38714,7,3541],[39099,0,2980],[39453,0,2889],[39807,5,3411],[40191,0,2709],[40545,0,1325],[40899,4,1373],[41283,0,2741],[41638,9,2986],[42022,0,1490],[42376,0,3493],[42731,6,7818],[43115,0,3402],[43469,0,3221],[43823,4,2718],[44207,0,1366],[44561,0,2741],[44916,2,2778],[45300,0,1746],[45654,6,1893],[46038,0,1829],[46392,0,1611],[46746,5,1623],[47130,0,3243],[47485,0,1370],[47839,3,1390],[48223,0,2921],[48578,11,3922],[48962,0,2898],[49316,0,2853],[49670,6,7435],[50054,0,2635],[50408,0,1195],[50762,5,699],[51146,0,1453],[51501,0,2922],[51856,2,3498],[52240,0,3474],[52594,7,3749],[52978,0,3365],[53332,0,2645],[53686,5,6733],[54070,0,1206],[54424,0,1461],[54779,3,5842],[55163,0,3785],[55518,8,3986],[55902,0,3730],[56256,0,3366],[56610,6,5398],[56993,0,2647],[57348,0,1238],[57702,4,4965],[58086,0,1877],[58441,0,1865],[58795,3,1867],[59179,0,1683],[59533,7,2731],[59917,0,1323],[60271,0,2651],[60626,5,2746],[61010,0,1386],[61364,0,2917],[61719,4,2986],[62103,0,2890],[62457,8,3477],[62841,0,2709],[63195,0,1325],[63549,6,1389],[63933,0,2741],[64288,0,1450],[64642,4,1493],[65026,0,3493],[65381,0,3402],[65735,3,3661],[66119,0,3222],[66473,7,3278],[66857,0,1366],[67211,0,2741],[67566,5,6866],[67950,0,1746],[68304,0,3749],[68659,4,1834],[69042,0,1675],[69396,8,1687],[69780,0,1195],[70134,0,1371],[70489,6,5462],[70873,0,2922],[71228,0,1874],[71582,4,2965],[71966,0,2885],[72320,0,2699],[72674,2,2639],[73058,0,1195]];
+const LMC=['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+const LDC=['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+const LANCHOR=new Date(1900,0,31);
+function lun2(d){
+  const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const diff=Math.round((dd-LANCHOR)/86400000);
+  if(diff<0)return null;
+  let yi=0;for(let i=0;i<LTAB.length;i++){if(LTAB[i][0]<=diff)yi=i;else break}
+  const leap=LTAB[yi][1],mask=LTAB[yi][2];
+  let rest=diff-LTAB[yi][0];
+  const seq=[];for(let m=1;m<=12;m++){seq.push([m,false]);if(m===leap)seq.push([m,true])}
+  for(const ml of seq){const len=(mask&(1<<(ml[1]?12:ml[0]-1)))?30:29;if(rest<len)return{y:1900+yi,m:ml[0],isleap:ml[1],d:rest+1};rest-=len}
+  return null;
+}
+function lunarText(d){
+  const L=lun2(d);if(!L)return '';
+  const y=L.y,gz=((y-4)%10+10)%10,bz=((y-4)%12+12)%12;
+  return '农历 '+'甲乙丙丁戊己庚辛壬癸'[gz]+'子丑寅卯辰巳午未申酉戌亥'[bz]+'【'+'鼠牛虎兔龙蛇马羊猴鸡狗猪'[bz]+'】年 '+(L.isleap?'闰':'')+LMC[L.m-1]+'月'+LDC[L.d-1];
+}
+function greetTxt(now){const h=now.getHours();return h<5?'夜深了':h<9?'早上好':h<12?'上午好':h<13?'中午好':h<18?'下午好':h<23?'晚上好':'夜深了'}
 
-function greet(){const d=new Date(),h=d.getHours();
-  const g=h<5?'夜深了，早点休息':h<9?'早上好':h<12?'上午好':h<13?'中午好':h<17?'下午好':h<19?'傍晚好':'晚上好';
-  $id('greet').textContent='酒窝妈妈，'+g;
-  $id('today').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日 '+WD[d.getDay()]}
-function loadScript(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
-let lunarP=null;
-function ensureLunar(){if(window.Lunar)return Promise.resolve(true);
-  if(!lunarP)lunarP=(async()=>{
-    const us=['https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js','https://fastly.jsdelivr.net/npm/lunar-javascript/lunar.js','https://unpkg.com/lunar-javascript/lunar.js'];
-    for(const u of us){try{await loadScript(u);if(window.Lunar)return true}catch(e){}}
-    return false})();
-  return lunarP}
-function lunarText(d){try{const L=Lunar.fromDate(d);
-  return '农历 '+L.getYearInGanZhi()+'【'+L.getYearShengXiao()+'】年 '+L.getMonthInChinese()+'月'+L.getDayInChinese()+(L.getJieQi()?' · '+L.getJieQi():'')}catch(e){return ''}}
-async function refreshTop(){
-  greet();
-  const d=new Date();
-  $id('clock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  const ok=await ensureLunar();
-  $id('lunar').textContent=ok?lunarText(d):'农历暂时显示不了（网络问题）';
+/* ---------- 桌面 ---------- */
+function honeyQuote(){
+  try{
+    const r=localStorage.getItem('honeyAppData_v1');if(!r)return null;
+    const h=JSON.parse(r);
+    if(h.quote&&h.quote.custom&&h.quote.t)return {t:h.quote.t,en:h.quote.en||''};
+  }catch(e){}
+  return null;
+}
+function saveQuoteLocal(){
+  const t=$id('qlT').value.trim();if(!t)return alert('先粘贴语录哦');
+  D.quoteLocal={t:t,en:$id('qlE').value.trim()};save();renderHome();
+}
+function editQuoteLocal(){
+  const loc=D.quoteLocal||{t:'',en:''};
+  showModal(`<h3>✏️ 手动同步语录</h3>
+    <input class="inp" id="qlT2" value="${esc(loc.t)}" placeholder="语录">
+    <input class="inp" id="qlE2" value="${esc(loc.en||'')}" placeholder="英文翻译（可空）" style="margin-top:8px">
+    <div class="m-btns"><button class="btn" onclick="saveQuoteLocal2()">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+}
+function saveQuoteLocal2(){
+  const t=$id('qlT2').value.trim();if(!t)return alert('先写语录哦');
+  D.quoteLocal={t:t,en:$id('qlE2').value.trim()};
+  save();closeModal();renderHome();
+}
+/* ---------- 语录云端同步（GitHub Gist 中转，接收端） ---------- */
+function cloudPullQuote(){
+  const g=D.sync&&D.sync.gist;if(!g)return;
+  fetch('https://api.github.com/gists/'+g,{headers:{'Accept':'application/vnd.github+json'}})
+    .then(r=>r.ok?r.json():null).then(gist=>{
+      if(!gist||!gist.files)return;
+      const f=gist.files['honey-sync.json'];
+      if(!f||!f.content)return;
+      let q;try{q=JSON.parse(f.content)}catch(e){return}
+      if(!q||!q.t)return;
+      const old=D.quoteCloud;
+      if(!old||q.at>(old.at||0)){D.quoteCloud={t:q.t,en:q.en||'',at:q.at||0};save();renderHome();}
+    }).catch(()=>{});
+}
+/* ---------- 行业动态（人工精选，随版本更新补充；本次更新至 2026-11-17） ---------- */
+const NEWS=[
+ {cat:'🎼 演出',d:'11月14日',s:'中国青年报',t:'国乐+AI《零·壹|中国色》亮相上海大歌剧院',
+  sum:'上海民族乐团 × 腾讯音乐天琴实验室：AI 作曲系统生成初稿与旋律框架，演奏家再「二次创作」注入灵魂。开场曲《东方既白》里，笙在 AI 影响下演绎出西方管风琴般的空灵气质。「AI 出框架、人做二度创作」的协作范式，正在国有院团正式舞台上跑通，配乐方向可以参考这套分工。',
+  url:'https://www.163.com/dy/article/LBPR7RQ20514CDBK.html'},
+ {cat:'🤖 AI音乐',d:'11月13日',s:'AI Musicpreneur',t:'全球首届 SIQA AI 音乐奖颁出：虚拟歌手 Xania Monet 独揽四项大奖',
+  sum:'11月13日洛杉矶，首届 SIQA AI Music Awards：虚拟艺人 Xania Monet（幕后创作者为词曲人 Telisha Jones）拿下年度 AI 歌曲/艺人/专辑、最佳 AI R&B 四奖；还细分成 AI 辅助、人机合作两个赛道。AI 音乐已经有了自己的奖项与榜单体系，投 AI 相关作品时，留意各平台对「AI 参与度」的标注与披露要求。',
+  url:'https://www.audiartist.com/ai-music-awards-2026-xania-monet-virtual-artists-trophies'},
+ {cat:'🤖 AI音乐',d:'11月13日',s:'AI Musicpreneur',t:'首支 AI 人声歌曲登顶韩国 Melon 榜首',
+  sum:'Meomuru《The Adult I Dreamed Of》登上 Melon Top100 第一名——AI 人声歌曲首次登顶主流大榜。项目幕后是 Glorywave 制作二人组：真人写词，Suno 负责旋律、编曲与演唱。「真人写词 + AI 演唱」的打法已被市场验证到榜首级别，接单时可以主动提供这种人机混合方案。',
+  url:'https://www.aimusicpreneur.com/ai-music-news/musical-ai-first-rule-fully-licensed-generative-ai-music-production-tools'},
+ {cat:'🤖 AI音乐',d:'11月11日',s:'Digital Music News',t:'Suno 官司再升级：Eminem 出版方起诉盗用 269 首，Reservoir 索赔总额冲到 4.5 亿美元',
+  sum:'Eminem 出版方 Eight Mile Style 起诉 Suno 未经授权用 269 首作品训练，诉状还举出疑似逐字复现《Lose Yourself》歌词的例子；版权公司 Reservoir 把对 Suno 的诉讼扩到 1368 首作品、合计最高索赔 4.457 亿美元。授权训练、出处追踪、署名分成正在成为 AI 音乐的硬门槛——用 AI 出货前，先确认平台的授权与商用条款。',
+  url:'https://auaimusic.com/news/ai-music-weekly-brief-2026-11-15?lang=en'},
+ {cat:'🏢 平台',d:'11月09日',s:'Digital Music News',t:'Spotify AI Remix 明年上线：艺人可选加入，业内争议不断',
+  sum:'Spotify 计划明年初推出 AI 混音功能，听众可改变歌曲风格甚至「换声」，但只能在站内收听；已与环球、Merlin、Believe、Kobalt 达成协议，单个艺人自主决定是否参与。补偿、署名、版税怎么分仍是悬案——「艺人 opt-in」并不能解决衍生作品的全部权利问题，国内平台跟进大概率也是这套「白名单」模式。',
+  url:'https://www.aimusicpreneur.com/ai-music-news/musical-ai-first-rule-fully-licensed-generative-ai-music-production-tools'},
+ {cat:'🎧 制作人',d:'11月09日',s:'新浪娱乐',t:'钱雷包办马嘉祺《致年少的自己》编曲、制作与钢琴',
+  sum:'上线首日登顶 QQ 音乐在听热度榜（实时在听 7.4 万人），35 分钟收藏破 100 万。制作思路：钢琴打底不堆配器、把重心让给人声与词意，混音母带也由钱雷本人操刀——「少即是多」的静水系制作再次被市场验证。',
+  url:'https://ent.sina.cn/2026-11-09/detail-iniycmtw2911977.d.html'},
+ {cat:'🏢 平台',d:'11月13日',s:'新浪福建',t:'中国数字音乐产业大会落地厦门：AI 作歌、AI 母带、两岸创作营全链条展示',
+  sum:'腾讯音乐启明星 AI 作歌、AI 编曲与声音设计工具、AI 母带处理在厦门湖里集中落地，「创作端 AI 出词曲初稿 + 制作分发端 AI 提效」正成为产业园区招商的标准叙事；两岸（厦门）青年音乐人创作营两季已孵化 50 首正式发行作品。行业活动与版权试点都在往「AI 全流程」靠，独立音乐人对接园区资源时可以关注这波政策红利。',
+  url:'https://fj.sina.com.cn/news/2026-11-13/detail-iniypzqc1098716.shtml'}
+];
+/* 自动抓取：每天由定时任务更新 news.json（与 index.html 同目录），启动时拉最新；
+   拉不到/格式不对就用内置 NEWS 兜底 */
+let LIVE_NEWS=null,LIVE_DATE='';
+function newsArr(){return (LIVE_NEWS&&LIVE_NEWS.length)?LIVE_NEWS:NEWS}
+async function loadNewsRemote(){
+  try{
+    const r=await fetchTO('news.json?u='+Date.now(),8000);
+    if(!r.ok)return;
+    const j=await r.json();
+    const arr=(Array.isArray(j.news)?j.news:[]).filter(n=>n&&n.t&&n.url&&n.cat).slice(0,10);
+    if(!arr.length)return;
+    LIVE_NEWS=arr;LIVE_DATE=j.updated||'';
+    newsOpen={};
+    if($id('news'))renderNews();
+  }catch(e){}
+}
+function renderNews(){
+  const list=newsArr();
+  $id('newsCnt').textContent='已看 '+list.filter((n,i)=>D.newsSeen[i]).length+'/'+list.length+(LIVE_DATE?' · 更新至 '+LIVE_DATE:'');
+  $id('newsList').innerHTML=list.map((n,i)=>{
+    const open=!!newsOpen[i],seen=!!D.newsSeen[i];
+    return `<div class="card news-i${open?' open':''}" style="cursor:pointer" onclick="newsToggle(${i})">
+     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tag blue">${n.cat}</span><span style="font-size:11px;color:var(--sub)">${n.d} · ${n.s}</span><span style="margin-left:auto;font-size:11px;color:var(--sub)">${seen?'✔ 已看':'👀 未看'}</span></div>
+     <div style="font-size:14px;font-weight:700;margin-top:8px;line-height:1.5">${n.t}</div>
+     ${open?`<div style="font-size:12px;color:var(--sub);margin-top:6px;line-height:1.7" onclick="event.stopPropagation()">${n.sum}</div>
+     <div class="form-row" style="cursor:default" onclick="event.stopPropagation()"><a class="btn ghost sm" href="${n.url}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">🔗 查看原文</a></div>`
+     :'<div style="font-size:11px;color:var(--sub);margin-top:4px">点开阅读全文 ▸</div>'}
+    </div>`;
+  }).join('');
+}
+let newsOpen={};
+function newsToggle(i){
+  newsOpen[i]=!newsOpen[i];
+  if(newsOpen[i]&&!D.newsSeen[i]){D.newsSeen[i]=1;save()}
+  renderNews();
+}
+function renderHome(){
+  const now=new Date(),wd='日一二三四五六'[now.getDay()];
+  $id('hmDate').textContent=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 · 星期'+wd;
+  $id('hmGreet').textContent='⏰ '+greetTxt(now)+'，哈哈杜 ꯁ';
+  $id('hmLunar').textContent=lunarText(now);
+  const q=(D.quoteCloud&&D.quoteCloud.t)?D.quoteCloud:honeyQuote();
+  if(q&&q.t){
+    $id('hmQuote').innerHTML='<div style="font-size:15px;font-weight:700;line-height:1.7">'+esc(q.t)+'</div>'+(q.en?'<div style="font-size:11px;color:var(--sub);margin-top:6px;line-height:1.6">'+esc(q.en)+'</div>':'');
+    let hint='✔ 实时同步自 HONEY呦「拒绝鸡汤」，在那边编辑就自动更新';
+    if(q.at){const dt=new Date(q.at);hint='☁️ 云端同步自 HONEY呦 · '+(dt.getMonth()+1)+'月'+dt.getDate()+'日 '+pad(dt.getHours())+':'+pad(dt.getMinutes())+' 自动更新'}
+    $id('hmQuoteHint').innerHTML=hint;
+  }else if(D.quoteLocal&&D.quoteLocal.t){
+    $id('hmQuote').innerHTML='<div style="font-size:15px;font-weight:700;line-height:1.7">'+esc(D.quoteLocal.t)+'</div>'+(D.quoteLocal.en?'<div style="font-size:11px;color:var(--sub);margin-top:6px;line-height:1.6">'+esc(D.quoteLocal.en)+'</div>':'');
+    $id('hmQuoteHint').innerHTML='📌 手动同步的语录 · <span style="cursor:pointer;text-decoration:underline;color:var(--accent)" onclick="editQuoteLocal()">改一改 / 重新粘贴</span> · 想全自动同步：设置 → ☁️ 语录云同步';
+  }else{
+    $id('hmQuote').innerHTML='<div class="form-row" style="margin-top:0"><input class="inp" id="qlT" placeholder="把 HONEY呦 的语录粘到这里"></div><div class="form-row"><input class="inp" id="qlE" placeholder="英文翻译（可空）"></div><div class="form-row"><button class="btn sm" onclick="saveQuoteLocal()">📌 保存语录</button></div>';
+    $id('hmQuoteHint').innerHTML='想全自动同步？在 HONEY呦「设置 → ☁️ 语录云同步」和这里「设置 → ☁️ 语录云同步」各填一次 Gist 配置即可；也可以先手动粘贴。';
+  }
+  const t=todayStr();
+  const dues=D.projects.filter(p=>p.due&&p.status!=='已结清'&&p.status!=='已交付').map(p=>({p,d:daysLeft(p.due)})).sort((a,b)=>a.d-b.d);
+  $id('hmDue').innerHTML=dues.length?dues.slice(0,4).map(x=>{
+    const d=x.d,txt=d<0?'已超期'+(-d)+'天':d===0?'就是今天':d+'天后';
+    const cls=d<0?'hot':d<=3?'warn':'ok';
+    return `<div class="li"><div class="li-main"><div class="li-t">${esc(x.p.name)}</div><div class="li-sub">${esc(x.p.client||'')} · ${esc(x.p.type||'')} · ${esc(x.p.status)}</div></div><span class="tag ${cls}">${txt}</span></div>`;
+  }).join(''):'<p class="empty">没有临近截止的项目，安心创作 🎧</p>';
+  const shows=D.shows.filter(s=>s.date&&daysLeft(s.date)>=0).map(s=>({s,d:daysLeft(s.date)})).sort((a,b)=>a.d-b.d);
+  $id('hmShows').innerHTML=shows.length?shows.slice(0,3).map(x=>{
+    const d=x.d,txt=d===0?'就是今天':d+'天后';const cls=d<=3?'warn':'blue';
+    return `<div class="li" onclick="go('show')"><div class="li-main"><div class="li-t">${esc(x.s.name)}</div><div class="li-sub">${esc(x.s.venue||'')} · ${x.s.items.length} 首歌单</div></div><span class="tag ${cls}">${txt}</span></div>`;
+  }).join(''):'<p class="empty">近期没有演出排期</p>';
+  const ing=D.projects.filter(p=>p.status!=='已结清'&&p.status!=='已交付').length;
+  const fin=D.projects.filter(p=>p.status==='已结清'||p.status==='已交付').length;
+  const relDone=D.releases.reduce((s,r)=>s+r.items.filter(i=>i.done).length,0);
+  const relTot=D.releases.reduce((s,r)=>s+r.items.length,0);
+  $id('hmStats').innerHTML=[
+    ['🎛️ 项目交付',D.projects.length?(fin+'/'+D.projects.length+' 完成 · 进行中'+ing):'暂无项目','project'],
+    ['💡 灵感存库',D.ideas.length+' 条','idea'],['🎚️ 采样',D.samples.length+' 个','sample'],
+    ['💿 曲库',D.lib.length+' 首','lib'],
+    ['🚀 发歌进度',relTot?relDone+'/'+relTot:'-','release'],['🎧 已拆歌',D.studies.length+' 首','study'],
+    ['🤝 伙伴',D.contacts.length+' 位','contact'],
+    ['🎧 演出排期',D.shows.length+' 场','show'],
+    ['📰 行业动态',newsArr().filter((n,i)=>D.newsSeen[i]).length+'/'+newsArr().length,'news']
+  ].map(x=>`<div class="li" onclick="go('${x[2]}')"><div class="li-main"><div class="li-t">${x[0]}</div></div><span class="tag acc">${x[1]}</span></div>`).join('');
 }
 
-/* ================= 天气 ================= */
+/* ---------- 项目交付 ---------- */
+let pjSelReady=false;
+function fillPjSel(){
+  if(pjSelReady)return;pjSelReady=true;
+  $id('pjType').innerHTML=PJ_TYPES.map((t,i)=>`<option ${i===1?'selected':''}>${t}</option>`).join('');
+  $id('pjStatus').innerHTML=STATUS_LIST.map((s,i)=>`<option ${i===0?'selected':''}>${s}</option>`).join('');
+}
+function dueHTML(d){if(d===null)return'';const txt=d<0?'已超期'+(-d)+'天':d===0?'⏰ 今天截止':d+'天后截止';const cls=d<0?'hot':d<=3?'warn':'ok';return `<b class="${cls}">${txt}</b>`}
+function renderProjects(){
+  fillPjSel();
+  $id('pjList').innerHTML=D.projects.length?D.projects.map(p=>{
+    const pct=p.price?Math.min(100,Math.round(p.paid/p.price*100)):0;
+    const dl=daysLeft(p.due);
+    const stCls=p.status==='已结清'||p.status==='已交付'?'ok':p.status==='暂停'?'hot':'acc';
+    const isGig=p.type==='DJ演出'||p.type==='活动总监';
+    return `<div class="card pj-card">
+      <div class="pj-name">${esc(p.name)} <span class="tag ${stCls}">${esc(p.status)}</span> <span class="tag blue">${esc(p.type||'')}</span></div>
+      <div class="pj-due">甲方：${esc(p.client||'-')} · 截止：${esc(p.due||'-')} ${dueHTML(dl)}</div>
+      ${isGig?'':`<div class="pj-nums"><span>报价 <b>¥${p.price||0}</b></span><span>已收 <b>¥${p.paid||0}</b></span><span class="hot">待收 <b>¥${(p.price||0)-(p.paid||0)}</b></span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="bar-txt">回款 ${pct}% · 修改版本 ${p.versions.length} 版</div>`}
+      <div class="pj-ops">
+        <button class="mini-btn" onclick="editProject('${p.id}')">✏️ 编辑</button>
+        ${isGig?'':'<button class="mini-btn" onclick="projVersions(\''+p.id+'\')">💬 修改记录</button><button class="mini-btn" onclick="quickPay(\''+p.id+'\')">💰 记收款</button>'}
+        <button class="del" onclick="delProject('${p.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="card"><p class="empty">还没有项目，新建一个吧 🎛️</p></div>';
+}
+function addProject(){
+  fillPjSel();
+  const n=$id('pjName').value.trim();if(!n)return alert('填项目名哦');
+  D.projects.unshift({id:uid(),name:n,client:$id('pjClient').value.trim(),type:$id('pjType').value,due:$id('pjDue').value,price:+$id('pjPrice').value||0,paid:+$id('pjDeposit').value||0,status:$id('pjStatus').value,versions:[]});
+  save();['pjName','pjClient','pjPrice','pjDeposit'].forEach(x=>$id(x).value='');renderProjects();
+}
+function editProject(id){
+  const p=D.projects.find(o=>o.id===id);if(!p)return;
+  showModal(`<h3>✏️ 编辑项目</h3>
+    <input class="inp" id="epName" value="${esc(p.name)}" placeholder="项目名">
+    <div class="form-row2"><input class="inp" id="epClient" value="${esc(p.client||'')}" placeholder="甲方/主办方"><input class="inp" type="date" id="epDue" value="${p.due||''}"></div>
+    <div class="form-row"><select class="inp" id="epType">${PJ_TYPES.map(t=>`<option ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="form-row2"><input class="inp" type="number" id="epPrice" value="${p.price||0}" placeholder="报价 ¥"><input class="inp" type="number" id="epPaid" value="${p.paid||0}" placeholder="已收 ¥"></div>
+    <div class="form-row"><select class="inp" id="epStatus">${STATUS_LIST.map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="m-btns"><button class="btn" onclick="saveProject('${id}')">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+}
+function saveProject(id){
+  const p=D.projects.find(o=>o.id===id);if(!p)return;
+  p.name=$id('epName').value.trim()||p.name;p.client=$id('epClient').value.trim();
+  p.type=$id('epType').value;
+  p.due=$id('epDue').value;p.price=+$id('epPrice').value||0;p.paid=+$id('epPaid').value||0;
+  p.status=$id('epStatus').value;save();closeModal();renderProjects();
+}
+function quickPay(id){
+  const p=D.projects.find(o=>o.id===id);if(!p)return;
+  showModal(`<h3>💰 记收款 · ${esc(p.name)}</h3>
+    <p class="hint" style="margin:0 0 8px">报价 ¥${p.price||0} · 已收 ¥${p.paid||0} · 待收 ¥${(p.price||0)-(p.paid||0)}</p>
+    <input class="inp" type="number" id="qpAmt" placeholder="本次收款金额 ¥">
+    <div class="m-btns"><button class="btn" onclick="doPay('${id}')">确认收到</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+}
+function doPay(id){
+  const p=D.projects.find(o=>o.id===id),amt=+$id('qpAmt').value||0;
+  if(!amt)return alert('填金额哦');
+  p.paid=(p.paid||0)+amt;
+  if(p.price&&p.paid>=p.price)p.status='已结清';
+  p.versions.unshift({id:uid(),date:todayStr(),text:'收到款 ¥'+amt+'（累计 ¥'+p.paid+'）'});
+  save();closeModal();renderProjects();
+}
+function projVersions(id){
+  const p=D.projects.find(o=>o.id===id);if(!p)return;
+  showModal(`<h3>💬 修改记录 · ${esc(p.name)}</h3>
+    <div style="max-height:300px;overflow-y:auto">${p.versions.length?p.versions.map((v,i)=>`<div class="ver"><span class="vt">#${p.versions.length-i} · ${esc(v.date)}</span><br>${esc(v.text)}</div>`).join(''):'<p class="empty">还没有记录</p>'}</div>
+    <textarea class="inp" id="vText" rows="2" placeholder="新记录：甲方第几次意见，改了什么"></textarea>
+    <div class="m-btns"><button class="btn" onclick="addVersion('${id}')">添加记录</button><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
+}
+function addVersion(id){
+  const p=D.projects.find(o=>o.id===id),t=$id('vText').value.trim();
+  if(!t)return alert('写点内容哦');
+  p.versions.unshift({id:uid(),date:todayStr(),text:t});save();projVersions(id);renderProjects();
+}
+function delProject(id){if(!confirm('删除这个项目（含修改记录）？'))return;D.projects=D.projects.filter(o=>o.id!==id);save();renderProjects()}
+
+/* ---------- 演出歌单 ---------- */
+function renderShows(){
+  $id('showList').innerHTML=D.shows.length?[...D.shows].sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(sh=>{
+    const d=daysLeft(sh.date);
+    const dTxt=d===null?'':d<0?'已结束':d===0?'⏰ 就是今天':d+'天后';
+    const dCls=d===null?'':d<0?'':d<=3?'warn':'blue';
+    const avgBpm=sh.items.length?Math.round(sh.items.reduce((s,i)=>s+(+i.bpm||0),0)/sh.items.length):0;
+    return `<div class="card"><div class="sec-title">🎧 ${esc(sh.name)} ${dTxt?`<span class="tag ${dCls}">${dTxt}</span>`:''}
+      <span class="sp"><button class="del" onclick="delShow('${sh.id}')">✕</button></span></div>
+      <div class="pj-due">📍 ${esc(sh.venue||'-')} · ${esc(sh.date||'-')} · ${sh.items.length} 首 · 平均 BPM ${avgBpm||'-'}</div>
+      ${sh.items.map((it,i)=>`<div class="li"><span class="tag acc">${i+1}</span>
+        <div class="li-main"><div class="li-t">${esc(it.name)}</div>
+        <div class="li-sub">${it.bpm?`<span class="tag">${it.bpm} BPM</span>`:''}${it.key?`<span class="tag">${esc(it.key)}调</span>`:''}${it.note?' '+esc(it.note):''}</div></div>
+        <button class="del" onclick="delShowItem('${sh.id}',${i})">✕</button></div>`).join('')||'<p class="empty">歌单空空的</p>'}
+      ${D.lib.length?`<div class="form-row"><select class="inp" id="sp-${sh.id}" onchange="pickLib('${sh.id}',this)"><option value="">💿 从曲库挑歌（自动填 BPM 调性）</option>${D.lib.map(t=>`<option value="${t.id}">${esc(t.name)}${t.bpm?' · ≈'+t.bpm+' BPM':''}</option>`).join('')}</select></div>`:''}
+      <div class="form-row2"><input class="inp" id="si-${sh.id}" placeholder="歌名"><input class="inp" type="number" id="sb-${sh.id}" placeholder="BPM"></div>
+      <div class="form-row2"><select class="inp" id="sk-${sh.id}"><option value="">调性</option>${KEYS.map(k=>`<option>${k}</option>`).join('')}</select><button class="btn ghost sm" onclick="addShowItem('${sh.id}')">➕ 加歌</button></div>
+    </div>`;
+  }).join(''):'<div class="card"><p class="empty">还没有演出排期，新建一场 🎧</p></div>';
+}
+function addShow(){
+  const n=$id('shName').value.trim();if(!n)return alert('填演出名哦');
+  D.shows.unshift({id:uid(),name:n,venue:$id('shVenue').value.trim(),date:$id('shDate').value,items:[]});
+  save();['shName','shVenue','shDate'].forEach(x=>$id(x).value='');renderShows();
+}
+function delShow(id){if(!confirm('删除这场演出？'))return;D.shows=D.shows.filter(o=>o.id!==id);save();renderShows()}
+function addShowItem(id){
+  const sh=D.shows.find(o=>o.id===id),v=$id('si-'+id).value.trim();if(!v)return alert('填歌名哦');
+  sh.items.push({name:v,bpm:+$id('sb-'+id).value||0,key:$id('sk-'+id).value||'',note:''});
+  save();renderShows();
+}
+function delShowItem(id,i){const sh=D.shows.find(o=>o.id===id);sh.items.splice(i,1);save();renderShows()}
+function pickLib(shid,sel){
+  const tr=D.lib.find(o=>o.id===sel.value);if(!tr)return;
+  $id('si-'+shid).value=tr.name;
+  $id('sb-'+shid).value=tr.bpm||'';
+  const km=(tr.key||'').match(/[A-G](#|b)?/);
+  if(km)$id('sk-'+shid).value=km[0];
+  sel.value='';
+}
+
+/* ---------- 音色库 ---------- */
+let smTypeSel=false;
+function fillSampleSel(){
+  if(smTypeSel)return;smTypeSel=true;
+  const opt=(arr,all)=>'<option value="">'+all+'</option>'+arr.map(x=>`<option>${x}</option>`).join('');
+  $id('smType').innerHTML=opt(SAMPLE_TYPES,'🎚️ 全部类型');
+  $id('smKey').innerHTML=opt(KEYS.map(k=>k),'🎹 全部调性');
+  $id('smRate').innerHTML='<option value="">⭐ 全部评分</option>'+[5,4,3,2,1].map(n=>`<option value="${n}">${n} 星以上</option>`).join('');
+  $id('smNewType').innerHTML=opt(SAMPLE_TYPES,'').replace('<option value=""></option>','<option selected>鼓组</option>');
+  $id('smNewKey').innerHTML=opt(KEYS,'').replace('<option value=""></option>','<option selected>C</option>');
+  $id('smNewStars').innerHTML=starsSel('smNewRate',3);
+  $id('stStars')&&($id('stStars').innerHTML=starsSel('stNewRate',3));
+}
+function starsSel(fn,def){
+  let h='';for(let i=1;i<=5;i++)h+=`<span class="${i<=def?'':'off'}" style="cursor:pointer" onclick="${fn}=${i};this.parentNode.innerHTML=starsSel('${fn}',${i})">★</span>`;
+  return h;
+}
+function sampleFilter(s){
+  const q=($id('smQ').value||'').toLowerCase();
+  if(q&&!(s.name+' '+(s.genre||'')+' '+(s.source||'')+' '+(s.note||'')).toLowerCase().includes(q))return false;
+  if($id('smType').value&&s.type!==$id('smType').value)return false;
+  if($id('smKey').value&&s.key!==$id('smKey').value)return false;
+  const mn=+$id('smBpmMin').value||0,mx=+$id('smBpmMax').value||99999;
+  if((s.bpm||0)<mn||(s.bpm||0)>mx)return false;
+  const rt=+$id('smRate').value||0;
+  if(rt&&(s.rate||0)<rt)return false;
+  return true;
+}
+function renderSamples(){
+  fillSampleSel();
+  const list=D.samples.filter(sampleFilter);
+  $id('smCnt').textContent='共 '+list.length+' / '+D.samples.length+' 个采样';
+  $id('smList').innerHTML=list.length?list.map(s=>`<div class="li">
+    <div class="li-main"><div class="li-t">${esc(s.name)} ${starsHTML(s.rate)}</div>
+    <div class="li-sub"><span class="tag blue">${esc(s.type)}</span><span class="tag acc">${s.bpm||'-'} BPM</span><span class="tag">${esc(s.key)}调</span><span class="tag">${esc(s.genre||'-')}</span> 来源：${esc(s.source||'-')}${s.note?'<br>💬 '+esc(s.note):''}</div></div>
+    <button class="mini-btn" onclick="editSample('${s.id}')">✏️</button>
+    <button class="del" onclick="delSample('${s.id}')">✕</button></div>`).join(''):'<p class="empty">没有匹配的采样，换个条件试试</p>';
+}
+function addSample(){
+  const n=$id('smName').value.trim();if(!n)return alert('填采样名哦');
+  D.samples.unshift({id:uid(),name:n,type:$id('smNewType').value,bpm:+$id('smBpm').value||0,key:$id('smNewKey').value,genre:$id('smGenre').value.trim(),source:$id('smSource').value.trim(),rate:smNewRate,note:$id('smNote').value.trim()});
+  save();['smName','smBpm','smGenre','smSource','smNote'].forEach(x=>$id(x).value='');smNewRate=3;
+  $id('smNewStars').innerHTML=starsSel('smNewRate',3);
+  renderSamples();
+}
+function editSample(id){
+  const s=D.samples.find(o=>o.id===id);if(!s)return;
+  showModal(`<h3>✏️ 编辑采样</h3>
+    <input class="inp" id="esName" value="${esc(s.name)}">
+    <div class="form-row2"><select class="inp" id="esType">${SAMPLE_TYPES.map(x=>`<option ${s.type===x?'selected':''}>${x}</option>`).join('')}</select><input class="inp" type="number" id="esBpm" value="${s.bpm||''}" placeholder="BPM"></div>
+    <div class="form-row2"><select class="inp" id="esKey">${KEYS.map(x=>`<option ${s.key===x?'selected':''}>${x}</option>`).join('')}</select><input class="inp" id="esGenre" value="${esc(s.genre||'')}" placeholder="风格"></div>
+    <div class="form-row"><input class="inp" id="esSource" value="${esc(s.source||'')}" placeholder="来源"></div>
+    <div class="form-row"><textarea class="inp" id="esNote" rows="2" placeholder="备注">${esc(s.note||'')}</textarea></div>
+    <div class="form-row"><div class="stars" id="esStars">${starsSel('esRate',s.rate||3)}</div></div>
+    <div class="m-btns"><button class="btn" onclick="saveSample('${id}')">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+  window.esRate=s.rate||3;
+}
+function saveSample(id){
+  const s=D.samples.find(o=>o.id===id);if(!s)return;
+  s.name=$id('esName').value.trim()||s.name;s.type=$id('esType').value;s.bpm=+$id('esBpm').value||0;
+  s.key=$id('esKey').value;s.genre=$id('esGenre').value.trim();s.source=$id('esSource').value.trim();
+  s.note=$id('esNote').value.trim();s.rate=window.esRate||3;
+  save();closeModal();renderSamples();
+}
+function delSample(id){D.samples=D.samples.filter(o=>o.id!==id);save();renderSamples()}
+
+/* ---------- 曲库 ---------- */
+let libDB=null;
+const libURLs={};
+function idb(){return new Promise((ok,no)=>{
+  if(libDB)return ok(libDB);
+  const rq=indexedDB.open('hahaduLibDB',1);
+  rq.onupgradeneeded=()=>{rq.result.createObjectStore('audio')};
+  rq.onsuccess=e=>{libDB=e.target.result;ok(libDB)};
+  rq.onerror=()=>no(rq.error);
+})}
+function idbPut(k,b){return idb().then(db=>new Promise((ok,no)=>{const tx=db.transaction('audio','readwrite');tx.objectStore('audio').put(b,k);tx.oncomplete=ok;tx.onerror=()=>no(tx.error)}))}
+function idbGet(k){return idb().then(db=>new Promise((ok,no)=>{const tx=db.transaction('audio');const rq=tx.objectStore('audio').get(k);rq.onsuccess=()=>ok(rq.result);rq.onerror=()=>no(rq.error)}))}
+function idbDel(k){return idb().then(db=>new Promise(ok=>{const tx=db.transaction('audio','readwrite');try{tx.objectStore('audio').delete(k)}catch(e){};tx.oncomplete=ok;tx.onerror=ok}))}
+function fmtT(s){s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+pad(s%60)}
+function drawWave(cv,peaks){
+  const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+  ctx.clearRect(0,0,w,h);
+  if(!peaks||!peaks.length)return;
+  const bw=w/peaks.length;
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#FF8A3D';
+  peaks.forEach((p,i)=>{const bh=Math.max(2,p*h);ctx.fillRect(i*bw,(h-bh)/2,Math.max(1,bw*0.62),bh)});
+}
+function estimateBPM(buf){
+  try{
+    const ch=buf.getChannelData(0),ch2=buf.numberOfChannels>1?buf.getChannelData(1):null;
+    const sr=buf.sampleRate,hop=Math.round(sr*0.05);
+    const n=Math.floor(ch.length/hop);
+    if(n<40)return 0;
+    const env=new Float32Array(n);
+    for(let i=0;i<n;i++){let s=0,o=i*hop,c=0;for(let j=0;j<hop;j+=4){const v=ch2?(ch[o+j]+ch2[o+j])/2:ch[o+j];s+=v*v;c++}env[i]=Math.sqrt(s/c)}
+    let mx=0;for(let i=0;i<n;i++)if(env[i]>mx)mx=env[i];
+    if(!mx)return 0;
+    for(let i=0;i<n;i++)env[i]/=mx;
+    const on=new Float32Array(n);
+    for(let i=1;i<n;i++)on[i]=Math.max(0,env[i]-env[i-1]);
+    const frames=1000/(hop*1000/sr); // 每秒帧数（约 20）
+    const minLag=Math.max(1,Math.round(frames*60/185)),maxLag=Math.min(n-2,Math.round(frames*60/55));
+    let best=0,bestLag=0;
+    for(let lag=minLag;lag<=maxLag;lag++){let s=0,c=0;for(let i=lag;i<n;i++){s+=on[i]*on[i-lag];c++}s/=c;if(s>best){best=s;bestLag=lag}}
+    if(!bestLag)return 0;
+    let bpm=frames*60/bestLag;
+    while(bpm<60)bpm*=2;while(bpm>185)bpm/=2;
+    return Math.round(bpm);
+  }catch(e){return 0}
+}
+function computePeaks(buf,cnt){
+  try{
+    const ch=buf.getChannelData(0),step=Math.floor(ch.length/cnt)||1,out=[];
+    for(let i=0;i<cnt;i++){let m=0,o=i*step;for(let j=0;j<step;j+=16){const v=Math.abs(ch[o+j]||0);if(v>m)m=v}out.push(Math.round(m*100)/100)}
+    return out;
+  }catch(e){return []}
+}
+function libUpload(inp){
+  const f=inp.files&&inp.files[0];inp.value='';if(!f)return;
+  const st=$id('libUpStat');
+  st.textContent='⏳ 解析中，几秒到十几秒…';
+  f.arrayBuffer().then(ab=>{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const ctx=new AC();
+    return ctx.decodeAudioData(ab).then(buf=>{if(ctx.close)ctx.close();return buf});
+  }).then(buf=>{
+    const item={id:uid(),name:f.name.replace(/\.[^.]+$/,''),size:f.size,
+      dur:Math.round(buf.duration),sr:buf.sampleRate,ch:buf.numberOfChannels,
+      bpm:estimateBPM(buf),key:'',genre:'',note:'',marks:[],peaks:computePeaks(buf,160),added:todayStr()};
+    return idbPut(item.id,f).then(()=>{D.lib.unshift(item);save();st.textContent='✔ 已入库：'+item.name;renderLib()});
+  }).catch(()=>{st.textContent='';alert('这个文件浏览器解不开（比如 flac 部分机型不支持），换 mp3 / m4a / wav 试试')});
+}
+function renderLib(){
+  $id('libList').innerHTML=D.lib.length?D.lib.map(tr=>`<div class="card">
+    <div class="sec-title">🎵 ${esc(tr.name)} ${tr.bpm?`<span class="tag acc">≈${tr.bpm} BPM</span>`:'<span class="tag">BPM 未识别</span>'}${tr.key?`<span class="tag">${esc(tr.key)}</span>`:''}${tr.genre?`<span class="tag blue">${esc(tr.genre)}</span>`:''}
+      <span class="sp"><button class="mini-btn" onclick="editLib('${tr.id}')">✏️</button><button class="del" onclick="delLib('${tr.id}')">✕</button></span></div>
+    <div class="li-sub">${fmtT(tr.dur)} · ${(tr.size/1048576).toFixed(1)}MB · ${Math.round(tr.sr/1000)}kHz · ${tr.ch===1?'单声道':'立体声'} · ${esc(tr.added)} 上传</div>
+    <canvas data-wid="${tr.id}" width="600" height="60" style="width:100%;height:60px;margin-top:8px;background:var(--card2);border-radius:8px"></canvas>
+    <audio controls data-lid="${tr.id}" id="la-${tr.id}" style="width:100%;height:38px;margin-top:8px"></audio>
+    <div class="form-row2"><input class="inp" id="mk-${tr.id}" placeholder="打点标签，如：副歌进入"><button class="btn ghost sm" onclick="libMark('${tr.id}')">📍 在播放位置打点</button></div>
+    ${tr.marks&&tr.marks.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${tr.marks.map((m,i)=>`<span class="tag" style="cursor:default">▸ ${fmtT(m.t)} ${esc(m.label)} <span style="cursor:pointer" onclick="delLibMark('${tr.id}',${i})">✕</span></span>`).join('')}</div>`:''}
+    ${tr.note?`<div class="li-sub" style="margin-top:8px">💬 ${esc(tr.note)}</div>`:''}
+  </div>`).join(''):'<div class="card"><p class="empty">曲库空空的，传一首参考曲试试 💿</p></div>';
+  D.lib.forEach(tr=>{
+    const cv=document.querySelector('[data-wid="'+tr.id+'"]');if(cv)drawWave(cv,tr.peaks||[]);
+    idbGet(tr.id).then(b=>{if(!b)return;if(!libURLs[tr.id])libURLs[tr.id]=URL.createObjectURL(b);const a=$id('la-'+tr.id);if(a&&!a.src)a.src=libURLs[tr.id]}).catch(()=>{});
+  });
+}
+function libMark(id){
+  const tr=D.lib.find(o=>o.id===id),a=$id('la-'+id),lab=$id('mk-'+id).value.trim();
+  if(!a||!(a.currentTime>0))return alert('先播放一下，到了想要的位置再打点');
+  tr.marks=tr.marks||[];
+  tr.marks.push({t:a.currentTime,label:lab||'打点'});
+  save();renderLib();
+}
+function delLibMark(id,i){const tr=D.lib.find(o=>o.id===id);tr.marks.splice(i,1);save();renderLib()}
+function editLib(id){
+  const t=D.lib.find(o=>o.id===id);if(!t)return;
+  showModal(`<h3>✏️ 编辑曲目</h3>
+    <input class="inp" id="elName" value="${esc(t.name)}" placeholder="歌名">
+    <div class="form-row2"><input class="inp" type="number" id="elBpm" value="${t.bpm||''}" placeholder="BPM（可手动修正）"><input class="inp" id="elKey" value="${esc(t.key||'')}" placeholder="调性，如 Am / 8A"></div>
+    <div class="form-row"><input class="inp" id="elGenre" value="${esc(t.genre||'')}" placeholder="风格，如：City Pop / 民谣"></div>
+    <div class="form-row"><textarea class="inp" id="elNote" rows="3" placeholder="拆歌笔记：这首学到了什么、想借鉴的编曲点">${esc(t.note||'')}</textarea></div>
+    <div class="m-btns"><button class="btn" onclick="saveLib('${id}')">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>`);
+}
+function saveLib(id){
+  const t=D.lib.find(o=>o.id===id);if(!t)return;
+  t.name=$id('elName').value.trim()||t.name;t.bpm=+$id('elBpm').value||0;
+  t.key=$id('elKey').value.trim();t.genre=$id('elGenre').value.trim();t.note=$id('elNote').value.trim();
+  save();closeModal();renderLib();
+}
+function delLib(id){
+  if(!confirm('删除这首曲子（含打点和笔记）？'))return;
+  D.lib=D.lib.filter(o=>o.id!==id);save();
+  if(libURLs[id]){try{URL.revokeObjectURL(libURLs[id])}catch(e){};delete libURLs[id]}
+  idbDel(id).catch(()=>{});renderLib();
+}
+
+/* ---------- 工具箱 ---------- */
+function renderTools(){renderMtDots();renderDelay();renderCoc();renderChords()}
+function renderMtDots(){
+  const ts=+$id('mtTs').value||4;
+  $id('mtDots').innerHTML=Array.from({length:ts},(_,i)=>`<div class="mt-dot ${i===0?'on':''}" data-i="${i}"></div>`).join('');
+}
+function mtBeatDots(cur){const ds=document.querySelectorAll('#mtDots .mt-dot');ds.forEach((d,i)=>d.classList.toggle('on',i===cur%ds.length))}
+function mtToggle(){
+  if(mtOn){mtOn=false;clearTimeout(mtTimer);$id('mtBtn').textContent='▶ 开始';mtBeatDots(-1);return}
+  mtCtx=mtCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(mtCtx.resume)mtCtx.resume();
+  mtOn=true;mtBeat=0;$id('mtBtn').textContent='⏸ 停止';
+  renderMtDots();mtLoop();
+}
+function mtLoop(){
+  if(!mtOn)return;
+  const bpm=+$id('mtBpm').value||100,ts=+$id('mtTs').value||4;
+  mtBeat=mtBeat%ts;
+  const o=mtCtx.createOscillator(),g=mtCtx.createGain();
+  o.frequency.value=mtBeat===0?1250:760;
+  g.gain.setValueAtTime(.5,mtCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,mtCtx.currentTime+.09);
+  o.connect(g);g.connect(mtCtx.destination);
+  o.start();o.stop(mtCtx.currentTime+.1);
+  mtBeatDots(mtBeat);mtBeat++;
+  mtTimer=setTimeout(mtLoop,60000/bpm);
+}
+function renderDelay(){
+  const bpm=+$id('dlBpm').value||120,q=60000/bpm;
+  const rows=[['1/1 全音符',4],['1/2 二分',2],['1/4 附点',1.5],['1/4 四分',1],['1/8T 八分三连',2/3],['1/8 八分',0.5],['1/8 附点',0.75],['1/16 十六分',0.25]];
+  $id('dlTable').innerHTML=rows.map(r=>`<div class="delay-row"><span>${r[0]}</span><b>${Math.round(q*r[1]*10)/10} ms</b></div>`).join('');
+}
+function renderCoc(){
+  const maj=['C','G','D','A','E','B','F#/G♭','D♭','A♭','E♭','B♭','F'];
+  const relMin=KEYS.map((k,i)=>KEYS[(i+9)%12]); // 关系小调 = 向后数3个半音位
+  const cx=170,cy=170,R=140;
+  let wedges='',labels='';
+  for(let i=0;i<12;i++){
+    const a1=(i*30-105)*Math.PI/180,a2=((i+1)*30-105)*Math.PI/180;
+    const x1=cx+R*Math.cos(a1),y1=cy+R*Math.sin(a1),x2=cx+R*Math.cos(a2),y2=cy+R*Math.sin(a2);
+    wedges+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${i%2?'#1D2430':'#222B38'}" stroke="#2A323E"/>`;
+    const am=(i*30+15-105)*Math.PI/180;
+    labels+=`<text x="${(cx+R*0.72*Math.cos(am)).toFixed(1)}" y="${(cy+R*0.72*Math.sin(am)).toFixed(1)}" fill="#FF8A3D" font-size="15" font-weight="700" text-anchor="middle" dominant-baseline="middle">${maj[i]}</text>`;
+    labels+=`<text x="${(cx+R*0.42*Math.cos(am)).toFixed(1)}" y="${(cy+R*0.42*Math.sin(am)).toFixed(1)}" fill="#3ECFB2" font-size="12" text-anchor="middle" dominant-baseline="middle">${relMin[i]}m</text>`;
+  }
+  $id('coc').innerHTML=`<svg width="340" height="340" viewBox="0 0 340 340" style="max-width:100%">${wedges}<circle cx="170" cy="170" r="52" fill="#0E1217" stroke="#2A323E"/><text x="170" y="165" fill="#DDE5EE" font-size="12" text-anchor="middle">五度圈</text><text x="170" y="182" fill="#8A97A8" font-size="9" text-anchor="middle">外大调 · 内小调</text>${labels}</svg>`;
+  $id('cocList').innerHTML=KEYS.map((k,i)=>{
+    return `<div class="key-chip"><b>${k}大调</b> ↔ ${relMin[i]}小调</div>`;
+  }).join('');
+}
+function renderChords(){
+  $id('chordList').innerHTML=CHORD_PROG.map(c=>`<div class="chord-card"><b>${c[0]}</b> <span class="tag acc">${c[1]}</span><div class="cf">${c[2]}<br>示例：${esc(c[3])}（可整体移调）</div></div>`).join('');
+}
+
+/* ---------- 灵感本 ---------- */
+let ideaTagSel=false,recMR=null,recChunks=[],recURL=null,recTimerI=null,recSec=0,recMT='';
+function recToggle(){
+  const btn=$id('recBtn');
+  if(recMR){try{recMR.stop()}catch(e){};return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){
+    alert('当前打开方式不支持录音。\n提示：用 https:// 链接（如上传后的网址）打开就可以了。');return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    recMR=new MediaRecorder(stream);recChunks=[];recSec=0;recMT=recMR.mimeType||'audio/webm';
+    recMR.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data)};
+    recMR.onstop=()=>{
+      clearInterval(recTimerI);
+      try{stream.getTracks().forEach(t=>t.stop())}catch(e){}
+      const blob=new Blob(recChunks,{type:recMT});
+      const rd=new FileReader();
+      rd.onload=()=>{
+        recURL=rd.result;
+        const au=$id('recPrev');au.src=recURL;au.style.display='block';
+        btn.textContent='🎙️ 重录';$id('recTime').textContent='已录 '+recSec+' 秒 · 可试听';
+      };
+      rd.readAsDataURL(blob);recMR=null;
+    };
+    recMR.start();
+    btn.textContent='⏹ 停止录音';
+    recTimerI=setInterval(()=>{recSec++;$id('recTime').textContent='● 录音中 '+recSec+'s';if(recSec>=90&&recMR)try{recMR.stop()}catch(e){}},1000);
+  }).catch(err=>alert('打不开麦克风：'+err.message+'\n如果浏览器弹了权限询问，请点「允许」'));
+}
+function recReset(){
+  recURL=null;clearInterval(recTimerI);
+  const au=$id('recPrev');au.style.display='none';au.removeAttribute('src');
+  $id('recTime').textContent='';const b=$id('recBtn');if(b)b.textContent='🎙️ 按下录音';
+}
+function renderIdeas(){
+  if(!ideaTagSel){ideaTagSel=true;
+    const opt='<option value="">💡 全部标签</option>'+IDEA_TAGS.map(t=>`<option>${t}</option>`).join('');
+    $id('ideaTagF').innerHTML=opt;
+    $id('ideaTag').innerHTML=IDEA_TAGS.map((t,i)=>`<option ${i===0?'selected':''}>${t}</option>`).join('');
+  }
+  const tag=$id('ideaTagF').value,q=($id('ideaQ').value||'').toLowerCase();
+  const list=D.ideas.filter(x=>(!tag||x.tag===tag)&&(!q||x.text.toLowerCase().includes(q)));
+  $id('ideaList').innerHTML=list.length?list.map(x=>`<div class="li">
+    <div class="li-main"><div class="li-t" style="white-space:normal">${esc(x.text)}</div>
+    ${x.audio?`<audio controls src="${x.audio}" style="width:100%;height:34px;margin-top:6px"></audio>`:''}
+    <div class="li-sub"><span class="tag acc">${esc(x.tag)}</span> 来源：${esc(x.from||'-')} · ${esc(x.date)}</div></div>
+    <button class="del" onclick="delIdea('${x.id}')">✕</button></div>`).join(''):'<p class="empty">灵感库空空的，抓一个吧 💡</p>';
+}
+function addIdea(){
+  const t=$id('ideaText').value.trim();
+  if(!t&&!recURL)return alert('写字或者录一段都行哦');
+  if(recURL&&recURL.length>2500000&&!confirm('这条录音比较大（约'+Math.round(recURL.length/13600)+'秒），可能占满存储空间，确定保存？'))return;
+  D.ideas.unshift({id:uid(),text:t||'（纯录音灵感）',tag:$id('ideaTag').value,from:$id('ideaFrom').value.trim(),date:todayStr(),audio:recURL||''});
+  save();$id('ideaText').value='';$id('ideaFrom').value='';recReset();renderIdeas();
+}
+function delIdea(id){D.ideas=D.ideas.filter(o=>o.id!==id);save();renderIdeas()}
+
+/* ---------- 歌词台 ---------- */
+function renderLyrics(){
+  $id('lySel').innerHTML=D.songs.map(s=>`<option value="${s.id}" ${curLyric===s.id?'selected':''}>${esc(s.title)}</option>`).join('')||'<option value="">（还没有作品）</option>';
+  if(!curLyric&&D.songs.length)curLyric=D.songs[0].id;
+  loadLyric();
+}
+function loadLyric(){
+  const s=D.songs.find(o=>o.id===curLyric);
+  $id('lyTitle').value=s?s.title:'';$id('lyText').value=s?s.lyric:'';
+}
+function newLyric(){
+  const t=prompt('新作品歌名：');if(!t)return;
+  const s={id:uid(),title:t,lyric:'',versions:[]};D.songs.unshift(s);curLyric=s.id;save();renderLyrics();
+}
+function saveLyric(){
+  const s=D.songs.find(o=>o.id===curLyric);if(!s)return alert('先新建作品');
+  s.title=$id('lyTitle').value.trim()||s.title;s.lyric=$id('lyText').value;save();renderLyrics();
+}
+function snapLyric(){
+  const s=D.songs.find(o=>o.id===curLyric);if(!s)return;
+  s.versions.unshift({id:uid(),date:todayStr(),lyric:$id('lyText').value,title:s.title});
+  save();alert('已存为版本 #'+(s.versions.length));lyVersions();
+}
+function lyVersions(){
+  const s=D.songs.find(o=>o.id===curLyric);if(!s)return;
+  showModal(`<h3>🕘 版本历史 · ${esc(s.title)}</h3>
+    <div style="max-height:300px;overflow-y:auto">${s.versions.length?s.versions.map((v,i)=>`<div class="ver"><span class="vt">#${s.versions.length-i} · ${esc(v.date)}</span>
+    <div class="m-btns" style="margin:4px 0 8px"><button class="mini-btn on" onclick="restoreLyric('${v.id}')">↩ 回滚到此版</button><button class="del" onclick="delLyricVer('${v.id}')">✕</button></div></div>`).join(''):'<p class="empty">还没有版本，改稿前记得「📌 存为版本」</p>'}</div>
+    <div class="m-btns"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
+}
+function restoreLyric(vid){
+  const s=D.songs.find(o=>o.id===curLyric);const v=s.versions.find(o=>o.id===vid);if(!v)return;
+  s.lyric=v.lyric;s.title=v.title;save();closeModal();renderLyrics();
+}
+function delLyricVer(vid){
+  const s=D.songs.find(o=>o.id===curLyric);s.versions=s.versions.filter(o=>o.id!==vid);save();lyVersions();
+}
+async function lrSearch(){
+  const t=$id('lrTrack').value.trim();if(!t)return alert('填歌名哦');
+  const a=$id('lrArtist').value.trim(),out=$id('lrOut');
+  out.innerHTML='<p class="empty">🔍 搜索中…</p>';
+  try{
+    const u='https://lrclib.net/api/search?track_name='+encodeURIComponent(t)+(a?'&artist_name='+encodeURIComponent(a):'');
+    const r=await fetch(u);
+    const js=await r.json();
+    window._lrRes=js||[];
+    const hits=(js||[]).filter(x=>x.plainLyrics);
+    if(!hits.length){out.innerHTML='<p class="empty">没找到，试试只填歌名、或手动粘贴</p>';return}
+    out.innerHTML='<div class="form-row" style="max-height:240px;overflow-y:auto">'+hits.slice(0,6).map((x,i)=>`<div class="li"><div class="li-main"><div class="li-t">${esc(x.trackName)}</div><div class="li-sub">${esc(x.artistName)} · ${esc(x.albumName||'-')} · ${Math.round((x.plainLyrics||'').length)} 字</div></div><button class="mini-btn" onclick="lrUse(${i})">填入</button></div>`).join('')+'</div>';
+  }catch(e){out.innerHTML='<p class="empty">网络不通，检查网络后重试</p>'}
+}
+function lrUse(i){
+  const x=(window._lrRes||[]).filter(y=>y.plainLyrics)[i];if(!x)return;
+  $id('lyText').value=x.plainLyrics;
+  if(!$id('lyTitle').value.trim())$id('lyTitle').value=x.trackName;
+  alert('已填入歌词台！记得点「💾 保存」，再按自己的思路改稿');
+}
+
+/* ---------- 拆歌日志 ---------- */
+let studySel=false;
+function renderStudies(){
+  if(!studySel){studySel=true;$id('stDate').value=todayStr()}
+  $id('studyList').innerHTML=D.studies.length?D.studies.map(s=>`<div class="li">
+    <div class="li-main"><div class="li-t">${esc(s.song)} ${starsHTML(s.rate)} <span style="font-size:11px;color:var(--sub);font-weight:400">${esc(s.date)}</span></div>
+    <div class="li-sub">${esc(s.artist||'')}<br>🧱 ${esc(s.structure||'-')}<br>🎛️ ${esc(s.mix||'-')}${s.takeaway?'<br>💡 '+esc(s.takeaway):''}</div></div>
+    <button class="del" onclick="delStudy('${s.id}')">✕</button></div>`).join(''):'<p class="empty">还没拆过歌，今天拆一首？🎧</p>';
+}
+function addStudy(){
+  const song=$id('stSong').value.trim();if(!song)return alert('填歌名哦');
+  D.studies.unshift({id:uid(),date:$id('stDate').value||todayStr(),song,artist:$id('stArtist').value.trim(),structure:$id('stStruct').value.trim(),mix:$id('stMix').value.trim(),takeaway:$id('stTake').value.trim(),rate:stNewRate});
+  save();['stSong','stArtist','stStruct','stMix','stTake'].forEach(x=>$id(x).value='');stNewRate=3;
+  $id('stStars').innerHTML=starsSel('stNewRate',3);renderStudies();
+}
+function delStudy(id){D.studies=D.studies.filter(o=>o.id!==id);save();renderStudies()}
+
+/* ---------- 发歌清单 ---------- */
+function renderReleases(){
+  $id('relList').innerHTML=D.releases.length?D.releases.map(r=>{
+    const dn=r.items.filter(i=>i.done).length,pct=r.items.length?Math.round(dn/r.items.length*100):0;
+    return `<div class="card"><div class="sec-title">🚀 ${esc(r.song)} <span class="tag ${pct===100?'ok':'acc'}">${dn}/${r.items.length}</span>
+      <span class="sp"><button class="del" onclick="delRelease('${r.id}')">✕</button></span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="bar-txt">${pct===100?'全部就绪，可以发了！🎉':'还差 '+(r.items.length-dn)+' 项'}</div>
+      ${r.items.map((it,i)=>`<div class="li"><input type="checkbox" ${it.done?'checked':''} onchange="tgRelItem('${r.id}',${i})">
+      <div class="li-main"><div class="li-t" style="${it.done?'color:var(--sub);text-decoration:line-through':''}">${esc(it.t)}</div></div>
+      <button class="del" onclick="delRelItem('${r.id}',${i})">✕</button></div>`).join('')}
+      <div class="form-row"><input class="inp" id="ri-${r.id}" placeholder="加一项自定义事项"><div class="form-row2"><button class="btn ghost sm" onclick="addRelItem('${r.id}')">➕ 添加</button></div></div>
+    </div>`;
+  }).join(''):'<div class="card"><p class="empty">还没有发布清单，填歌名生成一个 🚀</p></div>';
+  $id('tplList').innerHTML=D.relTpl.map((t,i)=>`<div class="li"><div class="li-main"><div class="li-t">${esc(t)}</div></div><button class="del" onclick="delTplItem(${i})">✕</button></div>`).join('')||'<p class="empty">模板空了</p>';
+}
+function addRelease(){
+  const song=$id('relSong').value.trim();if(!song)return alert('填歌名哦');
+  D.releases.unshift({id:uid(),song,items:D.relTpl.map(t=>({t,done:false}))});
+  save();$id('relSong').value='';renderReleases();
+}
+function delRelease(id){if(!confirm('删除这份清单？'))return;D.releases=D.releases.filter(o=>o.id!==id);save();renderReleases()}
+function tgRelItem(id,i){const r=D.releases.find(o=>o.id===id);r.items[i].done=!r.items[i].done;save();renderReleases()}
+function addRelItem(id){const r=D.releases.find(o=>o.id===id),v=$id('ri-'+id).value.trim();if(!v)return;r.items.push({t:v,done:false});save();renderReleases()}
+function delRelItem(id,i){const r=D.releases.find(o=>o.id===id);r.items.splice(i,1);save();renderReleases()}
+function addTplItem(){const v=prompt('模板新增事项：');if(!v)return;D.relTpl.push(v.trim());save();renderReleases()}
+function delTplItem(i){D.relTpl.splice(i,1);save();renderReleases()}
+
+/* ---------- 伙伴录 ---------- */
+let ctSel=false;
+function renderContacts(){
+  if(!ctSel){ctSel=true;
+    $id('ctRoleF').innerHTML='<option value="">🤝 全部角色</option>'+CONTACT_ROLES.map(r=>`<option>${r}</option>`).join('');
+    $id('ctRole').innerHTML=CONTACT_ROLES.map((r,i)=>`<option ${i===0?'selected':''}>${r}</option>`).join('');
+  }
+  const role=$id('ctRoleF').value,q=($id('ctQ').value||'').toLowerCase();
+  const list=D.contacts.filter(c=>(!role||c.role===role)&&(!q||((c.name||'')+' '+(c.skill||'')+' '+(c.note||'')).toLowerCase().includes(q)));
+  $id('ctList').innerHTML=list.length?list.map(c=>`<div class="li">
+    <div class="li-main"><div class="li-t">${esc(c.name)} <span class="tag blue">${esc(c.role)}</span></div>
+    <div class="li-sub">🎧 擅长：${esc(c.skill||'-')}<br>💰 ${esc(c.price||'-')} · 📱 ${esc(c.phone||'-')}${c.note?'<br>💬 '+esc(c.note):''}</div></div>
+    <button class="del" onclick="delContact('${c.id}')">✕</button></div>`).join(''):'<p class="empty">还没有伙伴，加一个 🤝</p>';
+}
+function addContact(){
+  const n=$id('ctName').value.trim();if(!n)return alert('填名字哦');
+  D.contacts.unshift({id:uid(),name:n,role:$id('ctRole').value,skill:$id('ctSkill').value.trim(),price:$id('ctPrice').value.trim(),phone:$id('ctPhone').value.trim(),note:$id('ctNote').value.trim()});
+  save();['ctName','ctSkill','ctPrice','ctPhone','ctNote'].forEach(x=>$id(x).value='');renderContacts();
+}
+function delContact(id){D.contacts=D.contacts.filter(o=>o.id!==id);save();renderContacts()}
+
+/* ---------- 设置 ---------- */
+function renderSettings(){$id('appVer').textContent='哈哈杜 '+APP_VER;$id('appVerDate').textContent=APP_VER_DATE+' 更新';$id('cityNow').textContent=D.city?('📍 '+D.city.name):'还没设置，加一个就有桌面天气';$id('syGist').value=(D.sync&&D.sync.gist)||'';_syncEdit=false;syncEditUI();apInit()}
+function saveSync(){
+  D.sync={gist:$id('syGist').value.trim()};save();
+  _syncEdit=false;syncEditUI();renderSettings();
+  alert('已保存 ☁️ 以后 HONEY呦 点「复制」，语录会自动同步到你的桌面');
+}
+let _syncEdit=false;
+function syncEditUI(){
+  const el=$id('syGist');if(!el)return;
+  el.readOnly=!_syncEdit;el.classList.toggle('ro',!_syncEdit);
+  const b=$id('syBtn');if(b)b.textContent=_syncEdit?'💾 保存':'✏️ 修改';
+}
+function syncBtnTap(){if(_syncEdit)return saveSync();_syncEdit=true;syncEditUI();
+  const g=$id('syGist');if(g){g.focus();g.setSelectionRange(g.value.length,g.value.length)}}
+
+/* ---------- 外观设置 ---------- */
+const AP_D1=['#FF8A3D','#FF5E62','#FF6B6B','#E84A8B','#F5B942','#FFD166','#3ECFB2','#2BB3A3','#5BA8F5','#7C5CFF','#B58AF5','#FF7AB8','#9BDE7E','#8A97A8'];
+const AP_D2=['#3ECFB2','#FFD166','#FF8A3D','#FF6B6B','#E84A8B','#5BA8F5','#7C5CFF','#B58AF5','#FF7AB8','#2BB3A3','#9BDE7E','#F5B942','#FF9FB0','#8A97A8'];
+const AP_DEF={accent:'#FF8A3D',accent2:'#3ECFB2',fs:14};
+function apInit(){
+  D.appearance=D.appearance||{};
+  const a=D.appearance;
+  if(!a.accent)a.accent=AP_DEF.accent;
+  if(!a.accent2)a.accent2=AP_DEF.accent2;
+  if(!('fs' in a))a.fs=14;
+  $id('apFs').value=a.fs;$id('apFsVal').textContent=a.fs+'px';
+  const cu1=!AP_D1.includes(a.accent),cu2=!AP_D2.includes(a.accent2);
+  $id('apDots1').innerHTML=AP_D1.map(c=>`<span class="ap-dot ${(!cu1&&a.accent===c)?'on':''}" style="background:${c}" onclick="apSet('accent','${c}')"></span>`).join('')+`<label class="ap-dot ${cu1?'on':''}" style="background:conic-gradient(#FF5E62,#F5B942,#3ECFB2,#5BA8F5,#B58AF5,#FF5E62)" title="自定义颜色"><input type="color" value="${a.accent}" oninput="apSet2(this)" data-k="accent" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>`;
+  $id('apDots2').innerHTML=AP_D2.map(c=>`<span class="ap-dot ${(!cu2&&a.accent2===c)?'on':''}" style="background:${c}" onclick="apSet('accent2','${c}')"></span>`).join('')+`<label class="ap-dot ${cu2?'on':''}" style="background:conic-gradient(#FF5E62,#F5B942,#3ECFB2,#5BA8F5,#B58AF5,#FF5E62)" title="自定义颜色"><input type="color" value="${a.accent2}" oninput="apSet2(this)" data-k="accent2" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>`;
+}
+function apSet2(inp){apSet(inp.dataset.k,inp.value)}
+function apSet(k,v){D.appearance[k]=v;save();apApply();apInit()}
+function apFs(v){D.appearance.fs=+v;$id('apFsVal').textContent=v+'px';save();apApply()}
+function apApply(){
+  const a=Object.assign({},AP_DEF,D.appearance);
+  const r=document.documentElement.style;
+  r.setProperty('--accent',a.accent);r.setProperty('--accent2',a.accent2);
+  document.body.style.fontSize=a.fs+'px';
+}
+function apReset(){
+  D.appearance={fs:14};save();apApply();
+  document.documentElement.style.removeProperty('--accent');
+  document.documentElement.style.removeProperty('--accent2');
+  document.body.style.fontSize='';
+  apInit();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(D)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='hahadu-backup-'+todayStr()+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importData(inp){
+  const f=inp.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.projects)throw 0;localStorage.setItem(STORE,JSON.stringify(d));D=load();apApply();closeModal();go('home');alert('导入成功！')}catch(e){alert('文件格式不对哦')}};rd.readAsText(f);
+}
+
+/* ================= 天气（工作台日期下，每 30 分钟更新） ================= */
 const WMO={0:['☀️','晴'],1:['🌤️','晴间多云'],2:['⛅','多云'],3:['☁️','阴'],45:['🌫️','有雾'],48:['🌫️','有雾'],
  51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨'],56:['🌧️','冻雨'],57:['🌧️','冻雨'],
  61:['🌦️','小雨'],63:['🌧️','中雨'],65:['🌧️','大雨'],66:['🌧️','冻雨'],67:['🌧️','冻雨'],
@@ -460,23 +1282,18 @@ function wIco(c){return (WMO[c]||['🌡️',''])[0]}
 function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
 let wxJ=null;
 async function loadWeather(force){
-  if(!D.city){$id('wxS').textContent='设置里选个城市，就能看天气';$id('wxTip').textContent='还没设置城市 ☁️';$id('wxTip').className='wx-tip calm';return}
+  const el=$id('hmWx');if(!el)return;
+  if(!D.city){el.innerHTML='🌤️ 去设置里加个城市，工作台就有天气啦';return}
   const c=D.city;
   try{
     const r=await fetchTO('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
       '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',10000);
-    if(!r.ok)throw 0; wxJ=await r.json(); renderWeather();
-  }catch(e){ if(force||!$id('wxT').textContent.includes('--'))$id('wxTip').textContent='天气没取到，连上网再打开试试 🌤️' }
+    if(!r.ok)throw 0; wxJ=await r.json(); renderWxLine();
+  }catch(e){ if(force)el.innerHTML='🌤️ 天气没取到，连上网再打开试试' }
 }
 function segName(h){return h<6?'凌晨':h<9?'早上':h<12?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':'晚上'}
-function renderWeather(){
-  const j=wxJ;if(!j||!D.city)return;const c=D.city;
-  const cur=j.current||{};
-  $id('wxIco').textContent=wIco(cur.weather_code);
-  $id('wxT').innerHTML=Math.round(cur.temperature_2m)+'<i>°</i>';
-  $id('wxS').textContent=c.name+' · '+wName(cur.weather_code);
-  const dl=j.daily;
-  $id('wxHL').innerHTML='最高 '+Math.round(dl.temperature_2m_max[0])+'° 最低 '+Math.round(dl.temperature_2m_min[0])+'°<br>降雨可能 '+dl.precipitation_probability_max[0]+'%';
+function renderWxLine(){
+  const j=wxJ;if(!j||!D.city)return;const cur=j.current||{};const dl=j.daily;
   const today=todayStr(),T=j.hourly.time,P=j.hourly.precipitation,C=j.hourly.weather_code;
   let seg=null,curSeg=null;
   for(let i=0;i<T.length;i++){
@@ -486,29 +1303,20 @@ function renderWeather(){
     if(wet||snow){ if(!curSeg)curSeg={h0:h,h1:h,mm:0,snow}; else {curSeg.h1=h;curSeg.mm+=P[i];curSeg.snow=curSeg.snow||snow} if(!seg||curSeg.mm>seg.mm)seg=curSeg }
     else curSeg=null;
   }
-  const tip=$id('wxTip');
-  if(seg){
-    const what=seg.snow?'有雪':'有雨';
-    const extra=seg.snow?'路滑，慢慢走 🙅‍♀️':'出门记得带伞 ☂️';
-    tip.className='wx-tip';
-    tip.innerHTML='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+' 点到 '+String(seg.h1+1).padStart(2,'0')+' 点'+what+(seg.mm>=2?'（雨不小）':'')+','+extra;
-  }else{
-    tip.className='wx-tip calm';
-    tip.textContent='✅ 白天（6点-22点）没雨没雪，放心出门';
-  }
-  const nC=dl.weather_code[1];
-  $id('wxNext').textContent='明天 '+wName(nC)+' '+wIco(nC)+' '+Math.round(dl.temperature_2m_min[1])+'~'+Math.round(dl.temperature_2m_max[1])+'°';
+  let tip;
+  if(seg){const what=seg.snow?'有雪':'有雨';
+    tip='⚠️ '+segName(seg.h0)+' '+String(seg.h0).padStart(2,'0')+'点-'+String(seg.h1+1).padStart(2,'0')+'点'+what+(seg.mm>=2?'（雨不小）':'')+(seg.snow?'，路滑慢行':'，带伞 ☂️');
+  }else tip='✅ 白天没雨没雪';
+  $id('hmWx').innerHTML='<span class="wx-city">'+esc(D.city.name)+'</span> · <b style="color:var(--sub)">'+wIco(cur.weather_code)+' '+wName(cur.weather_code)+' '+Math.round(cur.temperature_2m)+'°</b> <span style="white-space:nowrap">最高'+Math.round(dl.temperature_2m_max[0])+'° 最低'+Math.round(dl.temperature_2m_min[0])+'°</span> <span style="white-space:nowrap">降雨可能 '+dl.precipitation_probability_max[0]+'%</span>'+
+    (seg?'<div style="margin-top:6px"><span class="wx-tipbox">'+tip+'</span></div>':'<div style="margin-top:6px"><span class="wx-tipbox calm">'+tip+'</span></div>');
 }
-
-/* 超时保险：ms 毫秒没回音就报错，上层自动切备用数据源 */
 function fetchTO(url,ms){return Promise.race([fetch(url),new Promise((_,rej)=>setTimeout(()=>rej(new Error('超时')),ms))])}
 async function useGeo(){
-  if(!navigator.geolocation){toast('这部手机不支持定位，手动输入城市吧');return}
-  toast('正在定位…');$id('cityHits').innerHTML='';
+  if(!navigator.geolocation){alert('这部设备不支持定位，手动输入城市吧');return}
+  $id('cityNow').textContent='正在定位…';$id('cityHits').innerHTML='';
   navigator.geolocation.getCurrentPosition(async pos=>{
     const la=pos.coords.latitude,lo=pos.coords.longitude;
     let name='我的位置';
-    // 优先 Nominatim 逆地理：精确到区
     try{
       const r=await fetchTO('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+la+'&lon='+lo+'&accept-language=zh&zoom=13',5000);
       const j=await r.json();
@@ -519,23 +1327,17 @@ async function useGeo(){
       else if(dist)name=dist;
       else if(city)name=city;
       else name=a.state||name;
-    }catch(e){
-      try{
-        const r2=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+la.toFixed(3)+'&longitude='+lo.toFixed(3)+'&localityLanguage=zh');
-        const j2=await r2.json();
-        name=j2.city||j2.locality||j2.principalSubdivision||name;
-      }catch(e2){}
-    }
-    D.city={name:name,lat:la,lon:lo};save();renderSet();loadWeather(true);toast('定位好了：'+name);
-  },()=>toast('没拿到定位，手动输入城市吧'),{timeout:9000,enableHighAccuracy:true});
+    }catch(e){}
+    D.city={name:name,lat:la,lon:lo};save();renderSettings();loadWeather(true);
+    alert('定位好了：'+name);
+  },()=>{alert('没拿到定位，手动输入城市吧');renderSettings()},{timeout:9000,enableHighAccuracy:true});
 }
 async function searchCity(){
-  const q=$id('cityInp').value.trim();if(!q){toast('先输入城市或区名');return}
+  const q=$id('cityInp').value.trim();if(!q){alert('先输入城市或区名');return}
   $id('cityHits').innerHTML='<span class="hint">正在查…</span>';
   let rs=[];
-  // 优先 Nominatim：区级最准（金水区/浦东新区/朝阳区…）
   try{
-    const load=async kw=>{
+    const loadN=async kw=>{
       const r=await fetchTO('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn',5000);
       const j=await r.json();
       return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
@@ -549,9 +1351,8 @@ async function searchCity(){
       if(!qs.includes(m[2]))qs.push(m[2]);
     }
     if(!/[区县市州旗]$/.test(q)&&!m)qs.push(q+'区');
-    for(const kw of qs){rs=await load(kw);if(rs.length)break}
+    for(const kw of qs){rs=await loadN(kw);if(rs.length)break}
   }catch(e){}
-  // 兜底 Open-Meteo（国内区级收录不全，但国外/小地方可用）
   if(!rs.length){
     try{
       for(const kw of qs){
@@ -563,395 +1364,19 @@ async function searchCity(){
     }catch(e){}
   }
   window.__cityHits=rs;
-  $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn sm ghost" onclick="pickCity('+i+')">'+esc(x.name)+(x.mid&&x.mid!==x.name?'（'+esc(x.mid)+'）':'')+'</button>').join(' '):'没找到，试试带上「区」字，比如 金水区';
+  $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn ghost sm" style="flex:0 0 auto" onclick="pickCity('+i+')">'+esc(x.name)+(x.mid&&x.mid!==x.name?'（'+esc(x.mid)+'）':'')+'</button>').join(''):'<span class="hint">没找到，试试带上「区」字，比如 金水区</span>';
 }
 function pickCity(i){const x=window.__cityHits[i];if(!x)return;
-  D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};save();renderSet();loadWeather(true);toast('设置好了：'+D.city.name)}
-
-/* ================= 快递 ================= */
-let pcDrafts=[];
-function openPc(){pcDrafts=[];renderDraft();$id('pcPaste').value='';$id('ocrState').textContent='第一次使用要等十几秒下载识别组件，之后会快很多';$id('maskPc').classList.add('on')}
-function closePc(){$id('maskPc').classList.remove('on')}
-function addDraft(code,site,note){
-  code=String(code||'').replace(/[–—]/g,'-').trim().toUpperCase();
-  if(!code)return false;
-  if(D.parcels.some(p=>!p.taken&&p.code===code)||pcDrafts.some(p=>p.code===code)){return false}
-  pcDrafts.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),code:code,site:site||'',note:note||''});
-  return true;
-}
-function renderDraft(){
-  $id('pcDraft').innerHTML=pcDrafts.length?pcDrafts.map((d,i)=>
-    '<div class="pc" style="flex-wrap:wrap"><input class="inp" style="flex:1 1 38%;min-width:0" value="'+esc(d.code)+'" oninput="pcDrafts['+i+'].code=this.value">'+
-    '<input class="inp" style="flex:1 1 42%;min-width:0" placeholder="驿站/备注" value="'+esc(d.site)+'" oninput="pcDrafts['+i+'].site=this.value">'+
-    '<button class="pic-del" onclick="pcDrafts.splice('+i+',1);renderDraft()">删掉</button></div>').join(''):'';
-}
-function pcParsePaste(){
-  const t=$id('pcPaste').value;
-  const r=parseParcelText(t);
-  if(!r.length){toast('没认出取件码，检查一下文字');return}
-  let n=0;r.forEach(x=>{if(addDraft(x.code,x.site,x.note))n++});
-  $id('pcPaste').value='';
-  toast(n?('认出 '+n+' 条，检查一下再保存'):'这些取件码已经在列表里啦');
-}
-function pcAddManual(){
-  const v=$id('pcPaste').value.trim().replace(/[–—]/g,'-');
-  if(!v){toast('先在框里输入取件码');return}
-  if(addDraft(v,'','')){$id('pcPaste').value='';toast('加了一条，保存前可以补驿站名')}
-  else toast('这个取件码已经在列表里啦');
-}
-function parseParcelText(txt){
-  const out=[];const seen={};
-  const lines=String(txt||'').split(/[\n\r]+/);
-  const pats=[
-    /取件码[^0-9A-Za-z]{0,8}([0-9A-Za-z]{1,4}(?:-[0-9]{2,8}){1,2})/g,
-    /(^|[^0-9A-Za-z-])([0-9]{1,3}\s*[-–]\s*[0-9]{1,3}\s*[-–]\s*[0-9]{2,8})(?![0-9-])/g,
-    /(^|[^0-9A-Za-z-])([0-9]{1,3}-[0-9]{1,3}-[0-9]{2,8})(?![0-9-])/g,
-    /(^|[^0-9A-Za-z-])([A-Z][0-9]{1,3}-[0-9]{3,12})(?![0-9-])/g,
-    /取件码[^0-9A-Za-z]{0,10}([0-9]{3,8})(?![0-9])/g,
-    /后四位[^0-9]{0,6}([0-9]{4})(?![0-9])/g,
-    /取件码[^0-9]{0,8}([0-9]{4,12})(?![0-9])/g
-  ];
-  const siteRes=/(菜鸟|妈妈驿站|兔喜|丰巢|中通|圆通|韵达|申通|极兔|京东|邮政|EMS)?[\u4e00-\u9fa5A-Za-z0-9]{0,18}?(驿站|快递柜|代收点|服务中心|超市|便利店|门卫|物业|驿站柜)/;
-  for(const line of lines){
-    let found=null;
-    for(const re of pats){re.lastIndex=0;const m=re.exec(line);if(m){found=(m[2]||m[1]);break}}
-    if(!found)continue;
-    found=found.replace(/[–—]/g,'-').replace(/\s+/g,'').trim().toUpperCase();
-    if(!/\d/.test(found))continue;
-    if((found.match(/\d/g)||[]).length<2)continue;
-    if(found.length<4||found.length>14)continue;
-    if(/[A-Z]/.test(found)&&!found.includes('-'))continue;
-    if(seen[found])continue;seen[found]=1;
-    const sm=siteRes.exec(line);
-    const phm=/尾号?\s*([0-9]{4})/.exec(line)||/1[3-9][0-9]{9}/.exec(line);
-    const isTail=/后四位|后4位/.test(line)&&found.length<=6;
-    out.push({code:found,site:sm?sm[0].replace(/^[，。,、\s]+/,''):'',note:isTail?'取件码后四位':(phm?('尾号 '+(phm[1].length===4?phm[1]:phm[1].slice(-4))):'')});
-    if(out.length>=20)break;
-  }
-  return out;
-}
-function loadScript(u){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
-async function ensureTess(){
-  if(window.Tesseract)return true;
-  const bases=['https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','https://fastly.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js','https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js'];
-  for(const u of bases){try{await loadScript(u);if(window.Tesseract)return true}catch(e){}}
-  return false;
-}
-function pcPrepImg(url){return new Promise(res=>{const im=new Image();
-  im.onload=()=>{try{
-    const sc=Math.max(1,Math.min(2.5,1400/im.width));
-    const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
-    const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
-    res(c.toDataURL('image/png'));
-  }catch(e){res(url)}};
-  im.onerror=()=>res(url);im.src=url})}
-async function pcOcrText(url){
-  const b='https://cdn.jsdelivr.net/npm';
-  try{
-    const worker=await Tesseract.createWorker('eng',1,{workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',corePath:b+'/tesseract.js-core@5.1.0',langPath:'https://tessdata.projectnaptha.com/4.0.0'});
-    try{
-      await worker.setParameters({tessedit_char_whitelist:'0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ',tessedit_pageseg_mode:'6'});
-      return (await worker.recognize(url)).data.text||'';
-    }finally{worker.terminate()}
-  }catch(e){
-    const ret=await Tesseract.recognize(url,'eng',{workerPath:b+'/tesseract.js@5.1.1/dist/worker.min.js',corePath:b+'/tesseract.js-core@5.1.0',langPath:'https://tessdata.projectnaptha.com/4.0.0'});
-    return ret.data.text||'';
-  }
-}
-async function pcOcr(input){
-  const f=input.files&&input.files[0];if(!f)return;
-  const st=$id('ocrState');
-  st.textContent='正在准备识别…（第一次要等十几秒）';
-  const ok=await ensureTess();
-  if(!ok){st.textContent='识别组件没下载成功（网络问题）。改用下面「粘贴文字」的方式：截图后在相册长按文字复制';return}
-  const url=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
-  try{
-    const pre=await pcPrepImg(url);
-    const txt=await pcOcrText(pre);
-    const r=parseParcelText(txt);
-    if(r.length){let n=0;r.forEach(x=>{if(addDraft(x.code,x.site,x.note))n++});
-      st.textContent='认完啦！下面是认出的取件码，检查一下再保存';
-      toast(n?('从截图认出 '+n+' 条取件码'):'截图里的取件码已经在列表里啦');
-    }else{
-      st.textContent='这张截图没认出取件码。试试：相册里打开截图 → 长按取件码那行字 → 拷贝 → 用下面「粘贴文字」';
-    }
-  }catch(e){st.textContent='识别出错了（'+(e.message||'网络')+'）。改用「粘贴文字」方式吧'}
-  input.value='';
-}
-function pcSaveDrafts(){
-  if(!pcDrafts.length){toast('先识别或填写取件码');return}
-  const now=Date.now();
-  pcDrafts.forEach(d=>D.parcels.push({id:d.id,code:d.code,site:d.site,note:d.note,ts:now,taken:0}));
-  save();renderToday();markDot();closePc();toast('加好了，'+pcDrafts.length+' 件快递');
+  D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};
+  save();$id('cityHits').innerHTML='';renderSettings();loadWeather(true);
+  alert('天气城市设置好了：'+D.city.name);
 }
 
-/* 云端拉取（女儿推送） */
-async function pullParcels(silent){
-  const g=(D.sync.gist||'').trim();
-  if(!g){if(!silent)toast('先在设置里填好同步码');return}
-  try{
-    const r=await fetch('https://api.github.com/gists/'+g+'?t='+Date.now(),{cache:'no-store'});
-    if(!r.ok)throw 0;
-    const j=await r.json();
-    const f=j.files&&j.files['jiuwo-sync.json'];
-    if(!f||!f.content){if(!silent)toast('孩子那边还没推送过快递');return}
-    const data=JSON.parse(f.content);
-    const items=data.items||[];let n=0;
-    items.forEach(it=>{
-      if(!it||!it.code)return;
-      if(D.parcels.some(p=>p.code===String(it.code).replace(/[–—]/g,'-').toUpperCase()))return;
-      D.parcels.push({id:String(it.id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5))),
-        code:String(it.code).replace(/[–—]/g,'-').toUpperCase(),site:it.site||'',note:it.note||'',ts:it.ts||data.at||Date.now(),taken:0});
-      n++;
-    });
-    D.sync.lastAt=Date.now();D.sync.lastN=n;save();
-    renderToday();markDot();
-    if(!silent)toast(n?('收到 '+n+' 件新快递 📦'):'没有新快递，都是最新的');
-  }catch(e){if(!silent)toast('没连上云端，检查网络再试试')}
-}
-function saveGist(){D.sync.gist=$id('syGist').value.trim();save();renderSet();toast('同步码保存好了');pullParcels(true)}
-
-function dayTag(ts){const d=new Date(ts),t=new Date();
-  const same=d.toDateString()===t.toDateString();
-  return same?'今天':(d.getMonth()+1)+'月'+d.getDate()+'日'}
-function pcRow(p){
-  const meta=[p.site,p.note].filter(Boolean).join(' · ');
-  return '<div class="pc" onclick="takePc(\''+p.id+'\')"><div class="pc-body"><div class="pc-code">'+esc(p.code)+'</div>'+
-    '<div class="pc-meta">'+esc(meta||' ')+(meta?' · ':'')+dayTag(p.ts)+'</div></div>'+
-    '<div class="pc-tap">👆 点一下<br>就取到啦</div></div>';
-}
-function takePc(id){const p=D.parcels.find(x=>x.id===id);if(!p)return;
-  p.taken=1;p.takenAt=Date.now();save();renderToday();markDot();toast('取到啦，真棒 😊')}
-function unTakePc(id){const p=D.parcels.find(x=>x.id===id);if(!p)return;
-  p.taken=0;delete p.takenAt;save();renderToday();markDot();toast('放回去啦，记得去取哦')}
-let _doneOpen=false;
-function toggleDone(){_doneOpen=!_doneOpen;renderToday()}
-function doneRow(p){
-  return '<div class="pc" style="opacity:.6;background:transparent;border:1.5px dashed var(--line)"><div class="pc-body">'+
-    '<div class="pc-code" style="font-size:1.05rem;text-decoration:line-through">'+esc(p.code)+'</div>'+
-    '<div class="pc-meta">'+dayTag(p.ts)+(p.takenAt?' · '+hmStr(p.takenAt).split(' ').pop()+' 取走':'')+'</div></div>'+
-    '<button class="btn ghost" style="width:auto;flex:0 0 auto;padding:6px 12px;font-size:.82rem" onclick="event.stopPropagation();unTakePc(\''+p.id+'\')">↩ 放回去</button></div>';
-}
-function renderToday(){
-  greet();
-  const list=D.parcels.filter(p=>!p.taken).sort((a,b)=>b.ts-a.ts);
-  const done=D.parcels.filter(p=>p.taken);
-  $id('pcCnt').textContent=list.length?list.length+' 件待取':'';
-  $id('pcBig').style.display=list.length?'flex':'none';
-  $id('pcNum').textContent=list.length;
-  let html='';
-  const doneHtml=()=>done.length?'<div class="hint" style="margin-top:.55rem;display:flex;align-items:center;cursor:pointer" onclick="toggleDone()"><span style="flex:1">✓ 已经取走 '+done.length+' 件'+(_doneOpen?' ▲':' ▼')+'</span><span style="font-size:.72rem;opacity:.75">'+(_doneOpen?'收起':'点开看')+'</span></div>'+
-    (_doneOpen?done.map(doneRow).join('')+'<p class="hint" style="margin-top:.4rem">点错了？点「放回去」就恢复成待取啦</p>':''):'';
-  if(list.length){
-    html=list.map(pcRow).join('')+'<div class="hint" style="margin-top:.5rem">👆 点一下快递卡片，就算取到啦</div>'+doneHtml();
-    html+='<button class="btn ghost block" style="margin-top:.55rem" onclick="openPc()">＋ 妈妈自己添加快递（截图认取件码）</button>';
-  }else{
-    html='<div class="empty"><span class="e">📦</span>今天没有要取的快递<br><span class="hint">孩子推来的会自动出现；自己买的点下面添加</span></div>'+
-      doneHtml()+
-      '<button class="btn ghost block" onclick="openPc()">＋ 添加快递（截图认取件码）</button>';
-  }
-  $id('pcList').innerHTML=html;
-  $id('sumPc').textContent=list.length+' 件';
-  const t=todayStr();
-  const td=D.ledger.filter(x=>x.date===t).reduce((s,x)=>s+x.amt,0);
-  $id('sumToday').textContent='¥'+td;
-  const seen=SCAMS.filter((s,i)=>D.scamSeen[i]).length;
-  $id('sumScam').textContent=seen+' / '+SCAMS.length;
-}
-
-/* ================= 防骗 ================= */
-const WB='https://weibo.com/u/7548696560';
-const SCAMS=[
- {t:'「双十一后最危险的一通电话：快递丢了，三倍理赔」',tag:'快递理赔',
-  body:'54岁的王阿姨接到“快递公司客服”电话，对方连姓名、地址、买过什么都报得出来，还说包裹丢了按三倍赔。她按对方说的下载了 App、开了“屏幕共享”，银行卡里 8.6 万元两分钟就被转走了。',
-  tip:'理赔只会在官方 App 里原路退回。凡是要你下载 App、开屏幕共享的“理赔”，100% 是诈骗。',
-  u:'https://finance.sina.com.cn/wm/2026-11-10/doc-iniyfzhy9273893.shtml'},
- {t:'「不关服务每月扣 800 元」——一句话吓住七旬老人',tag:'虚假扣费',
-  body:'李大爷收到“快递待领取”短信，拨了上面的电话。对方说他在平台开了付费服务，今晚不关每月扣 800 元。老人一慌，按对方要求下载 App、做了人脸验证、交了验证码，手机瞬间被远程接管，22 万养老钱差点被划走，好在民警及时赶到。',
-  tip:'说“要扣费、不关就扣钱”的陌生电话，都是吓唬你的。先挂掉，给家里人打个电话问一句。',
-  u:'https://www.nxrb.cn/nxrb/template/displayTemplate/news/newsDetail/21464/8179988.html'},
- {t:'「公安局来电：你涉嫌洗钱」',tag:'冒充公检法',
-  body:'张大妈接到“王警官”电话，说她涉嫌洗钱案，要配合冻结账户。她瞒着家人去银行办手续，交出 U 盾动态码，100 万元被转走。骗子还会发伪造的“通缉令”“警官证”。',
-  tip:'公检法绝不会电话办案，也根本没有“安全账户”。凡提到“涉嫌犯罪+转账”的，直接挂断。',
-  u:'https://m.thepaper.cn/newsDetail_forward_34305152'},
- {t:'「视频里是女儿的脸，声音也是」——AI 换脸借钱',tag:'AI 换脸',
-  body:'现在骗子用 AI 换脸拟声，视频通话里“老板”“孩子”“老同学”的脸和声音都是对的，以急事为由催你转账。已经有很多人中招。',
-  tip:'涉及转账，不管视频里是谁：挂掉，用原来的号码打回去，或让对方做个指定动作（比如挥手挡脸）验证。',
-  u:WB,v:1},
- {t:'「记住这几句，骗子拿你没办法」',tag:'防骗口诀',
-  body:'不轻信：陌生来电、中奖返利，一律多留个心眼。不透露：验证码等于钱，银行、公安、客服来要都不给。不转账：没核实清楚，一分钱都不转。多核实：拿不准就给家里人打电话，或者拨 96110。手机上做四件事：装“国家反诈中心”App 并开预警；把 96110 存进通讯录；银行 App 开 24 小时转账延迟；陌生 Facetime 一律不接。',
-  tip:'黄金 30 分钟：万一被骗，立刻打 110、保留聊天记录和转账凭证、联系银行紧急止付。被骗不丢人，沉默才会扩大损失。',
-  u:WB,v:1}
-];
-let scamOpen={};
-let _telEdit=false;
-function telLockUI(){
-  const n=$id('telNum'),m=$id('telName'),btn=$id('telEditBtn');
-  n.readOnly=!_telEdit;m.readOnly=!_telEdit;
-  n.classList.toggle('ro',!_telEdit);m.classList.toggle('ro',!_telEdit);
-  btn.textContent=_telEdit?'💾 保存':'✏️ 修改';
-  btn.className='btn ' + (_telEdit?'':'ghost');
-  btn.style.flex='1';
-}
-function telBtnTap(){
-  if(!_telEdit){_telEdit=true;telLockUI();$id('telNum').focus();return}
-  const num=$id('telNum').value.replace(/[^0-9]/g,'');
-  if(num&&!/^1[3-9]\d{9}$/.test(num)){toast('手机号好像不对，11 位数字');return}
-  D.tel=num;D.telName=($id('telName').value||'').trim()||'家里人';
-  save();_telEdit=false;telLockUI();renderScam();renderSet();
-  toast(num?'保存好了，防骗页按钮就打这个号':'电话已清空');
-}
-function renderScam(){
-  const seen=SCAMS.filter((s,i)=>D.scamSeen[i]).length;
-  $id('scamCnt').textContent='已看 '+seen+' / '+SCAMS.length;
-  const tel=(D.tel||'').trim(),btn=$id('dialBtn');
-  if(tel){btn.setAttribute('href','tel:'+tel);btn.onclick=null;
-    btn.textContent='📞 拿不准？给'+(D.telName||'家里人')+'打电话';btn.style.opacity='1'}
-  else{btn.removeAttribute('href');btn.onclick=()=>{_telEdit=true;go('set');telLockUI();setTimeout(()=>$id('telNum').focus(),300)};
-    btn.textContent='📞 还没设家人电话，点这里去设置';btn.style.opacity='.85'}
-  $id('scamList').innerHTML=SCAMS.map((s,i)=>{
-    const open=scamOpen[i],seenOne=!!D.scamSeen[i];
-    return '<div class="scam'+(open?' open':'')+(seenOne?' scam-seen':'')+'" id="scam'+i+'">'+
-      '<div class="scam-h" onclick="scamToggle('+i+')"><span class="scam-tag">'+esc(s.tag)+'</span>'+
-      '<div class="t">'+esc(s.t)+'</div><div class="arw">'+(open?'▾':'▸')+'</div></div>'+
-      '<div class="scam-b"><p>'+esc(s.body)+'</p><div class="scam-tip">💡 '+esc(s.tip)+'</div>'+
-      '<div class="scam-acts">'+(s.v?'<a class="btn sm" href="'+s.u+'" target="_blank" rel="noopener">▶ 看视频（国家反诈中心）</a>':'<a class="btn sm" href="'+s.u+'" target="_blank" rel="noopener">📄 看原文报道</a>')+
-      (s.u!==WB&&!s.v?'<a class="btn sm ghost" href="'+WB+'" target="_blank" rel="noopener">▶ 更多反诈视频</a>':'')+
-      '</div></div></div>';
-  }).join('');
-}
-function scamToggle(i){
-  scamOpen[i]=!scamOpen[i];
-  if(scamOpen[i]&&!D.scamSeen[i]){D.scamSeen[i]=1;save();markDot()}
-  renderScam();
-}
-function markDot(){
-  const unread=SCAMS.filter((s,i)=>!D.scamSeen[i]).length;
-  const ds=$id('dotScam');ds.style.display=unread?'block':'none';ds.textContent=unread;
-  const p=D.parcels.filter(x=>!x.taken).length;
-  const dt=$id('dotToday');dt.style.display=p?'block':'none';dt.textContent=p;
-}
-
-/* ================= 记账 ================= */
-const CATS=[{k:'caicai',n:'买菜',e:'🥬'},{k:'chifan',n:'吃饭',e:'🍚'},{k:'yaopin',n:'买药',e:'💊'},
- {k:'riyong',n:'日用品',e:'🧻'},{k:'yifu',n:'衣服',e:'👗'},{k:'shuidian',n:'水电',e:'💡'},
- {k:'chuxing',n:'出行',e:'🚌'},{k:'renqing',n:'人情',e:'🎁'},{k:'kanbing',n:'看病',e:'🏥'},{k:'qita',n:'其他',e:'📦'}];
-let mCat=null,mImg=null,editId=null;
-function openMoney(id){
-  editId=id||null;mCat=null;mImg=null;
-  $id('mAmt').value='';$id('mNote').value='';$id('imgPrev').innerHTML='';
-  if(id){const r=D.ledger.find(x=>x.id===id);
-    if(r){$id('mAmt').value=r.amt;$id('mNote').value=r.note||'';mCat=r.cat;mImg=r.img||null;
-      if(mImg)$id('imgPrev').innerHTML='<img class="rec-img" style="width:100%;height:auto" src="'+mImg+'">'}}
-  renderCatGrid();$id('maskMoney').classList.add('on');
-}
-function closeMoney(){$id('maskMoney').classList.remove('on')}
-function renderCatGrid(){
-  $id('catGrid').innerHTML=CATS.map(c=>'<div class="cat'+(mCat===c.k?' on':'')+'" onclick="pickCat(\''+c.k+'\')"><i>'+c.e+'</i><span>'+c.n+'</span></div>').join('');
-}
-function pickCat(k){mCat=k;renderCatGrid()}
-function amtInput(el){el.value=el.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1')}
-function pickImg(input){
-  const f=input.files&&input.files[0];if(!f)return;
-  const img=new Image(),url=URL.createObjectURL(f);
-  img.onload=()=>{
-    const sc=Math.min(1,520/Math.max(img.width,img.height));
-    const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
-    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    mImg=c.toDataURL('image/jpeg',.55);
-    URL.revokeObjectURL(url);
-    $id('imgPrev').innerHTML='<img class="rec-img" style="width:100%;height:auto;border-radius:12px;border:1px solid var(--line)" src="'+mImg+'">';
-  };
-  img.src=url;input.value='';
-}
-function clearImg(){mImg=null;$id('imgPrev').innerHTML=''}
-function saveMoney(){
-  const a=parseFloat($id('mAmt').value);
-  if(!a||a<=0){toast('先填花了多少钱');return}
-  if(!mCat){toast('选一下这是什么钱');return}
-  const note=$id('mNote').value.trim();
-  if(editId){const r=D.ledger.find(x=>x.id===editId);
-    if(r){r.amt=a;r.cat=mCat;r.note=note;r.img=mImg}}
-  else D.ledger.push({id:'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),date:todayStr(),amt:a,cat:mCat,note:note,img:mImg});
-  save();renderMoney();renderToday();closeMoney();toast(editId?'改好了':'记好了，'+a+' 元');
-}
-function catOf(k){return CATS.find(c=>c.k===k)||CATS[8]}
-function delRec(id){if(confirm('把这笔账删掉吗？')){D.ledger=D.ledger.filter(x=>x.id!==id);save();renderMoney();renderToday()}}
-function renderMoney(){
-  const t=todayStr(),month=t.slice(0,7),year=t.slice(0,4);
-  const mL=D.ledger.filter(x=>x.date.slice(0,7)===month);
-  const yL=D.ledger.filter(x=>x.date.slice(0,4)===year);
-  const ms=mL.reduce((s,x)=>s+x.amt,0),ys=yL.reduce((s,x)=>s+x.amt,0);
-  $id('msMonth').innerHTML='¥'+ms+'<i>元</i>';
-  $id('msYear').innerHTML='¥'+ys+'<i>元</i>';
-  const top=k=>{const m={};k.forEach(x=>m[x.cat]=(m[x.cat]||0)+x.amt);
-    return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,3)
-      .map(x=>{const c=catOf(x[0]);return '<span class="cat-chip">'+c.e+' '+c.n+' '+x[1]+'</span>'}).join('')};
-  $id('msMonthCat').innerHTML=top(mL);
-  $id('msYearCat').innerHTML=top(yL);
-  $id('recCnt').textContent=D.ledger.length?D.ledger.length+' 笔':'';
-  if(!D.ledger.length){$id('recList').innerHTML='<div class="empty"><span class="e">📒</span>还没记过账，点上面「记一笔」</div>';return}
-  const sorted=[...D.ledger].sort((a,b)=>b.date<a.date?-1:b.date>a.date?1:0).slice(0,40);
-  let html='',lastDay='';
-  sorted.forEach(r=>{
-    if(r.date!==lastDay){lastDay=r.date;
-      const d=new Date(r.date+'T12:00');
-      html+='<div class="day-h">'+(r.date===t?'今天':(d.getMonth()+1)+'月'+d.getDate()+'日 '+WD[d.getDay()])+'</div>'}
-    const c=catOf(r.cat);
-    const dd=new Date(r.date+'T12:00');
-    html+='<div class="rec"><div class="rec-body" onclick="openMoney(\''+r.id+'\')">'+
-      '<div class="rec-ico">'+c.e+'</div><div class="rec-b"><b>'+c.n+(r.note?' · '+esc(r.note):'')+'</b>'+
-      '<span>'+(dd.getMonth()+1)+'月'+dd.getDate()+'日 '+WD[dd.getDay()]+' · '+c.n+'</span></div>'+
-      (r.img?'<img class="rec-img" src="'+r.img+'">':'')+
-      '</div><div class="rec-amt">¥'+r.amt+'</div>'+
-      '<button class="pic-del" onclick="event.stopPropagation();delRec(\''+r.id+'\')">删</button></div>';
-  });
-  $id('recList').innerHTML=html;
-}
-
-/* ================= 设置 ================= */
-/* ================= 我的图片 ================= */
-function aboutRender(){
-  const im=$id('aboutImg');
-  im.dataset.fb='';
-  im.onerror=()=>{if(!im.dataset.fb){im.dataset.fb='1';im.src='./logo.png'}};
-  im.src=D.aboutImg||'./logo.jpg';
-  $id('aboutResetBtn').style.display=D.aboutImg?'':'none';
-}
-function aboutPickClick(){$id('aboutFile').click()}
-function aboutPick(input){
-  const f=input.files&&input.files[0];if(!f)return;
-  const img=new Image(),url=URL.createObjectURL(f);
-  img.onload=()=>{
-    const sc=Math.min(1,900/Math.max(img.width,img.height));
-    const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
-    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    D.aboutImg=c.toDataURL('image/jpeg',.72);
-    URL.revokeObjectURL(url);input.value='';
-    save();aboutRender();toast('换好啦，真好看 😊');
-  };
-  img.onerror=()=>{URL.revokeObjectURL(url);toast('这张图读不出来，换一张试试')};
-  img.src=url;
-}
-function aboutReset(){D.aboutImg='';save();aboutRender();toast('换回原来的啦')}
-
-function renderSet(){
-  aboutRender();
-  $id('syGist').value=D.sync.gist||'';
-  $id('appVer').textContent=APP_VER+' · '+APP_VER_DATE;
-  $id('telNum').value=D.tel||'';
-  $id('telName').value=D.telName||'';
-  telLockUI();
-  $id('syState').textContent=D.sync.lastAt?('上次更新：'+hmStr(D.sync.lastAt)+(D.sync.lastN?('，收到 '+D.sync.lastN+' 件新快递'):'，没有新快递')):'还没有更新过';
-  $id('cityNow').textContent=D.city?(D.city.name+'（天气已就绪）'):'还没设置';
-}
-
-/* ================= 版本检查 ================= */
-/* 带 ?u=时间戳 硬刷新，绕过 GitHub Pages 的 max-age=600 强缓存 */
-function hardReload(){
-  const p=location.pathname.replace(/\/$/,'/index.html');
-  location.replace(p+'?u='+Date.now());
-}
+/* 启动 */
+apApply();
+/* 自动版本检查：发现服务器 sw 版本变化、或服务器页面版本比本机新，就硬刷新一次
+   （带 ?u=时间戳 绕过 GitHub Pages 的 max-age=600 强缓存；先记版本再刷 + 8秒防抖，防死循环） */
+let _swChecking=false;
 async function serverAppVer(){
   try{
     const r=await fetch('./index.html?_v='+Date.now(),{cache:'no-store'});
@@ -960,73 +1385,64 @@ async function serverAppVer(){
     return m?m[1]:''
   }catch(e){return ''}
 }
-async function checkSwVer(manual){
+function hardReload(){
+  const p=location.pathname.replace(/\/$/,'/index.html');
+  location.replace(p+'?u='+Date.now());
+}
+async function checkSwVer(){
+  if(_swChecking)return;
+  _swChecking=true;
   try{
-    const r=await fetch('./sw.js?t='+Date.now(),{cache:'no-store'});
+    const r=await fetch('./sw.js',{cache:'no-store'});
     const t=await r.text();
-    const m=t.match(/jiuwo-v[0-9a-z]+/);
+    const m=t.match(/hahadu-v[0-9a-z]+/);
+    const cur=m?m[0]:'';
+    const known=localStorage.getItem('hahaduSwVer');
     let need=false;
-    if(m){
-      const cur=m[0],known=localStorage.getItem('jiuwoSwVer');
-      if(cur&&known&&cur!==known)need=true;
-      localStorage.setItem('jiuwoSwVer',cur);
+    if(cur&&known&&cur!==known)need=true;
+    if(cur)localStorage.setItem('hahaduSwVer',cur);
+    if(!need){
+      // 二次保险：每 30 分钟比对一次服务器页面版本，防止 sw 号相同但页面被旧缓存顶住
+      const last=+localStorage.getItem('hahaduHtmlChkAt')||0;
+      if(Date.now()-last>1800000){
+        localStorage.setItem('hahaduHtmlChkAt',String(Date.now()));
+        const sv=await serverAppVer();
+        if(sv&&sv!==APP_VER)need=true;
+      }
     }
-    // 二次保险：页面版本也对一下（只在需要时或手动检查时拉，省流量）
-    const last=+localStorage.getItem('jiuwoChkAt')||0;
-    if(need||manual||Date.now()-last>1800000){
-      if(!manual)localStorage.setItem('jiuwoChkAt',String(Date.now()));
-      const sv=await serverAppVer();
-      if(sv&&sv!==APP_VER)need=true;
-    }
-    if(need&&Date.now()-(+localStorage.getItem('jiuwoSwAt')||0)>8000){
-      localStorage.setItem('jiuwoSwAt',String(Date.now()));
-      if(manual)toast('发现新版本，正在更新…');
-      hardReload();return;
+    if(need&&Date.now()-(+localStorage.getItem('hahaduSwAt')||0)>8000){
+      localStorage.setItem('hahaduSwAt',String(Date.now()));
+      hardReload();return
     }
   }catch(e){}
-  if(manual)toast('已经是最新版本 '+APP_VER);
+  _swChecking=false;
 }
-
-/* ================= 数据管理 ================= */
-function exportData(){
+async function checkUpdateManual(){
   try{
-    const blob=new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='jiuwo-backup-'+todayStr()+'.json';
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),3000);
-    toast('备份导出啦，记得把文件存好 📁');
-  }catch(e){toast('导出没成功，再试一次')}
+    const r=await fetch('./sw.js',{cache:'no-store'});
+    const t=await r.text();
+    const m=t.match(/hahadu-v[0-9a-z]+/);
+    if(m)localStorage.setItem('hahaduSwVer',m[0]);
+    const sv=await serverAppVer();
+    if(sv&&sv!==APP_VER){
+      localStorage.setItem('hahaduSwAt',String(Date.now()));
+      alert('发现新版本 '+sv+'（当前 '+APP_VER+'），正在更新…');
+      hardReload();return
+    }
+    alert('已经是最新版啦 ✅ 当前 '+APP_VER);
+  }catch(e){alert('检查失败：网络不通？稍后再试')}
 }
-function importData(input){
-  const f=input.files&&input.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      const d=JSON.parse(r.result);
-      if(!d||typeof d!=='object'||Array.isArray(d))throw 0;
-      D=defaultData();Object.assign(D,d);save();
-      applyLook();refreshTop();renderToday();renderScam();renderMoney();renderSet();markDot();
-      toast('导入成功，快递和账本都回来啦 ✅');
-    }catch(e){toast('这个文件不对，要选导出的那份备份')}
-  };
-  r.onerror=()=>toast('文件读不出来，再试一次');
-  r.readAsText(f);input.value='';
-}
-
-/* ================= 启动 ================= */
-load();applyLook();refreshTop();renderToday();renderScam();renderMoney();renderSet();markDot();
+window.addEventListener('pageshow',e=>{checkSwVer();cloudPullQuote()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkSwVer();cloudPullQuote()}});
+renderMenu();renderPage('home');
+cloudPullQuote();
+setInterval(cloudPullQuote,180000);
 loadWeather();
+setInterval(loadWeather,1800000);
+loadNewsRemote();
 /* 第一次打开自动请求定位授权，自动设置天气城市（只问一次，拒绝过就不再弹） */
 if(!D.city&&!localStorage.getItem('wxGeoAsked')){localStorage.setItem('wxGeoAsked','1');useGeo()}
-pullParcels(true);
-checkSwVer();
-setInterval(refreshTop,20000);
-setInterval(()=>pullParcels(true),240000);
-setInterval(()=>loadWeather(),1800000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){pullParcels(true);loadWeather()}});
-window.addEventListener('pageshow',()=>{pullParcels(true)});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
 </html>
