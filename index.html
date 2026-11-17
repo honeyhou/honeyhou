@@ -645,7 +645,7 @@ textarea.inp{resize:none;line-height:1.5}
       <div class="card">
         <div class="sec-title">🌤️ 天气城市 <span class="en">Weather</span></div>
         <div class="set-row"><span id="cityNow">还没设置</span><button class="mini-btn" onclick="useGeo()">📍 用我的位置</button></div>
-        <div class="form-row" style="gap:6px"><input class="inp" id="cityInp" style="flex:1;min-width:0" placeholder="输入城市或区，比如 金水区、成都"><button class="btn ghost" style="flex:0 0 auto;padding:9px 16px" onclick="searchCity()">查</button></div>
+        <div class="form-row" style="display:flex;gap:6px"><input class="inp" id="cityInp" style="flex:1;min-width:0" placeholder="输入城市或区，比如 金水区、成都"><button class="btn ghost" style="flex:0 0 auto;padding:9px 16px" onclick="searchCity()">查</button></div>
         <div id="cityHits" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
         <p class="hint">天气每 30 分钟自动更新；想精确到区就填区名（如 金水区）。</p>
       </div>
@@ -9232,7 +9232,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.15';
+const APP_VER='v2.16';
 const APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9577,14 +9577,25 @@ async function searchCity(){
       const j=await r.json();
       return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
     };
-    rs=await load(q);
-    if(!rs.length&&!/[区县市州]$/.test(q))rs=await load(q+'区');
+    /* 「市+区」连写也能查：连云港市海州区 → 连云港市 海州区 / 海州区, 连云港市 / 海州区 */
+    const qs=[q];
+    const m=q.match(/^(.+?[市州盟])((?:.+)?[区县旗])$/);
+    if(m&&m[2].length>=2&&m[2]!==q){
+      if(!qs.includes(m[1]+' '+m[2]))qs.push(m[1]+' '+m[2]);
+      if(!qs.includes(m[2]+', '+m[1]))qs.push(m[2]+', '+m[1]);
+      if(!qs.includes(m[2]))qs.push(m[2]);
+    }
+    if(!/[区县市州旗]$/.test(q)&&!m)qs.push(q+'区');
+    for(const kw of qs){rs=await load(kw);if(rs.length)break}
   }catch(e){}
   if(!rs.length){
     try{
-      const r=await fetchTO('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=zh&format=json',8000);
-      const j=await r.json();
-      rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
+      for(const kw of qs){
+        const r=await fetchTO('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(kw)+'&count=6&language=zh&format=json',8000);
+        const j=await r.json();
+        rs=(j.results||[]).map(x=>({name:x.name,mid:(x.admin2||x.admin1||''),lat:x.latitude,lon:x.longitude}));
+        if(rs.length)break;
+      }
     }catch(e){}
   }
   window.__cityHits=rs;
