@@ -156,10 +156,16 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
     <!-- 桌面 Home -->
     <section class="page active" id="p-home">
       <div class="pg-head"><h2>🏠 工作台</h2><p>Home · 今天也要做出好听的歌哟</p></div>
-      <div class="card"><div class="sec-title" id="hmGreet">⏰ 下午好，哈哈杜 ꯁ</div>
-        <div id="hmDate" style="font-size:15px;font-weight:700"></div>
-        <div id="hmLunar" style="font-size:11.5px;color:var(--sub);margin-top:4px"></div>
-        <div id="hmWx" style="font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.5;cursor:pointer" onclick="go('set')">🌤️ 天气加载中…</div>
+      <div class="card" style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div class="sec-title" id="hmGreet">⏰ 下午好，哈哈杜 ꯁ</div>
+          <div id="hmDate" style="font-size:15px;font-weight:700"></div>
+          <div id="hmLunar" style="font-size:11.5px;color:var(--sub);margin-top:4px"></div>
+          <div id="hmWx" style="font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.5;cursor:pointer" onclick="go('set')">🌤️ 天气加载中…</div>
+        </div>
+        <img src="./hahadu-icon.png?v=3" alt="哈哈杜" draggable="false"
+             style="flex:0 0 auto;width:64px;height:64px;border-radius:14px;object-fit:cover;pointer-events:none;-webkit-user-drag:none;user-select:none"
+             onerror="this.style.display='none'">
       </div>
       <div class="card"><div class="sec-title">💬 拒绝鸡汤 <span class="en">和 HONEY呦 同步</span></div>
         <div id="hmQuote"></div>
@@ -427,7 +433,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.20', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.21', APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
