@@ -614,6 +614,10 @@ textarea.inp{resize:none;line-height:1.5}
         <p class="hint">走的是语录云同步同一个通道（Gist），妈妈那边每 4 分钟自动更新，打开 App 也会立刻拉取。重复的取件码会自动去重，放心推。</p>
         <button class="btn" style="width:100%" onclick="pushMamaParcels()">📦 一键推送给妈妈</button>
       </div>
+      <div class="card">
+        <div class="sec-title">📤 已推送 <span class="en">Sent</span><span class="bar-txt" id="pcPushedCnt"></span></div>
+        <div id="pcPushed"></div>
+      </div>
     </section>
 
     <!-- 设置 Settings -->
@@ -9228,7 +9232,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.14';
+const APP_VER='v2.15';
 const APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9328,6 +9332,7 @@ function defaultData(){
             {id:uid(),name:'毛茸茸的居家居服',when:'2026-11',done:false,photo:''}],
     memeSeen:{},
     theme:{...DEF_THEME},
+    sync:{gist:'',token:''},
     city:null,
     avatar:null
   };
@@ -9336,7 +9341,7 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
-  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};d.pcSeen=d.pcSeen||{};if(d.city===undefined)d.city=null;
+  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};d.pcSeen=d.pcSeen||{};d.pcPushed=d.pcPushed||[];if(d.city===undefined)d.city=null;
   if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
   delete d.project;
   d.projects.forEach(p=>{if(!p.id)p.id=uid()});
@@ -9626,6 +9631,34 @@ function parseParcelText(txt){
 function renderParcel(){
   $id('pcPushState').textContent=D.parcelPush&&D.parcelPush.at?('上次 '+hmStr(D.parcelPush.at)+' 推了 '+D.parcelPush.n+' 条'):'还没推过';
   renderPcDrafts();
+  renderPcPushed();
+}
+/* 历史回捞：从 Gist 云端把最近一批已推送的快递捞回来补进历史（旧版没记录也能看到前一天推的） */
+async function pcRecoverHistory(){
+  const s=D.sync||{gist:'',token:''};if(!s.gist||!s.token)return;
+  try{
+    const r=await fetch('https://api.github.com/gists/'+s.gist,{headers:{'Authorization':'Bearer '+s.token,'Accept':'application/vnd.github+json'}});
+    if(!r.ok)return;
+    const j=await r.json();
+    const f=j.files&&j.files['jiuwo-sync.json'];if(!f||!f.content)return;
+    const data=JSON.parse(f.content);
+    const items=(data.items||[]).filter(x=>x&&x.code);if(!items.length)return;
+    const codes={};(D.pcPushed||[]).forEach(x=>codes[x.code]=1);
+    let added=0;
+    items.forEach(x=>{if(!codes[x.code]){D.pcPushed.push({id:x.id||('r'+x.code),code:x.code,site:x.site||'',note:x.note||'',at:data.at||Date.now()});codes[x.code]=1;added++}});
+    if(added){D.pcPushed=D.pcPushed.slice(-100);save();if($id('pcPushed'))renderPcPushed()}
+  }catch(e){}
+}
+function renderPcPushed(){
+  const arr=(D.pcPushed||[]).slice().sort((a,b)=>b.at-a.at);
+  $id('pcPushedCnt').textContent=arr.length?('共 '+arr.length+' 条'):'';
+  $id('pcPushed').innerHTML=arr.length?arr.slice(0,30).map(d=>
+    `<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+      <b style="font-size:13px">${esc(d.code)}</b>
+      <span style="margin-left:auto;font-size:11px;color:var(--muted)">${hmStr(d.at)} 推送</span>
+      ${d.site||d.note?'<span style="width:100%;font-size:11px;color:var(--muted)">'+esc(d.site||'')+(d.site&&d.note?' · ':'')+esc(d.note||'')+'</span>':''}
+    </div>`).join('')+(arr.length>30?'<p class="hint">只显示最近 30 条，更早的自动清理</p>':'')
+    :'<p class="hint" style="margin-top:10px">还没有推送过。推过的快递会在这里留底（带推送时间），前一天推的也能看到。</p>';
 }
 function renderPcDrafts(){
   $id('pcDrafts').innerHTML=pcDrafts.length?'<div class="sec-title" style="margin-top:14px">📋 待推送 '+pcDrafts.length+' 条</div>'+pcDrafts.map((d,i)=>
@@ -9725,7 +9758,9 @@ async function pushMamaParcels(){
       body:JSON.stringify({files:{'jiuwo-sync.json':{content:JSON.stringify({at:Date.now(),items:pcDrafts.map(d=>({id:d.id,code:d.code,site:d.site,note:d.note}))})}}})
     });
     if(r.ok){D.parcelPush={at:Date.now(),n:pcDrafts.length};
+      const at=Date.now();
       pcDrafts.forEach(d=>{D.pcSeen[d.code]=1});
+      D.pcPushed=(D.pcPushed||[]).concat(pcDrafts.map(d=>({id:d.id,code:d.code,site:d.site,note:d.note,at:at}))).slice(-100);
       save();pcDrafts=[];renderParcel();
       alert('推送成功 📦 妈妈打开「酒窝妈妈」就能看到啦（她那边几分钟内自动更新）');}
     else alert('推送失败（'+r.status+'），检查网络或 Token 是否过期');
@@ -10584,6 +10619,7 @@ loadWeather();
 setInterval(loadWeather,1800000);
 /* 第一次打开自动请求定位授权，自动设置天气城市（只问一次，拒绝过就不再弹） */
 if(!D.city&&!localStorage.getItem('wxGeoAsked')){localStorage.setItem('wxGeoAsked','1');useGeo()}
+pcRecoverHistory();
 
 /* 自动版本检查：发现服务器 sw 版本变化、或服务器页面版本比本机新，就硬刷新一次
    （带 ?u=时间戳 绕过 GitHub Pages 的 max-age=600 强缓存；先记版本再刷 + 8秒防抖，防死循环） */
