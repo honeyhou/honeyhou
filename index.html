@@ -324,7 +324,7 @@ textarea.inp{resize:none;line-height:1.5}
             <div class="t-state" id="ckTodoS">未完成</div>
           </div>
           <div class="tile" onclick="go('mood')">
-            <div class="t-ico">💗</div><div class="t-zh">心情流水</div>
+            <div class="t-ico">💚</div><div class="t-zh">心情流水</div>
             <div class="t-sub" id="ckMood">未记录</div>
             <div class="t-state" id="ckMoodS">去打卡</div>
           </div>
@@ -426,7 +426,7 @@ textarea.inp{resize:none;line-height:1.5}
     <section class="page" id="p-mood">
       <div class="pg-head"><h2>心情流水</h2><p>Honey Mood · 我想记住值得记住的每一天</p></div>
       <div class="card">
-        <div class="sec-title">💗 今天的心情 <span class="en">Today's Mood</span></div>
+        <div class="sec-title">💚 今天的心情 <span class="en">Today's Mood</span></div>
         <div class="emoji-row" id="mdEmojis"></div>
         <textarea class="inp" id="mdText" rows="2" placeholder="用一句话记录今天的心情吧～"></textarea>
         <button class="btn" onclick="saveMood(todayStr())">记录心情</button>
@@ -9238,12 +9238,12 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.25';
+const APP_VER='v2.27';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
  ['lucky','📅','日历','Luck day'],
- ['money','💰','来财','Honey money'],['mood','💗','心情流水','Honey mood'],
+ ['money','💰','来财','Honey money'],['mood','💚','心情流水','Honey mood'],
  ['fuel','🧋','营养充电','Fuel Up'],
  ['anni','💗','纪念','Anniversary'],['meme','🔥','热梗','Meme'],
  ['parcel','📦','快递','Parcel'],
@@ -9457,7 +9457,7 @@ function renderDesktop(){
   const fuDn=vis.filter(s=>s.days.includes(t)).length;
   const ov=[
     ['✅ 待办',tdDone,tds.length,'todo'],
-    ['💗 心情流水',hasMood?1:0,hasMood?1:0,'mood'],
+    ['💚 心情流水',hasMood?1:0,hasMood?1:0,'mood'],
     ['🍰 想吃',ymDone,ymAll,'yummy'],
     ['🧋 营养充电',fuDn,vis.length,'fuel'],
     ['🌟 心愿单',D.wishes.filter(x=>x.done).length,D.wishes.length,'wish']
@@ -9479,7 +9479,7 @@ function renderDesktop(){
   $id('ovAnni').innerHTML=annis30.length?'<div class="ov-anni-t">🎉 一个月内的纪念日</div>'+annis30.map(x=>{
     const ag=ageOf(x.a),agTxt=x.a.type==='生日'&&ag!==null?' · '+ag+'岁':'';
     const dTxt=x.d===0?'就是今天🎉':'还有'+x.d+'天';
-    return `<div class="ov-anni-i" onclick="go('anni')"><span>${x.a.type==='生日'?'🎂':'💗'} ${esc(x.a.name)}${agTxt}</span><span class="oa-d">${dTxt}</span></div>`;
+    return `<div class="ov-anni-i" onclick="go('anni')"><span>${aniIco(x.a.type)} ${esc(x.a.name)}${agTxt}</span><span class="oa-d">${dTxt}</span></div>`;
   }).join(''):'';
   $id('ovAnniCard').style.display=annis30.length?'':'none';
 }
@@ -10091,7 +10091,7 @@ function renderMoodCal(){
 function mdNav(w){mdM+=w;if(mdM<0){mdM=11;mdY--}if(mdM>11){mdM=0;mdY++}renderMoodCal()}
 function moodDetail(key){
   const rec=D.moods[key];
-  showModal(`<h3>💗 ${key} 的心情</h3>
+  showModal(`<h3>💚 ${key} 的心情</h3>
     <div class="emoji-row">${MOODS.map(e=>`<button class="emo ${rec&&rec.e===e?'on':(!rec&&e===mdPick?'on':'')}" onclick="mdPick4Modal('${e}','${key}')">${e}</button>`).join('')}</div>
     <textarea class="inp" id="mdTxt2" rows="2" style="margin-top:8px" placeholder="一句话记录～">${rec?esc(rec.t):''}</textarea>
     <div class="m-btns"><button class="btn" onclick="saveMood('${key}')">保存</button>
@@ -10216,8 +10216,10 @@ function lkDetail(key){
 }
 
 /* ---------- 纪念 ---------- */
+/* 纪念类型小图标：台账/日历/桌面概览/弹窗/导出/下拉统一用这一份映射 */
+function aniIco(t){return {'生日':'🎂','纪念日':'💗','倒数日':'💚','节日':'☀️','其他':'🎈'}[t]||'🎈'}
 function renderAnni(){
-  $id('anType').innerHTML=D.anniTypes.map(t=>`<option ${t==='生日'?'selected':''}>${t}</option>`).join('');
+  $id('anType').innerHTML=D.anniTypes.map(t=>`<option ${t==='生日'?'selected':''} value="${t}">${aniIco(t)} ${t}</option>`).join('');
   const list=[...D.annis].sort((a,b)=>cdDays(a)-cdDays(b));
   $id('anList').innerHTML=list.length?list.map(a=>{
     const c=cdDays(a),cls=c===0?'pri-h':c<=a.remind?'pri-m':'pri-l';
@@ -10225,7 +10227,7 @@ function renderAnni(){
     const age=ageOf(a),ageTag=age!==null?` <span class="tag pri-l">${age===0?'未满1岁':age+'岁'}</span>`:'';
     const el=elapsedYears(a),elTxt=el!==null?' · '+(el===0?'刚开始':'已 '+el.toFixed(1)+'年'):'';
     return `<div class="li anni">
-      <div class="ani-ico">${a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗'}</div>
+      <div class="ani-ico">${aniIco(a.type)}</div>
       <div class="li-main"><div class="li-t">${esc(a.name)} <span class="tag pri-m">${esc(a.type)}</span>${ageTag}</div>
       <div class="li-sub">${a.date} · ${a.cal==='lunar'?'🌙农历':'☀️阳历'} · ${esc(a.rel)} · ${cyc}循环${a.note?' · 📝'+esc(a.note):''}${elTxt}</div></div>
       <div class="ani-right"><span class="cd ${cls}">${c===0?'就是今天':c>0?'还有'+c+'天':'已过'+(-c)+'天'}</span>
@@ -10242,9 +10244,8 @@ function renderAnniCal(){
   for(let i=0;i<ofs;i++)html+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=days;d++){
     const items=annisOn(anY,anM+1,d);
-    /* 当天有纪念：日期下先给类型小图标（生日🎂/节日🎏/其他💗，最多2个），绿点保留 */
-    const aniIco=a=>a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗';
-    const icos=items.length?'<span class="an-icos">'+items.slice(0,2).map(a=>aniIco(a)).join('')+'</span><span class="dot-g"></span>':'';
+    /* 当天有纪念：日期下先给类型小图标（生日🎂/纪念日💗/倒数日💚/节日☀️/其他🎈，最多2个），绿点保留 */
+    const icos=items.length?'<span class="an-icos">'+items.slice(0,2).map(a=>aniIco(a.type)).join('')+'</span><span class="dot-g"></span>':'';
     html+=`<div class="cal-cell" onclick="${items.length?`anniDay('${anY}-${pad(anM+1)}-${pad(d)}')`:''}"><b>${d}</b>${icos}</div>`;
   }
   $id('anCalGrid').innerHTML=html;
@@ -10270,7 +10271,7 @@ function anniDay(key){
   const items=annisOn(+key.slice(0,4),+key.slice(5,7),+key.slice(8,10));
   showModal(`<h3>💗 ${key} 的纪念</h3>${items.map(a=>{
     const age=ageOf(a),ageTxt=age!==null?` · ${age===0?'未满1岁':age+'岁'}`:'';
-    return `<div class="li"><div class="ani-ico">${a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗'}</div>
+    return `<div class="li"><div class="ani-ico">${aniIco(a.type)}</div>
      <div class="li-main"><div class="li-t">${esc(a.name)} <span class="tag pri-m">${esc(a.type)}</span></div>
      <div class="li-sub">${a.date} · ${a.cal==='lunar'?'🌙农历':'☀️阳历'} · ${esc(a.rel)}${ageTxt} · ${a.note?'📝'+esc(a.note):'无备注'}</div></div></div>`}).join('')}
     <div class="m-btns"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
@@ -10436,7 +10437,7 @@ function icsEvents(a){
     const e=new Date(d);e.setDate(e.getDate()+1);
     return ['BEGIN:VEVENT','UID:'+uid0+'-'+icsDateStr(d)+'@honeyapp','DTSTAMP:'+icsDateStr(now)+'T000000Z',
       'DTSTART;VALUE=DATE:'+icsDateStr(d),'DTEND;VALUE=DATE:'+icsDateStr(e),
-      'SUMMARY:'+esc(a.name+(a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗')),
+      'SUMMARY:'+esc(a.name+' '+aniIco(a.type)),
       'DESCRIPTION:'+esc((a.cal==='lunar'?'🌙农历':'☀️阳历')+(a.type==='生日'&&ageOf(a)!==null?' · '+ageOf(a)+'岁':'')+(a.note?' · '+a.note:'')),
       'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+esc(a.name),'TRIGGER:-P'+trig+'D','END:VALARM','END:VEVENT'].join('\r\n');
   });
