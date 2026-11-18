@@ -142,6 +142,7 @@ textarea.inp{resize:none;line-height:1.5}
 .stat-fest{display:block;font-size:9px;color:#fff;background:#e0576d;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
 .pay-fest{display:block;font-size:9px;color:#fff;background:#c99a2e;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
 .dot-g{display:block;width:8px;height:8px;background:#3e9e5c;border-radius:50%;margin:2px auto 0}
+.an-icos{display:block;font-size:10px;line-height:1.2;margin-top:1px;letter-spacing:1px}
 .m-ok{color:#3e9e5c;font-weight:bold}
 .m-part{color:var(--accent);font-weight:bold}
 .m-due{color:#d6336c;font-weight:bold}
@@ -486,6 +487,14 @@ textarea.inp{resize:none;line-height:1.5}
     <section class="page" id="p-anni">
       <div class="pg-head"><h2>纪念提醒</h2><p>Anniversary · 你值得被我记住</p></div>
       <div class="card">
+        <div class="sec-title">📅 月度总览 <span class="en">By Month</span>
+          <span class="month-nav"><button class="mini-btn" onclick="anNav(-1)">‹</button><b id="anMonthLabel"></b><button class="mini-btn" onclick="anNav(1)">›</button></span>
+        </div>
+        <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
+        <div class="cal-grid" id="anCalGrid"></div>
+        <p class="hint">有纪念事项的日期会显示绿色圆点 · 点开查看详情</p>
+      </div>
+      <div class="card">
         <div class="sec-title">🎂 纪念台账 <span class="en">My List</span> <span class="month-nav"><button class="mini-btn" onclick="exportCalAll()" title="全部导出到iPhone日历">📅 导出日历</button></span></div>
         <div id="anList"></div>
       </div>
@@ -526,14 +535,6 @@ textarea.inp{resize:none;line-height:1.5}
         </div>
         <button class="btn" onclick="saveAnni()">保存</button>
         <p class="hint">🌙选农历时，直接用农历下拉选「年·月·日」（如 1988年 十月 十五）；农历+「每月循环」按农历月循环（选初一则每月农历初一提醒）；选「生日」类型会自动设为每年循环。</p>
-      </div>
-      <div class="card">
-        <div class="sec-title">📅 月度总览 <span class="en">By Month</span>
-          <span class="month-nav"><button class="mini-btn" onclick="anNav(-1)">‹</button><b id="anMonthLabel"></b><button class="mini-btn" onclick="anNav(1)">›</button></span>
-        </div>
-        <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
-        <div class="cal-grid" id="anCalGrid"></div>
-        <p class="hint">有纪念事项的日期会显示绿色圆点 · 点开查看详情</p>
       </div>
     </section>
 
@@ -9237,14 +9238,14 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.24';
+const APP_VER='v2.25';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
  ['lucky','📅','日历','Luck day'],
  ['money','💰','来财','Honey money'],['mood','💗','心情流水','Honey mood'],
  ['fuel','🧋','营养充电','Fuel Up'],
- ['anni','💝','纪念','Anniversary'],['meme','🔥','热梗','Meme'],
+ ['anni','💗','纪念','Anniversary'],['meme','🔥','热梗','Meme'],
  ['parcel','📦','快递','Parcel'],
  ['yummy','🍰','想吃','Yummy'],['wish','🌟','心愿单','Honey Wish'],
  ['settings','⚙️','设置','Settings']
@@ -9478,7 +9479,7 @@ function renderDesktop(){
   $id('ovAnni').innerHTML=annis30.length?'<div class="ov-anni-t">🎉 一个月内的纪念日</div>'+annis30.map(x=>{
     const ag=ageOf(x.a),agTxt=x.a.type==='生日'&&ag!==null?' · '+ag+'岁':'';
     const dTxt=x.d===0?'就是今天🎉':'还有'+x.d+'天';
-    return `<div class="ov-anni-i" onclick="go('anni')"><span>${x.a.type==='生日'?'🎂':'💝'} ${esc(x.a.name)}${agTxt}</span><span class="oa-d">${dTxt}</span></div>`;
+    return `<div class="ov-anni-i" onclick="go('anni')"><span>${x.a.type==='生日'?'🎂':'💗'} ${esc(x.a.name)}${agTxt}</span><span class="oa-d">${dTxt}</span></div>`;
   }).join(''):'';
   $id('ovAnniCard').style.display=annis30.length?'':'none';
 }
@@ -10224,7 +10225,7 @@ function renderAnni(){
     const age=ageOf(a),ageTag=age!==null?` <span class="tag pri-l">${age===0?'未满1岁':age+'岁'}</span>`:'';
     const el=elapsedYears(a),elTxt=el!==null?' · '+(el===0?'刚开始':'已 '+el.toFixed(1)+'年'):'';
     return `<div class="li anni">
-      <div class="ani-ico">${a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💝'}</div>
+      <div class="ani-ico">${a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗'}</div>
       <div class="li-main"><div class="li-t">${esc(a.name)} <span class="tag pri-m">${esc(a.type)}</span>${ageTag}</div>
       <div class="li-sub">${a.date} · ${a.cal==='lunar'?'🌙农历':'☀️阳历'} · ${esc(a.rel)} · ${cyc}循环${a.note?' · 📝'+esc(a.note):''}${elTxt}</div></div>
       <div class="ani-right"><span class="cd ${cls}">${c===0?'就是今天':c>0?'还有'+c+'天':'已过'+(-c)+'天'}</span>
@@ -10241,7 +10242,10 @@ function renderAnniCal(){
   for(let i=0;i<ofs;i++)html+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=days;d++){
     const items=annisOn(anY,anM+1,d);
-    html+=`<div class="cal-cell" onclick="${items.length?`anniDay('${anY}-${pad(anM+1)}-${pad(d)}')`:''}"><b>${d}</b>${items.length?'<span class="dot-g"></span>':''}</div>`;
+    /* 当天有纪念：日期下先给类型小图标（生日🎂/节日🎏/其他💗，最多2个），绿点保留 */
+    const aniIco=a=>a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗';
+    const icos=items.length?'<span class="an-icos">'+items.slice(0,2).map(a=>aniIco(a)).join('')+'</span><span class="dot-g"></span>':'';
+    html+=`<div class="cal-cell" onclick="${items.length?`anniDay('${anY}-${pad(anM+1)}-${pad(d)}')`:''}"><b>${d}</b>${icos}</div>`;
   }
   $id('anCalGrid').innerHTML=html;
 }
@@ -10264,9 +10268,9 @@ function annisOn(y,m,d){
 function anNav(w){anM+=w;if(anM<0){anM=11;anY--}if(anM>11){anM=0;anY++}renderAnniCal()}
 function anniDay(key){
   const items=annisOn(+key.slice(0,4),+key.slice(5,7),+key.slice(8,10));
-  showModal(`<h3>💝 ${key} 的纪念</h3>${items.map(a=>{
+  showModal(`<h3>💗 ${key} 的纪念</h3>${items.map(a=>{
     const age=ageOf(a),ageTxt=age!==null?` · ${age===0?'未满1岁':age+'岁'}`:'';
-    return `<div class="li"><div class="ani-ico">${a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💝'}</div>
+    return `<div class="li"><div class="ani-ico">${a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗'}</div>
      <div class="li-main"><div class="li-t">${esc(a.name)} <span class="tag pri-m">${esc(a.type)}</span></div>
      <div class="li-sub">${a.date} · ${a.cal==='lunar'?'🌙农历':'☀️阳历'} · ${esc(a.rel)}${ageTxt} · ${a.note?'📝'+esc(a.note):'无备注'}</div></div></div>`}).join('')}
     <div class="m-btns"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
@@ -10432,7 +10436,7 @@ function icsEvents(a){
     const e=new Date(d);e.setDate(e.getDate()+1);
     return ['BEGIN:VEVENT','UID:'+uid0+'-'+icsDateStr(d)+'@honeyapp','DTSTAMP:'+icsDateStr(now)+'T000000Z',
       'DTSTART;VALUE=DATE:'+icsDateStr(d),'DTEND;VALUE=DATE:'+icsDateStr(e),
-      'SUMMARY:'+esc(a.name+(a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💝')),
+      'SUMMARY:'+esc(a.name+(a.type==='生日'?'🎂':a.type==='节日'?'🎏':'💗')),
       'DESCRIPTION:'+esc((a.cal==='lunar'?'🌙农历':'☀️阳历')+(a.type==='生日'&&ageOf(a)!==null?' · '+ageOf(a)+'岁':'')+(a.note?' · '+a.note:'')),
       'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+esc(a.name),'TRIGGER:-P'+trig+'D','END:VALARM','END:VEVENT'].join('\r\n');
   });
