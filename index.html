@@ -315,21 +315,6 @@ textarea.inp{resize:none;line-height:1.5}
         <div class="quote-t" id="qT"></div>
         <div class="quote-e" id="qE"></div>
       </div>
-      <div class="card">
-        <div class="sec-title">✨ 每日打卡 <span class="en">Daily Check-in</span></div>
-        <div class="tiles">
-          <div class="tile" onclick="go('todo')">
-            <div class="t-ico">✅</div><div class="t-zh">待办</div>
-            <div class="t-sub" id="ckTodo">0/0</div>
-            <div class="t-state" id="ckTodoS">未完成</div>
-          </div>
-          <div class="tile" onclick="go('mood')">
-            <div class="t-ico">💚</div><div class="t-zh">心情流水</div>
-            <div class="t-sub" id="ckMood">未记录</div>
-            <div class="t-state" id="ckMoodS">去打卡</div>
-          </div>
-        </div>
-      </div>
       <div class="card" id="ovAnniCard" style="display:none">
         <div class="ov-anni" id="ovAnni"></div>
       </div>
@@ -358,6 +343,12 @@ textarea.inp{resize:none;line-height:1.5}
         <div id="tdList"></div>
       </div>
       <div class="card">
+        <div class="sec-title">💚 月度进度 <span class="en">Monthly Calendar</span></div>
+        <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
+        <div class="cal-grid" id="tdMCal"></div>
+        <p class="hint">数字为 当日已完成/总数 · 点日期可查看当天任务</p>
+      </div>
+      <div class="card">
         <div class="sec-title">➕ 添加新任务 <span class="en">New Task</span></div>
         <div class="form-row"><input class="inp" id="tdText" placeholder="要做什么呀？"></div>
         <div class="form-row2">
@@ -369,12 +360,6 @@ textarea.inp{resize:none;line-height:1.5}
           </select>
         </div>
         <button class="btn" onclick="addTodo()">添加任务</button>
-      </div>
-      <div class="card">
-        <div class="sec-title">💚 月度进度 <span class="en">Monthly Calendar</span></div>
-        <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
-        <div class="cal-grid" id="tdMCal"></div>
-        <p class="hint">数字为 当日已完成/总数 · 点日期可查看当天任务</p>
       </div>
     </section>
 
@@ -426,17 +411,17 @@ textarea.inp{resize:none;line-height:1.5}
     <section class="page" id="p-mood">
       <div class="pg-head"><h2>心情流水</h2><p>Honey Mood · 我想记住值得记住的每一天</p></div>
       <div class="card">
-        <div class="sec-title">💚 今天的心情 <span class="en">Today's Mood</span></div>
-        <div class="emoji-row" id="mdEmojis"></div>
-        <textarea class="inp" id="mdText" rows="2" placeholder="用一句话记录今天的心情吧～"></textarea>
-        <button class="btn" onclick="saveMood(todayStr())">记录心情</button>
-      </div>
-      <div class="card">
         <div class="sec-title">🗓️ 心情日历 <span class="en">Mood Calendar</span>
           <span class="month-nav"><button class="mini-btn" onclick="mdNav(-1)">‹</button><b id="mdMonthLabel"></b><button class="mini-btn" onclick="mdNav(1)">›</button></span>
         </div>
         <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
         <div class="cal-grid" id="mdCal"></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">💚 今天的心情 <span class="en">Today's Mood</span></div>
+        <div class="emoji-row" id="mdEmojis"></div>
+        <textarea class="inp" id="mdText" rows="2" placeholder="用一句话记录今天的心情吧～"></textarea>
+        <button class="btn" onclick="saveMood(todayStr())">记录心情</button>
       </div>
     </section>
 
@@ -450,7 +435,14 @@ textarea.inp{resize:none;line-height:1.5}
         <div id="fuList" style="margin-top:10px"></div>
       </div>
       <div class="card">
-        <div class="sec-title">✏️ 编辑补剂清单 <span class="en">Edit List</span></div>
+        <div class="sec-title">📅 本月打卡 <span class="en">Monthly</span><span class="bar-txt" id="fuMonthCnt"></span></div>
+        <div class="fu-nav"><button class="mini-btn" onclick="fuShift(-1)">‹</button><b id="fuMonthTitle"></b><button class="mini-btn" onclick="fuShift(1)">›</button></div>
+        <div class="fu-grid-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+        <div class="fu-grid" id="fuMonth"></div>
+        <p class="hint">格子里的小数字＝当天「已吃/总数」；颜色越深吃得越齐，虚线圈＝当天没吃。</p>
+      </div>
+      <div class="card">
+        <div class="sec-title">➕ 新增补剂清单 <span class="en">New Supplement</span></div>
         <div class="form-row2">
           <input class="inp" id="fuName" placeholder="新补剂名称，如：维生素C">
           <button class="btn" onclick="addSupp()">添加</button>
@@ -459,13 +451,6 @@ textarea.inp{resize:none;line-height:1.5}
           <label class="inp cycle-lb"><input type="checkbox" id="fuDaily" checked>🔁 每天循环</label>
         </div>
         <p class="hint">提示：列表里每项右侧的「每天/单次」按钮随时可改；✕ 删除。</p>
-      </div>
-      <div class="card">
-        <div class="sec-title">📅 本月打卡 <span class="en">Monthly</span><span class="bar-txt" id="fuMonthCnt"></span></div>
-        <div class="fu-nav"><button class="mini-btn" onclick="fuShift(-1)">‹</button><b id="fuMonthTitle"></b><button class="mini-btn" onclick="fuShift(1)">›</button></div>
-        <div class="fu-grid-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
-        <div class="fu-grid" id="fuMonth"></div>
-        <p class="hint">格子里的小数字＝当天「已吃/总数」；颜色越深吃得越齐，虚线圈＝当天没吃。</p>
       </div>
     </section>
 
@@ -542,6 +527,10 @@ textarea.inp{resize:none;line-height:1.5}
     <section class="page" id="p-yummy">
       <div class="pg-head"><h2>想吃</h2><p>Yummy · 生活需要被记录</p></div>
       <div class="card">
+        <div class="sec-title">🍽️ HONEY特别想吃 <span class="en">Cravings</span></div>
+        <div id="ymList"></div>
+      </div>
+      <div class="card">
         <div class="sec-title">📷 记录想吃的 <span class="en">New Craving</span></div>
         <div class="photo-box" onclick="pickPhoto('ymPhoto')">
           <img id="ymPhotoPrev" style="display:none"><span id="ymPhotoHint">🥄 点击上传食物照片</span>
@@ -554,10 +543,6 @@ textarea.inp{resize:none;line-height:1.5}
           </select>
         </div>
         <button class="btn" onclick="addYummy()">记录</button>
-      </div>
-      <div class="card">
-        <div class="sec-title">🍽️ 月度饮食记录 <span class="en">Monthly Log</span></div>
-        <div id="ymList"></div>
       </div>
     </section>
 
@@ -9238,7 +9223,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.27';
+const APP_VER='v2.30';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9446,10 +9431,6 @@ function renderDesktop(){
   const tds=D.todos.filter(x=>x.date===t);
   const tdDone=tds.filter(x=>x.done).length;
   const hasMood=!!D.moods[t];
-  $id('ckTodo').textContent=tdDone+'/'+tds.length+' 完成';
-  $id('ckTodoS').textContent=(tds.length&&tdDone===tds.length)?'✔ 已完成':'进行中';
-  $id('ckMood').textContent=hasMood?(D.moods[t].e+' 已记录'):'未记录';
-  $id('ckMoodS').textContent=hasMood?'✔ 已打卡':'去打卡';
   // 今日概览
   /* 想吃：全部「想吃」都算（不限于今天添加的），吃一个涨一个：0/2 → 1/2 */
   const ymDone=D.yummy.filter(x=>x.eaten).length,ymAll=D.yummy.length;
@@ -10139,20 +10120,21 @@ function renderFuelMonth(){
   const first=new Date(fuY,fuM,1),days=new Date(fuY,fuM+1,0).getDate();
   const startW=(first.getDay()+6)%7; // 周一为一周开始
   const todayS=todayStr();
-  let sumT=0,sumA=0,html='';
+  let ateD=0,html='';
   for(let i=0;i<startW;i++)html+='<span class="fu-day blank"></span>';
   for(let d=1;d<=days;d++){
     const ds=fuY+'-'+pad(fuM+1)+'-'+pad(d);
     const active=D.supps.filter(s=>s.daily||s.once===ds);
     const taken=active.filter(s=>s.days.includes(ds)).length;
     const future=ds>todayS;
-    if(!future){sumT+=taken;sumA+=active.length}
+    /* 本月打卡按天算：当天吃过（哪怕只吃1样）就算1天，分母=当月总天数 */
+    if(taken>0)ateD++;
     const cls=!active.length?'none':(taken>=active.length?'full':(taken?'part':'miss'));
     html+=`<span class="fu-day ${cls}${ds===todayS?' today':''}${future?' future':''}"><b>${d}</b>${active.length?`<i>${taken}/${active.length}</i>`:''}</span>`;
   }
   $id('fuMonth').innerHTML=html;
   $id('fuMonthTitle').textContent=fuY+'年'+(fuM+1)+'月';
-  $id('fuMonthCnt').textContent='已吃 '+sumT+'/'+sumA;
+  $id('fuMonthCnt').textContent='已吃 '+ateD+'/'+days+'天';
 }
 function fuShift(n){fuM+=n;if(fuM<0){fuM=11;fuY--}if(fuM>11){fuM=0;fuY++}renderFuelMonth()}
 function tgSupp(id){const s=D.supps.find(o=>o.id===id);const t=todayStr();
@@ -10499,17 +10481,14 @@ function addYummy(){
   renderYummy();
 }
 function renderYummy(){
-  const by={};
-  [...D.yummy].sort((a,b)=>b.date.localeCompare(a.date)).forEach(y=>{const m=y.date.slice(0,7);(by[m]=by[m]||[]).push(y)});
-  $id('ymList').innerHTML=Object.keys(by).sort((a,b)=>b.localeCompare(a)).map(m=>
-    `<div class="month-group"><div class="mg-head">${m.replace('-','年')}月</div>${by[m].map(y=>
+  /* 列表不显示日期（新增也不用填，内部仍记录当天用于排序兼容） */
+  $id('ymList').innerHTML=D.yummy.length?D.yummy.map(y=>
       `<div class="li ${y.eaten?'done':''}">
         ${y.photo?`<img class="thumb" src="${y.photo}">`:'<div class="thumb thumb-e">🍰</div>'}
-        <div class="li-main"><div class="li-t">${esc(y.name)} <span class="tag pri-m">${y.meal}</span></div>
-        <div class="li-sub">${y.date}</div></div>
+        <div class="li-main"><div class="li-t">${esc(y.name)} <span class="tag pri-m">${y.meal}</span></div></div>
         <label class="eat-cb"><input type="checkbox" ${y.eaten?'checked':''} onchange="tgYummy('${y.id}')">已吃</label>
-        <button class="del" onclick="delYummy('${y.id}')">✕</button></div>`).join('')}</div>`).join('')
-    ||'<p class="empty">还没有记录，先馋一个～</p>';
+        <button class="del" onclick="delYummy('${y.id}')">✕</button></div>`).join('')
+    :'<p class="empty">还没有记录，先馋一个～</p>';
 }
 function tgYummy(id){const y=D.yummy.find(o=>o.id===id);y.eaten=!y.eaten;save();renderYummy()}
 function delYummy(id){D.yummy=D.yummy.filter(o=>o.id!==id);save();renderYummy()}
