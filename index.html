@@ -9237,16 +9237,16 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.22';
-const APP_VER_DATE='2026-11-17';
+const APP_VER='v2.24';
+const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
  ['lucky','📅','日历','Luck day'],
  ['money','💰','来财','Honey money'],['mood','💗','心情流水','Honey mood'],
  ['fuel','🧋','营养充电','Fuel Up'],
- ['anni','💝','纪念','Anniversary'],['yummy','🍰','想吃','Yummy'],
- ['wish','🌟','心愿单','Honey Wish'],['meme','🔥','热梗','Meme'],
+ ['anni','💝','纪念','Anniversary'],['meme','🔥','热梗','Meme'],
  ['parcel','📦','快递','Parcel'],
+ ['yummy','🍰','想吃','Yummy'],['wish','🌟','心愿单','Honey Wish'],
  ['settings','⚙️','设置','Settings']
 ];
 const MOODS=['😄','🥰','🙂','😌','🤩','😐','😟','😢','😡','😴'];
@@ -9346,7 +9346,7 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
-  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};d.pcSeen=d.pcSeen||{};d.pcPushed=d.pcPushed||[];if(d.city===undefined)d.city=null;
+  d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};d.pcSeen=d.pcSeen||{};d.pcPushed=d.pcPushed||[];d.pcCleanAt=d.pcCleanAt||0;if(d.city===undefined)d.city=null;
   if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
   delete d.project;
   d.projects.forEach(p=>{if(!p.id)p.id=uid()});
@@ -9693,7 +9693,8 @@ async function pcRecoverHistory(){
     const f=j.files&&j.files['jiuwo-sync.json'];if(!f||!f.content)return;
     const data=JSON.parse(f.content);
     const items=(data.items||[]).filter(x=>x&&x.code);if(!items.length)return;
-    const codes={};(D.pcPushed||[]).forEach(x=>codes[x.code]=1);
+    /* 已看过的码不再捞回（含每周清理时记入 pcSeen 的），防止清理后旧批次复活 */
+    const codes={};(D.pcPushed||[]).forEach(x=>codes[x.code]=1);Object.keys(D.pcSeen||{}).forEach(c=>codes[c]=1);
     let added=0;
     items.forEach(x=>{if(!codes[x.code]){D.pcPushed.push({id:x.id||('r'+x.code),code:x.code,site:x.site||'',note:x.note||'',at:data.at||Date.now()});codes[x.code]=1;added++}});
     if(added){D.pcPushed=D.pcPushed.slice(-100);save();if($id('pcPushed'))renderPcPushed()}
@@ -10702,12 +10703,22 @@ setInterval(tickClock,1000);tickClock();
 $id('wsWhen').value=todayStr().slice(0,7);
 $id('anDate').value=todayStr();
 renderDesktop();
+/* 每周一 0 点清空「📤 已推送」历史（与酒窝妈妈已取走同款逻辑） */
+function weeklyPcClean(){
+  const n=new Date();
+  const mon=new Date(n.getFullYear(),n.getMonth(),n.getDate()-((n.getDay()+6)%7),0,0,0).getTime();
+  if((D.pcCleanAt||0)>=mon)return;
+  if((D.pcPushed||[]).length){D.pcPushed.forEach(x=>{D.pcSeen[x.code]=1});D.pcPushed=[]}
+  D.pcCleanAt=Date.now();
+  save();
+}
 setTimeout(autoPushQuote,1500);
 loadWeather();
 loadMemeRemote();
 setInterval(loadWeather,1800000);
 /* 第一次打开自动请求定位授权，自动设置天气城市（只问一次，拒绝过就不再弹） */
 if(!D.city&&!localStorage.getItem('wxGeoAsked')){localStorage.setItem('wxGeoAsked','1');useGeo()}
+weeklyPcClean();
 pcRecoverHistory();
 
 /* 自动版本检查：发现服务器 sw 版本变化、或服务器页面版本比本机新，就硬刷新一次
