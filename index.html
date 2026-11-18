@@ -195,6 +195,7 @@ textarea.inp{resize:none;line-height:1.5}
 .src-网易云音乐{background:#d33a31}
 .src-贴吧{background:#4e6ef2}
 .src-豆瓣{background:#007b22}
+.src-巩义{background:#2e8b57}
 .mm-exp{font-size:12px;line-height:1.7;margin-top:6px}
 .heat{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;font-weight:bold;color:var(--accent)}
 .heat-bar{flex:1;height:6px;background:var(--line);border-radius:99px;overflow:hidden}
@@ -583,7 +584,7 @@ textarea.inp{resize:none;line-height:1.5}
     <section class="page" id="p-meme">
       <div class="pg-head"><h2>今日热梗</h2><p>Meme · 做一个有趣会取悦自己的自己</p></div>
       <div class="card">
-        <div class="sec-title">🔥 今日精选 <span class="en">Daily 5</span><span class="bar-txt" id="mmCnt"></span></div>
+        <div class="sec-title">🔥 今日精选 <span class="en">Daily 7</span><span class="bar-txt" id="mmCnt"></span></div>
         <div id="mmList"></div>
         <p class="hint" id="mmSrc">来源：微博 / 抖音 / 小红书 / 知乎 / B站 / 快手 / 综艺</p>
       </div>
@@ -9236,7 +9237,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.21';
+const APP_VER='v2.22';
 const APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9461,7 +9462,7 @@ function renderDesktop(){
     ['🌟 心愿单',D.wishes.filter(x=>x.done).length,D.wishes.length,'wish']
   ];
   const seen=(D.memeSeen[t]||[]).length;
-  ov.push(['🔥 热梗',Math.min(seen,5),5,'meme']);
+  ov.push(['🔥 热梗',Math.min(seen,7),7,'meme']);
   const tot=ov.reduce((s,x)=>s+x[2],0),dn=ov.reduce((s,x)=>s+x[1],0);
   const pct=tot?Math.round(dn/tot*100):0;
   $id('ovPct').textContent=pct+'%';
@@ -10534,8 +10535,14 @@ function delWish(id){D.wishes=D.wishes.filter(o=>o.id!==id);save();renderWish()}
 
 /* ---------- 热梗 ---------- */
 let mmOpen={};
-let LIVE_MEMES=null,LIVE_MEME_DATE='';
+let LIVE_MEMES=null,LIVE_MEME_DATE='',LIVE_GY=null;
 function memePool(){return (LIVE_MEMES&&LIVE_MEMES.length)?LIVE_MEMES:MEME_POOL}
+/* 巩义本地 2 条：远程有 gongyi 用远程，没有用内置兜底 */
+const GY_FALLBACK=[
+  ['巩义五指岭观星','郑州周边公认暗夜宝地：海拔千米、视野开阔、光污染最低，可自驾直达山顶，免费。流星雨季（如11月狮子座流星雨）守夜看星空首选，出发前记得查云量，阴天看不到。',90,'巩义'],
+  ['康百万庄园','巩义必逛：明清中原第一豪宅，「留余」匾额是传家智慧。半天能逛完，搭配石窟寺（帝后礼佛图石刻）一天刚刚好。',88,'巩义']
+];
+function gyPool(){return (LIVE_GY&&LIVE_GY.length)?LIVE_GY:GY_FALLBACK}
 async function loadMemeRemote(){
   /* 每日热梗日更：拉 memes.json（自动化每天推送），失败用本地缓存，再不行用内置池 */
   try{
@@ -10545,13 +10552,18 @@ async function loadMemeRemote(){
     if(j&&j.memes&&j.memes.length){
       LIVE_MEMES=j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博']);
       LIVE_MEME_DATE=j.updated||'';
-      try{localStorage.setItem('honeyMemesCache',JSON.stringify({t:Date.now(),j:{updated:j.updated,memes:j.memes}}))}catch(e){}
+      if(j.gongyi&&j.gongyi.length)LIVE_GY=j.gongyi.map(m=>[m.name,m.exp,m.heat||88,m.src||'巩义']);
+      try{localStorage.setItem('honeyMemesCache',JSON.stringify({t:Date.now(),j:{updated:j.updated,memes:j.memes,gongyi:j.gongyi||[]}}))}catch(e){}
       renderMeme();
     }
   }catch(e){
     try{
       const c=JSON.parse(localStorage.getItem('honeyMemesCache')||'null');
-      if(c&&c.j&&c.j.memes&&c.j.memes.length){LIVE_MEMES=c.j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博']);LIVE_MEME_DATE=c.j.updated||'';renderMeme()}
+      if(c&&c.j&&c.j.memes&&c.j.memes.length){
+        LIVE_MEMES=c.j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博']);
+        if(c.j.gongyi&&c.j.gongyi.length)LIVE_GY=c.j.gongyi.map(m=>[m.name,m.exp,m.heat||88,m.src||'巩义']);
+        LIVE_MEME_DATE=c.j.updated||'';renderMeme();
+      }
     }catch(e2){}
   }
 }
@@ -10560,20 +10572,24 @@ function renderMeme(){
   const doy=Math.floor((now-start)/86400000);
   const pool=memePool();
   const st=doy%pool.length;
-  const picks=[];for(let i=0;i<Math.min(5,pool.length);i++)picks.push({m:pool[(st+i)%pool.length],key:st+i});
+  const picks=[];for(let i=0;i<Math.min(5,pool.length);i++)picks.push({m:pool[(st+i)%pool.length],key:String(st+i)});
   picks.sort((a,b)=>b.m[2]-a.m[2]);
+  /* 最后固定 2 条巩义本地信息 */
+  const gy=gyPool(),gst=doy%gy.length;
+  const gys=[];for(let i=0;i<Math.min(2,gy.length);i++)gys.push({m:gy[(gst+i)%gy.length],key:'gy'+((gst+i)%gy.length)});
+  const all=picks.concat(gys);
   const seen=D.memeSeen[todayStr()]||[];
-  $id('mmCnt').textContent='已看 '+Math.min(seen.length,5)+'/5';
-  $id('mmSrc').textContent=(LIVE_MEME_DATE?('更新至 '+LIVE_MEME_DATE+' · '):'')+'来源：微博 / 抖音 / 小红书 / 知乎 / B站 / 快手 / 综艺';
-  $id('mmList').innerHTML=picks.map(p=>{
+  $id('mmCnt').textContent='已看 '+all.filter(p=>seen.includes(p.key)).length+'/'+all.length;
+  $id('mmSrc').textContent=(LIVE_MEME_DATE?('更新至 '+LIVE_MEME_DATE+' · '):'')+'来源：微博 / 抖音 / 小红书 / 知乎 / B站 / 快手 / 综艺 · 巩义本地';
+  $id('mmList').innerHTML=all.map(p=>{
     const m=p.m,ok=seen.includes(p.key),open=!!mmOpen[p.key];
-    return `<div class="meme ${ok?'done':''} ${open?'open':''}" onclick="mmToggle(${p.key})">
+    return `<div class="meme ${ok?'done':''} ${open?'open':''}" onclick="mmToggle('${p.key}')">
       <div class="mm-head"><b class="mm-name">${m[0]}</b>
         <span class="src src-${m[3]}">${m[3]}</span>
         <span class="mm-st">${ok?'✔ 已看':'👀 未看'}</span></div>
       ${open?`<p class="mm-exp">${m[1]}</p>
         <div class="heat"><span>🔥 热度 ${m[2]}</span><div class="heat-bar"><i style="width:${m[2]}%"></i></div></div>`
-      :'<p class="mm-hint">点开看这条梗的出处和玩法</p>'}
+      :'<p class="mm-hint">点开看详情</p>'}
     </div>`;
   }).join('');
 }
