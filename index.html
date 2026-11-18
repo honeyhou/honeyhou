@@ -141,6 +141,12 @@ textarea.inp{resize:none;line-height:1.5}
 .cal-lunar.hasfest{color:var(--accent);font-weight:bold}
 .stat-fest{display:block;font-size:9px;color:#fff;background:#e0576d;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
 .pay-fest{display:block;font-size:9px;color:#fff;background:#c99a2e;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
+.cal-jq{display:block;font-size:9px;color:#fff;background:#2e8b57;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
+.tag.jq-tag{background:#2e8b57;color:#fff}
+.hl-law{display:block;font-size:9px;color:#2e8b57;font-weight:bold;line-height:1.3}
+.hl-off{display:block;font-size:9px;color:#1e6bb8;font-weight:bold;line-height:1.3}
+.tag.hl-tag-law{background:transparent;color:#2e8b57;border:1px solid #2e8b57}
+.tag.hl-tag-off{background:transparent;color:#1e6bb8;border:1px solid #1e6bb8}
 .dot-g{display:block;width:8px;height:8px;background:#3e9e5c;border-radius:50%;margin:2px auto 0}
 .an-icos{display:block;font-size:10px;line-height:1.2;margin-top:1px;letter-spacing:1px}
 .m-ok{color:#3e9e5c;font-weight:bold}
@@ -9223,7 +9229,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.30';
+const APP_VER='v2.32';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -10148,11 +10154,21 @@ function addSupp(){
 }
 
 /* ---------- 日历 ---------- */
+/* 2026 假期标注（按官方放假安排图整理，仅2026年；27年出来再更新）：
+   law=粉标「法定」（元旦/春节/清明/劳动/端午/中秋/国庆），off=灰标「休」（当月福利周末） */
+const HL_2026={
+  law:['0101','0102','0103','0215','0216','0217','0218','0219','0220','0221','0222','0223','0404','0405','0406','0501','0502','0503','0504','0505','0619','0620','0621','0925','0926','0927','1001','1002','1003','1004','1005','1006','1007'],
+  off:['0110','0111','0213','0214','0307','0308','0418','0419','0516','0517','0606','0607','0704','0705','0801','0802','0905','0906','1017','1018','1107','1108','1205','1206']
+};
+function hlTag(y,m,d){if(y!==2026)return null;const k=pad(m)+pad(d);return HL_2026.law.indexOf(k)>-1?'law':(HL_2026.off.indexOf(k)>-1?'off':null)}
+/* 24节气：当天是节气日返回名字（如「小雪」），否则空 */
+function jqOfDay(d){try{return lun(d).getJieQi()||''}catch(e){return ''}}
 function renderLucky(){
   if(lkY===undefined){lkY=new Date().getFullYear();lkM=new Date().getMonth()}
   const t=new Date();t.setDate(t.getDate()+lkOff);
   const L=lun(t),yis=L.getDayYi(),jis=L.getDayJi();
-  const fests=festOfDay(t);
+  const fests=festOfDay(t),jqT=jqOfDay(t),hlT=hlTag(t.getFullYear(),t.getMonth()+1,t.getDate());
+  const hlTagHtml=hlT==='law'?'<span class="tag hl-tag-law">法定</span>':hlT==='off'?'<span class="tag hl-tag-off">休</span>':'';
   $id('lkToday').innerHTML=`
     <div class="lk-nav"><button class="mini-btn" onclick="lkShift(-1)">‹ 昨天</button>
     <b>${lkOff===0?'今天':(lkOff>0?'未来':'过去')+Math.abs(lkOff)+'天'}</b>
@@ -10161,7 +10177,7 @@ function renderLucky(){
     <div class="lk-big">${t.getMonth()+1}月${t.getDate()}日</div>
     <div class="lk-sub">星期${'日一二三四五六'[t.getDay()]} · ${t.getFullYear()}年第${isoWeek(t)}周</div>
     <div class="lk-lunar">${lunarText(t)}</div>
-    ${fests.length?'<div class="fest-tags">'+fests.map(f=>'<span class="tag pri-h">'+f+'</span>').join('')+'</div>':''}
+    ${fests.length||jqT||hlT?'<div class="fest-tags">'+(hlTagHtml)+(jqT?'<span class="tag jq-tag">节气 · '+jqT+'</span>':'')+fests.map(f=>'<span class="tag pri-h">'+f+'</span>').join('')+'</div>':''}
     <div class="yj"><div class="yj-col"><b class="yi">宜</b><div>${yis.slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join('')}</div></div>
     <div class="yj-col"><b class="ji">忌</b><div>${jis.slice(0,4).map(x=>'<span class="chip warn">'+x+'</span>').join('')}</div></div></div>`;
   $id('lkMonthLabel').textContent=lkY+'年'+(lkM+1)+'月';
@@ -10170,16 +10186,19 @@ function renderLucky(){
   let html='';
   for(let i=0;i<ofs;i++)html+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=days;d++){
-    const dd=new Date(lkY,lkM,d),key=fmt(dd),f=festOfDay(dd),Ld=lun(dd);
+    const dd=new Date(lkY,lkM,d),key=fmt(dd),f=festOfDay(dd),Ld=lun(dd),jq=jqOfDay(dd);
     const lTxt=Ld.getDay()==1?Ld.getMonth()+'月':Ld.getDayInCn?Ld.getDayInCn():Ld.getDayInChinese();
     const stat=statOfDay(dd);
     let sub,subCls;
     if(stat){sub=stat;subCls='stat-fest'}
     else if(d===10){sub='发工资';subCls='pay-fest'}
+    else if(jq){sub=jq;subCls='cal-jq'}
     else if(f.length){sub=f[0];subCls='cal-lunar hasfest'}
     else{sub=lTxt;subCls='cal-lunar'}
+    const hl=hlTag(lkY,lkM+1,d);
+    const badge=hl==='law'?'<span class="hl-law">法定</span>':hl==='off'?'<span class="hl-off">休</span>':'';
     html+=`<div class="cal-cell ${key===todayStr()?'today':''}" onclick="lkDetail('${key}')">
-      <b>${d}</b><span class="${subCls}">${sub}</span></div>`;
+      <b>${d}</b><span class="${subCls}">${sub}</span>${badge}</div>`;
   }
   $id('lkCal').innerHTML=html;
 }
@@ -10187,10 +10206,12 @@ function lkNav(w){lkM+=w;if(lkM<0){lkM=11;lkY--}if(lkM>11){lkM=0;lkY++}renderLuc
 function lkShift(d){lkOff=d===0?0:lkOff+d;renderLucky()}
 function lkToday2(){lkY=new Date().getFullYear();lkM=new Date().getMonth();renderLucky()}
 function lkDetail(key){
-  const d=new Date(key.replace(/-/g,'/')),L=lun(d),f=festOfDay(d);
+  const d=new Date(key.replace(/-/g,'/')),L=lun(d),f=festOfDay(d),jq=jqOfDay(d),hl=hlTag(d.getFullYear(),d.getMonth()+1,d.getDate());
   showModal(`<h3>📅 ${key}</h3>
     <p class="hint" style="margin-top:6px">星期${'日一二三四五六'[d.getDay()]} · ${d.getFullYear()}年第${isoWeek(d)}周</p>
     <p class="lk-lunar">${lunarText(d)}</p>
+    ${hl==='law'?'<p><span class="tag hl-tag-law">法定</span></p>':''}${hl==='off'?'<p><span class="tag hl-tag-off">休</span></p>':''}
+    ${jq?'<p>节气：<b style="color:#2e8b57">'+jq+'</b></p>':''}
     ${f.length?'<p>节日：<b>'+f.join('、')+'</b></p>':''}
     <div class="yj"><div class="yj-col"><b class="yi">宜</b><div>${L.getDayYi().slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join('')}</div></div>
     <div class="yj-col"><b class="ji">忌</b><div>${L.getDayJi().slice(0,4).map(x=>'<span class="chip warn">'+x+'</span>').join('')}</div></div></div>
