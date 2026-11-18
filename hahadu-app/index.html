@@ -382,7 +382,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
     <section class="page" id="p-news">
       <div class="pg-head"><h2>📰 行业动态 <span id="newsCnt" style="font-size:12px;font-weight:600;color:var(--sub);vertical-align:2px;margin-left:4px"></span></h2><p>Industry News · 看看大拿们最近在忙什么</p></div>
       <div id="newsList"></div>
-      <p class="hint">点开卡片即视为已看；动态在每次 App 更新时补充最新内容。</p>
+      <p class="hint" id="newsSrc">来源：对新音乐产业观察 / Billboard / Music Business Worldwide / Pitchfork / Rolling Stone / MusicRadar / Spotify / 腾讯音乐</p>
     </section>
 
     <!-- 设置 -->
@@ -433,7 +433,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.24', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.25', APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -626,6 +626,7 @@ function renderNews(){
   const list=newsArr();
   const dn=list.filter(n=>D.newsSeen[newsKey(n)]).length;
   $id('newsCnt').textContent='已看 '+dn+'/'+list.length+(LIVE_DATE?' · 更新至 '+LIVE_DATE:'');
+  $id('newsSrc').textContent=(LIVE_DATE?'更新至 '+LIVE_DATE+' · ':'')+'来源：对新音乐产业观察 / Billboard / Music Business Worldwide / Pitchfork / Rolling Stone / MusicRadar / Spotify / 腾讯音乐 · 点开即视为已看';
   $id('newsList').innerHTML=list.map((n,i)=>{
     const open=!!newsOpen[i],seen=!!D.newsSeen[newsKey(n)];
     return `<div class="card news-i${open?' open':''}" style="cursor:pointer" onclick="newsToggle(${i})">
