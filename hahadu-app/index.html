@@ -433,7 +433,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.25', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.26', APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -1337,7 +1337,7 @@ function renderWxLine(){
 }
 function fetchTO(url,ms){return Promise.race([fetch(url),new Promise((_,rej)=>setTimeout(()=>rej(new Error('超时')),ms))])}
 async function useGeo(){
-  if(!navigator.geolocation){alert('这部设备不支持定位，手动输入城市吧');return}
+  if(!navigator.geolocation){$id('cityNow').textContent='📍 这部设备不支持定位，手动输入城市吧';return}
   $id('cityNow').textContent='正在定位…';$id('cityHits').innerHTML='';
   navigator.geolocation.getCurrentPosition(async pos=>{
     const la=pos.coords.latitude,lo=pos.coords.longitude;
@@ -1354,8 +1354,8 @@ async function useGeo(){
       else name=a.state||name;
     }catch(e){}
     D.city={name:name,lat:la,lon:lo};save();renderSettings();loadWeather(true);
-    alert('定位好了：'+name);
-  },()=>{alert('没拿到定位，手动输入城市吧');renderSettings()},{timeout:9000,enableHighAccuracy:true});
+    $id('cityNow').textContent='📍 定位好了：'+name;
+  },()=>{$id('cityNow').textContent='📍 没拿到定位，手动输入城市吧'},{timeout:9000,enableHighAccuracy:true});
 }
 async function searchCity(){
   const q=$id('cityInp').value.trim();if(!q){alert('先输入城市或区名');return}
