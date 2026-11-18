@@ -332,7 +332,7 @@ textarea.inp{resize:none;line-height:1.5}
         <div class="ov-anni" id="ovAnni"></div>
       </div>
       <div class="card">
-        <div class="sec-title">🗓️ 今日概览 <span class="en">Today Overview</span></div>
+        <div class="sec-title">🗓️ 概览 <span class="en">Overview</span></div>
         <div class="ov-wrap">
           <div class="ring" id="ovRing"><div class="ring-in"><b id="ovPct">0%</b><span>完成度</span></div></div>
           <div class="ov-list" id="ovList"></div>
@@ -9236,7 +9236,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.20';
+const APP_VER='v2.21';
 const APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9449,13 +9449,14 @@ function renderDesktop(){
   $id('ckMood').textContent=hasMood?(D.moods[t].e+' 已记录'):'未记录';
   $id('ckMoodS').textContent=hasMood?'✔ 已打卡':'去打卡';
   // 今日概览
-  const ym=D.yummy.filter(x=>x.date===t);
+  /* 想吃：全部「想吃」都算（不限于今天添加的），吃一个涨一个：0/2 → 1/2 */
+  const ymDone=D.yummy.filter(x=>x.eaten).length,ymAll=D.yummy.length;
   const vis=D.supps.filter(s=>s.daily||s.once===t);
   const fuDn=vis.filter(s=>s.days.includes(t)).length;
   const ov=[
     ['✅ 待办',tdDone,tds.length,'todo'],
-    ['💗 心情流水',hasMood?1:0,1,'mood'],
-    ['🍰 想吃',ym.filter(x=>x.eaten).length,ym.length,'yummy'],
+    ['💗 心情流水',hasMood?1:0,hasMood?1:0,'mood'],
+    ['🍰 想吃',ymDone,ymAll,'yummy'],
     ['🧋 营养充电',fuDn,vis.length,'fuel'],
     ['🌟 心愿单',D.wishes.filter(x=>x.done).length,D.wishes.length,'wish']
   ];
