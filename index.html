@@ -9229,7 +9229,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.35';
+const APP_VER='v2.36';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -10168,7 +10168,7 @@ function renderLucky(){
   const t=new Date();t.setDate(t.getDate()+lkOff);
   const L=lun(t),yis=L.getDayYi(),jis=L.getDayJi();
   const fests=festOfDay(t),jqT=jqOfDay(t),hlT=hlTag(t.getFullYear(),t.getMonth()+1,t.getDate());
-  const hlTagHtml=hlT==='law'?'<span class="tag hl-tag-law">法定</span>':hlT==='off'?'<span class="tag hl-tag-off">休</span>':'';
+  const hlTagHtml=hlT==='law'?'<span class="tag hl-tag-law">法定</span>':hlT==='off'?'<span class="tag hl-tag-off">双休</span>':'';
   $id('lkToday').innerHTML=`
     <div class="lk-nav"><button class="mini-btn" onclick="lkShift(-1)">‹ 昨天</button>
     <b>${lkOff===0?'今天':(lkOff>0?'未来':'过去')+Math.abs(lkOff)+'天'}</b>
@@ -10196,7 +10196,7 @@ function renderLucky(){
     else if(f.length){sub=f[0];subCls='cal-lunar hasfest'}
     else{sub=lTxt;subCls='cal-lunar'}
     const hl=hlTag(lkY,lkM+1,d);
-    const badge=hl==='law'?'<span class="hl-law">法定</span>':hl==='off'?'<span class="hl-off">休</span>':'';
+    const badge=hl==='law'?'<span class="hl-law">法定</span>':hl==='off'?'<span class="hl-off">双休</span>':'';
     html+=`<div class="cal-cell ${key===todayStr()?'today':''}" onclick="lkDetail('${key}')">
       <b>${d}</b><span class="${subCls}">${sub}</span>${badge}</div>`;
   }
@@ -10210,7 +10210,7 @@ function lkDetail(key){
   showModal(`<h3>📅 ${key}</h3>
     <p class="hint" style="margin-top:6px">星期${'日一二三四五六'[d.getDay()]} · ${d.getFullYear()}年第${isoWeek(d)}周</p>
     <p class="lk-lunar">${lunarText(d)}</p>
-    ${hl==='law'?'<p><span class="tag hl-tag-law">法定</span></p>':''}${hl==='off'?'<p><span class="tag hl-tag-off">休</span></p>':''}
+    ${hl==='law'?'<p><span class="tag hl-tag-law">法定</span></p>':''}${hl==='off'?'<p><span class="tag hl-tag-off">双休</span></p>':''}
     ${jq?'<p>节气：<b style="color:#2e8b57">'+jq+'</b></p>':''}
     ${f.length?'<p>节日：<b>'+f.join('、')+'</b></p>':''}
     <div class="yj"><div class="yj-col"><b class="yi">宜</b><div>${L.getDayYi().slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join('')}</div></div>
