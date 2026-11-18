@@ -158,7 +158,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
       <div class="pg-head"><h2>🏠 工作台</h2><p>Home · 今天也要做出好听的歌哟</p></div>
       <div class="card">
         <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
-          <div class="sec-title" id="hmGreet" style="flex:1;min-width:0">⏰ 下午好，哈哈杜 ꯁ</div>
+          <div class="sec-title" id="hmGreet" style="flex:1;min-width:0">💚 上午好，哈哈杜 ꯁ</div>
           <img src="./hahadu-icon.png?v=3" alt="哈哈杜" draggable="false"
                style="flex:0 0 auto;width:56px;height:56px;border-radius:14px;object-fit:cover;pointer-events:none;-webkit-user-drag:none;user-select:none"
                onerror="this.style.display='none'">
@@ -433,7 +433,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.23', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.24', APP_VER_DATE='2026-11-17';
 const MENUS=[
  ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
@@ -607,6 +607,9 @@ const NEWS=[
    拉不到/格式不对就用内置 NEWS 兜底 */
 let LIVE_NEWS=null,LIVE_DATE='';
 function newsArr(){return (LIVE_NEWS&&LIVE_NEWS.length)?LIVE_NEWS:NEWS}
+/* 已看按「标题」记，不按序号：新闻每天换血，按序号会把昨天的已看套到今天的新内容头上 */
+function newsKey(n){return (n.t||'').slice(0,60)}
+function newsSeenPrune(){const ks=Object.keys(D.newsSeen);if(ks.length>150){D.newsSeen={};ks.slice(-120).forEach(k=>{D.newsSeen[k]=1})}}
 async function loadNewsRemote(){
   try{
     const r=await fetchTO('news.json?u='+Date.now(),8000);
@@ -621,9 +624,10 @@ async function loadNewsRemote(){
 }
 function renderNews(){
   const list=newsArr();
-  $id('newsCnt').textContent='已看 '+list.filter((n,i)=>D.newsSeen[i]).length+'/'+list.length+(LIVE_DATE?' · 更新至 '+LIVE_DATE:'');
+  const dn=list.filter(n=>D.newsSeen[newsKey(n)]).length;
+  $id('newsCnt').textContent='已看 '+dn+'/'+list.length+(LIVE_DATE?' · 更新至 '+LIVE_DATE:'');
   $id('newsList').innerHTML=list.map((n,i)=>{
-    const open=!!newsOpen[i],seen=!!D.newsSeen[i];
+    const open=!!newsOpen[i],seen=!!D.newsSeen[newsKey(n)];
     return `<div class="card news-i${open?' open':''}" style="cursor:pointer" onclick="newsToggle(${i})">
      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tag blue">${n.cat}</span><span style="font-size:11px;color:var(--sub)">${n.d} · ${n.s}</span><span style="margin-left:auto;font-size:11px;color:var(--sub)">${seen?'✔ 已看':'👀 未看'}</span></div>
      <div style="font-size:14px;font-weight:700;margin-top:8px;line-height:1.5">${n.t}</div>
@@ -635,14 +639,15 @@ function renderNews(){
 }
 let newsOpen={};
 function newsToggle(i){
+  const n=newsArr()[i];if(!n)return;
   newsOpen[i]=!newsOpen[i];
-  if(newsOpen[i]&&!D.newsSeen[i]){D.newsSeen[i]=1;save()}
+  if(newsOpen[i]&&!D.newsSeen[newsKey(n)]){D.newsSeen[newsKey(n)]=1;newsSeenPrune();save()}
   renderNews();
 }
 function renderHome(){
   const now=new Date(),wd='日一二三四五六'[now.getDay()];
   $id('hmDate').textContent=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 · 星期'+wd;
-  $id('hmGreet').textContent='⏰ '+greetTxt(now)+'，哈哈杜 ꯁ';
+  $id('hmGreet').textContent='💚 '+greetTxt(now)+'，哈哈杜 ꯁ';
   $id('hmLunar').textContent=lunarText(now);
   const q=(D.quoteCloud&&D.quoteCloud.t)?D.quoteCloud:honeyQuote();
   if(q&&q.t){
@@ -680,7 +685,7 @@ function renderHome(){
     ['🚀 发歌进度',relTot?relDone+'/'+relTot:'-','release'],['🎧 已拆歌',D.studies.length+' 首','study'],
     ['🤝 伙伴',D.contacts.length+' 位','contact'],
     ['🎧 演出排期',D.shows.length+' 场','show'],
-    ['📰 行业动态',newsArr().filter((n,i)=>D.newsSeen[i]).length+'/'+newsArr().length,'news']
+    ['📰 行业动态',newsArr().filter(n=>D.newsSeen[newsKey(n)]).length+'/'+newsArr().length,'news']
   ].map(x=>`<div class="li" onclick="go('${x[2]}')"><div class="li-main"><div class="li-t">${x[0]}</div></div><span class="tag acc">${x[1]}</span></div>`).join('');
 }
 
