@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.8', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.9', APP_VER_DATE='2026-11-17';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -459,14 +459,24 @@ const SNOW=[71,73,75,77,85,86];
 function wIco(c){return (WMO[c]||['🌡️',''])[0]}
 function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
 let wxJ=null;
+let wxRetryN=0;
+function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('jiuwoWxCache')||'null');return (c&&c.j&&c.d===todayStr()&&Date.now()-c.t<21600000)?c.j:null}catch(e){return null}}
 async function loadWeather(force){
   if(!D.city){$id('wxS').textContent='设置里选个城市，就能看天气';$id('wxTip').textContent='还没设置城市 ☁️';$id('wxTip').className='wx-tip calm';return}
   const c=D.city;
+  /* 先用今天的缓存秒显，再后台刷新 */
+  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWeather()}}
   try{
     const r=await fetchTO('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
-      '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',10000);
-    if(!r.ok)throw 0; wxJ=await r.json(); renderWeather();
-  }catch(e){ if(force||!$id('wxT').textContent.includes('--'))$id('wxTip').textContent='天气没取到，连上网再打开试试 🌤️' }
+      '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',8000);
+    if(!r.ok)throw 0; wxJ=await r.json();
+    try{localStorage.setItem('jiuwoWxCache',JSON.stringify({t:Date.now(),d:todayStr(),j:wxJ}))}catch(e){}
+    wxRetryN=0;renderWeather();
+  }catch(e){
+    /* 失败不再干等：6 秒后自动重试（最多 3 次） */
+    if(force||!$id('wxT').textContent.includes('--'))$id('wxTip').textContent='天气没取到，连上网再打开试试 🌤️';
+    if(wxRetryN<3){wxRetryN++;setTimeout(()=>loadWeather(),6000)}
+  }
 }
 function segName(h){return h<6?'凌晨':h<9?'早上':h<12?'上午':h<13?'中午':h<17?'下午':h<19?'傍晚':'晚上'}
 function renderWeather(){
@@ -544,32 +554,28 @@ async function searchCity(){
     if(!qs.includes(m[2]))qs.push(m[2]);
   }
   if(!/[区县市州旗]$/.test(q)&&!m)qs.push(q+'区');
-  // 优先 Nominatim：区级最准（金水区/浦东新区/朝阳区…）
-  try{
-    const load=async kw=>{
-      const r=await fetchTO('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn',5000);
-      const j=await r.json();
-      return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
-    };
-    /* Nominatim 主源：逐变体试，单次失败不中断，间隔 1.1 秒防限流 */
-    for(const kw of qs){
-      try{rs=await load(kw)}catch(e){rs=[]}
-      if(rs.length)break;
-      if(kw!==qs[qs.length-1])await new Promise(r=>setTimeout(r,1100));
-    }
-  }catch(e){}
-  /* Photon 备源（同为 OSM 数据，主源挂了顶上） */
-  if(!rs.length){
-    try{
-      const loadP=async kw=>{
-        const r=await fetchTO('https://photon.komoot.io/api/?q='+encodeURIComponent(kw)+'&limit=6',7000);
-        const j=await r.json();
-        return (j.features||[]).filter(f=>f.geometry&&f.geometry.coordinates).map(f=>{const p=f.properties||{};const nm=p.name||p.city||p.county||p.state||kw;const md=p.city&&p.city!==nm?p.city:(p.county&&p.county!==nm?p.county:'');return {name:nm,mid:md,lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}});
-      };
-      const pqs=(m&&m[2].length>=2)?[m[2],m[1]+' '+m[2],m[2]+', '+m[1]].filter((v,i,a)=>a.indexOf(v)===i):qs;
-      for(const kw of pqs){rs=await loadP(kw);if(rs.length)break}
-    }catch(e){}
-  }
+  /* 双源并行：Nominatim 变体链 与 Photon 变体链 同时跑，谁先出结果用谁
+     （手机网络下 Nominatim 经常超时，以前串行要干等 20 多秒才轮到 Photon） */
+  const tryN=async kw=>{
+    const r=await fetchTO('https://nominatim.openstreetmap.org/search?format=jsonv2&q='+encodeURIComponent(kw)+'&accept-language=zh&limit=6&countrycodes=cn',5000);
+    const j=await r.json();
+    return (j||[]).map(x=>{const seg=(x.display_name||'').split(',');return {name:(seg[0]||kw).trim(),mid:(seg[1]||'').trim(),lat:parseFloat(x.lat),lon:parseFloat(x.lon)}});
+  };
+  const tryP=async kw=>{
+    const r=await fetchTO('https://photon.komoot.io/api/?q='+encodeURIComponent(kw)+'&limit=6',7000);
+    const j=await r.json();
+    return (j.features||[]).filter(f=>f.geometry&&f.geometry.coordinates).map(f=>{const p=f.properties||{};const nm=p.name||p.city||p.county||p.state||kw;const md=p.city&&p.city!==nm?p.city:(p.county&&p.county!==nm?p.county:'');return {name:nm,mid:md,lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}});
+  };
+  const pqs=(m&&m[2].length>=2)?[m[2],m[1]+' '+m[2],m[2]+', '+m[1]].filter((v,i,a)=>a.indexOf(v)===i):qs;
+  const chainN=(async()=>{for(const kw of qs){let r=[];try{r=await tryN(kw)}catch(e){}if(r.length)return r;if(kw!==qs[qs.length-1])await new Promise(r2=>setTimeout(r2,600))}return []})();
+  const chainP=(async()=>{for(const kw of pqs){let r=[];try{r=await tryP(kw)}catch(e){}if(r.length)return r}return []})();
+  rs=await new Promise(res=>{
+    let done=false;
+    const take=r=>{if(!done&&r.length){done=true;res(r)}};
+    chainN.then(take);chainP.then(take);
+    Promise.all([chainN,chainP]).then(([a,b])=>{if(!done){done=true;res(a.length?a:b)}});
+    setTimeout(()=>{if(!done){done=true;res([])}},12000);
+  });
   /* Open-Meteo 末位兜底（国内区级常缺，国外/大城市可用） */
   if(!rs.length){
     try{
