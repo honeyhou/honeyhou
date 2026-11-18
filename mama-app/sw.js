@@ -1,4 +1,4 @@
-const CACHE='jiuwo-v202611181116';
+const CACHE='jiuwo-v20261118121000';
 self.addEventListener('install',e=>{self.skipWaiting()});
 self.addEventListener('activate',e=>{
   e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))

@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.10', APP_VER_DATE='2026-11-17';
+const APP_VER='v1.11', APP_VER_DATE='2026-11-18';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -777,7 +777,9 @@ function doneRow(p){
 }
 function renderToday(){
   greet();
-  const list=D.parcels.filter(p=>!p.taken).sort((a,b)=>b.ts-a.ts);
+  /* 待取按取件码数字升序（1-xx 在前，再 2、3…；逐段比数字，3-12>3-2），同码按时间新在前；已取走/已推送不动 */
+  const ccmp=(x,y)=>{const px=String(x).split('-').map(Number),py=String(y).split('-').map(Number);for(let i=0;i<3;i++){const d=(px[i]||0)-(py[i]||0);if(d)return d}return 0};
+  const list=D.parcels.filter(p=>!p.taken).sort((a,b)=>ccmp(a.code,b.code)||b.ts-a.ts);
   const done=D.parcels.filter(p=>p.taken);
   $id('pcCnt').textContent=list.length?list.length+' 件待取':'';
   $id('pcBig').style.display=list.length?'flex':'none';
