@@ -9228,7 +9228,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.37';
+const APP_VER='v2.38';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9322,7 +9322,7 @@ function defaultData(){
     parcelPush:{at:0,n:0},
     supps:[{id:uid(),name:'维生素C',days:[],daily:true,once:t},{id:uid(),name:'胶原蛋白肽',days:[],daily:true,once:t},{id:uid(),name:'钙片',days:[],daily:true,once:t}],
     annis:[{id:uid(),name:'我的生日',type:'生日',rel:'自己',date:'1998-06-18',remind:3,cycle:'year',note:'蛋糕+火锅',cal:'solar'}],
-    anniTypes:['生日','纪念日','倒数日','节日','其他'],
+    anniTypes:['生日','纪念日','倒数日','节日','变好','其他'],
     yummy:[{id:uid(),name:'草莓奶油蛋糕',meal:'下午茶',date:t,eaten:false,photo:''}],
     wishes:[{id:uid(),name:'Switch 2 游戏机',when:'2026-12',done:false,photo:''},
             {id:uid(),name:'毛茸茸的居家居服',when:'2026-11',done:false,photo:''}],
@@ -9337,6 +9337,8 @@ function load(){try{const r=localStorage.getItem(STORE);if(r){const d=JSON.parse
   (d.supps||[]).forEach(s=>{if(s.daily===undefined)s.daily=true;if(!s.once)s.once=todayStr()});
   (d.loans||[]).forEach(l=>{if(l.cycle===undefined)l.cycle=true;if(!l.month)l.month=null;if(l.count===undefined)l.count=true});
   (d.annis||[]).forEach(a=>{if(!a.cal)a.cal='solar'});
+  /* 迁移：老数据类型列表补「变好」（插在「其他」前面） */
+  if(d.anniTypes&&!d.anniTypes.includes('变好')){const i=d.anniTypes.indexOf('其他');d.anniTypes.splice(i<0?d.anniTypes.length:i,0,'变好')}
   d.todos=d.todos||[];d.yummy=d.yummy||[];d.wishes=d.wishes||[];d.annis=d.annis||[];d.supps=d.supps||[];d.moods=d.moods||{};d.memeSeen=d.memeSeen||{};d.sync=Object.assign({gist:'',token:''},d.sync||{});d.theme=Object.assign({},DEF_THEME,d.theme||{});d.parcelPush=d.parcelPush||{at:0,n:0};d.pcSeen=d.pcSeen||{};d.pcPushed=d.pcPushed||[];d.pcCleanAt=d.pcCleanAt||0;if(d.city===undefined)d.city=null;
   if(!d.projects||!d.projects.length){const p=d.project&&d.project.name?d.project:{name:'🌸 四年还款大计',total:20000,paid:0};d.projects=[Object.assign({id:uid()},p)];}
   delete d.project;
@@ -10219,7 +10221,7 @@ function lkDetail(key){
 
 /* ---------- 纪念 ---------- */
 /* 纪念类型小图标：台账/日历/桌面概览/弹窗/导出/下拉统一用这一份映射 */
-function aniIco(t){return {'生日':'🎂','纪念日':'💗','倒数日':'💚','节日':'☀️','其他':'🎈'}[t]||'🎈'}
+function aniIco(t){return {'生日':'🎂','纪念日':'💗','倒数日':'💚','节日':'☀️','变好':'🔥','其他':'🎈'}[t]||'🎈'}
 function renderAnni(){
   $id('anType').innerHTML=D.anniTypes.map(t=>`<option ${t==='生日'?'selected':''} value="${t}">${aniIco(t)} ${t}</option>`).join('');
   const list=[...D.annis].sort((a,b)=>cdDays(a)-cdDays(b));
