@@ -181,7 +181,6 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 .tag.fest-pink{background:transparent;color:#FF7BA9;border:1px solid #FF7BA9}
 .tag.fest-west{background:transparent;color:#FF8A3D;border:1px solid #FF8A3D}
 </style>
-<script defer src="./lib-lunar.js"></script>
 </head>
 <body>
 <div id="app">
@@ -488,7 +487,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.32', APP_VER_DATE='2026-11-19';
+const APP_VER='v1.33', APP_VER_DATE='2026-11-19';
 const MENUS=[
  ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
  ['project','🎛️','项目交付','Projects'],
@@ -589,10 +588,9 @@ function lun2(d){
   for(const ml of seq){const len=(mask&(1<<(ml[1]?12:ml[0]-1)))?30:29;if(rest<len)return{y:1900+yi,m:ml[0],isleap:ml[1],d:rest+1};rest-=len}
   return null;
 }
-function lunarText(d){
+function lunarText(d,jq){
   const L=lun2(d);if(!L)return '';
   const y=L.y,gz=((y-4)%10+10)%10,bz=((y-4)%12+12)%12;
-  const jq=jqOfDay(d);
   return '农历 '+'甲乙丙丁戊己庚辛壬癸'[gz]+'子丑寅卯辰巳午未申酉戌亥'[bz]+'【'+'鼠牛虎兔龙蛇马羊猴鸡狗猪'[bz]+'】年 '+(L.isleap?'闰':'')+LMC[L.m-1]+'月'+LDC[L.d-1]+(jq?' · '+jq:'');
 }
 
@@ -604,8 +602,7 @@ const HL_2026={
 function hlTag(y,m,d){if(y!==2026)return null;const k=String(m).padStart(2,'0')+String(d).padStart(2,'0');return HL_2026.law.indexOf(k)>-1?'law':(HL_2026.off.indexOf(k)>-1?'off':null)}
 /* 月历特殊标记：绿色爱心 💚（与HONEY呦一致，如 2026-03-08 妇女节） */
 const GREEN_HEART={'2026-03-08':1};
-/* 24节气/宜忌：与HONEY呦同源（内嵌 lunar-javascript），保证三端一致 */
-function jqOfDay(d){try{return Lunar.fromDate(d).getJieQi()||''}catch(e){return ''}}
+/* 24节气/宜忌：与HONEY呦同源（lunar-javascript 搬进 Web Worker 后台线程，主线程零卡顿） */
 function isoWeek(d){
   const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
   const day=(x.getUTCDay()+6)%7;
@@ -634,19 +631,49 @@ function festOfDay(d){
   const wests=[];if(west)wests.push(west);if(west2)wests.push(west2);
   return {trads:trads,wests:wests};
 }
-let lkY,lkM,lkOff=0,lkLibTries=0;
+/* —— 农历数据：Worker 后台线程计算（主线程零卡顿），结果缓存 lkCache —— */
+let lkY,lkM,lkOff=0,lkCache={},lkW=null,lkPending=false,lkLibScript=false,lkCurKey='';
+function lkKeyOf(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+/* 兜底：Worker 不可用（如本地 file:// 调试）时才在主线程加载库 */
+function lkMainThread(miss,cb){
+  const done=()=>{miss.forEach(k=>{const p=k.split('-');const L=Lunar.fromDate(new Date(+p[0],+p[1]-1,+p[2]));lkCache[k]={jq:L.getJieQi()||'',yi:L.getDayYi(),ji:L.getDayJi()}});cb()};
+  if(typeof Lunar!=='undefined')return done();
+  if(!lkLibScript){lkLibScript=true;const s=document.createElement('script');s.src='./lib-lunar.js';s.onload=done;document.head.appendChild(s)}
+  else{const iv=setInterval(()=>{if(typeof Lunar!=='undefined'){clearInterval(iv);done()}},300)}
+}
+function lkCompute(dates,cb){
+  const miss=dates.filter(k=>!lkCache[k]);
+  if(!miss.length)return;
+  if(lkPending)return;
+  const main=()=>lkMainThread(miss,cb);
+  if(typeof Worker==='undefined')return main();
+  lkPending=true;
+  const send=w=>{
+    w.onerror=()=>{lkPending=false;try{w.terminate()}catch(e){}lkW=null;main()};
+    w.onmessage=e=>{for(const k in e.data.out)lkCache[k]=e.data.out[k];lkPending=false;cb()};
+    w.postMessage({dates:miss});
+  };
+  if(lkW)return send(lkW);
+  fetch('./lib-lunar.js').then(r=>r.text()).then(code=>{
+    const src=code+'\n;self.onmessage=function(e){var out={},ds=e.data.dates,i,p,L;for(i=0;i<ds.length;i++){p=ds[i].split("-");L=Lunar.fromDate(new Date(+p[0],+p[1]-1,+p[2]));out[ds[i]]={jq:(L.getJieQi()||""),yi:L.getDayYi(),ji:L.getDayJi()}}self.postMessage({out:out})};';
+    lkW=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
+    send(lkW);
+  }).catch(main);
+}
+function lkYiJiHtml(c){
+  const yis=c.yi||[],jis=c.ji||[];
+  const yTxt=yis.length?yis.slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join(''):'<span class="chip">…</span>';
+  const jTxt=jis.length?jis.slice(0,4).map(x=>'<span class="chip warn">'+x+'</span>').join(''):'<span class="chip warn">…</span>';
+  return '<div class="yj"><div class="yj-col"><b class="yi">宜</b><div>'+yTxt+'</div></div>'+
+         '<div class="yj-col"><b class="ji">忌</b><div>'+jTxt+'</div></div></div>';
+}
 function renderLucky(){
-  /* 农历库 defer 异步加载：没就绪时稍等重试（最多10次，之后降级为无宜忌模式） */
-  if(typeof Lunar==='undefined'){
-    if(lkLibTries++<10){setTimeout(renderLucky,400);return}
-  }
   const now=new Date();
   if(lkY===undefined){lkY=now.getFullYear();lkM=now.getMonth()}
   /* —— 今天卡片（与HONEY呦一致，配色用哈哈杜深色系） —— */
   const t=new Date();t.setDate(t.getDate()+lkOff);
-  const hasLib=typeof Lunar!=='undefined';
-  const Lt=hasLib?Lunar.fromDate(t):null,yis=Lt?Lt.getDayYi():[],jis=Lt?Lt.getDayJi():[];
-  const f0=festOfDay(t),jq0=jqOfDay(t),hl0=hlTag(t.getFullYear(),t.getMonth()+1,t.getDate());
+  const tk=lkKeyOf(t),c=lkCache[tk]||{};
+  const f0=festOfDay(t),jq0=c.jq||'',hl0=hlTag(t.getFullYear(),t.getMonth()+1,t.getDate());
   const hlTagHtml=hl0==='law'?'<span class="tag hl-tag-law">法定</span>':hl0==='off'?'<span class="tag hl-tag-off">双休</span>':'';
   $id('lkToday').innerHTML=`
     <div class="lk-nav"><button class="mini-btn" onclick="lkShift(-1)">‹ 昨天</button>
@@ -655,17 +682,17 @@ function renderLucky(){
     ${lkOff?'<button class="mini-btn on" onclick="lkShift(0)">回今天</button>':''}</div>
     <div class="lk-big">${t.getMonth()+1}月${t.getDate()}日</div>
     <div class="lk-sub">星期${'日一二三四五六'[t.getDay()]} · ${t.getFullYear()}年第${isoWeek(t)}周</div>
-    <div class="lk-lunar">${lunarText(t)}</div>
+    <div class="lk-lunar">${lunarText(t,jq0)}</div>
     ${(f0.trads.length||f0.wests.length||jq0||hl0)?'<div class="fest-tags">'+(hlTagHtml)+(jq0?'<span class="tag jq-tag">节气 · '+jq0+'</span>':'')+f0.trads.map(x=>'<span class="tag fest-pink">'+x+'</span>').join('')+f0.wests.map(x=>'<span class="tag fest-west">'+x+'</span>').join('')+'</div>':''}
-    <div class="yj"><div class="yj-col"><b class="yi">宜</b><div>${yis.slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join('')}</div></div>
-    <div class="yj-col"><b class="ji">忌</b><div>${jis.slice(0,4).map(x=>'<span class="chip warn">'+x+'</span>').join('')}</div></div></div>`;
+    ${lkYiJiHtml(c)}`;
   $id('lkMonthLabel').textContent=lkY+'年'+(lkM+1)+'月';
   const first=new Date(lkY,lkM,1),ofs=(first.getDay()+6)%7,days=new Date(lkY,lkM+1,0).getDate();
-  const todayK=now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
   let html='';
+  const keys=[];
   for(let i=0;i<ofs;i++)html+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=days;d++){
-    const dd=new Date(lkY,lkM,d),L=lun2(dd),f=festOfDay(dd),jq=jqOfDay(dd);
+    const dd=new Date(lkY,lkM,d),L=lun2(dd),f=festOfDay(dd);
+    const cc=lkCache[lkKeyOf(dd)]||{},jq=cc.jq||'';
     const lTxt=(L&&!L.isleap&&L.d===1)?LMC[L.m-1]+'月':(L?LDC[L.d-1]:'');
     const hl=hlTag(lkY,lkM+1,d);
     const badge=hl==='law'?'<span class="hl-law">法定</span>':hl==='off'?'<span class="hl-off">双休</span>':'';
@@ -674,27 +701,33 @@ function renderLucky(){
     else if(f.trads.length){sub=f.trads[0];subCls='cal-lunar hasfest'}
     else if(f.wests.length){sub=f.wests[0];subCls='cal-west'}
     else{sub=lTxt;subCls='cal-lunar'}
-    const key2=lkY+'-'+String(lkM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const key2=lkKeyOf(dd);keys.push(key2);
     const gh=GREEN_HEART[key2]?'<span class="cal-heart">💚</span>':'';
     html+=`<div class="cal-cell ${now.getFullYear()===lkY&&now.getMonth()===lkM&&now.getDate()===d?'today':''}" onclick="lkDetail('${key2}')">
       <b>${d}</b><span class="${subCls}">${sub}</span>${badge}${gh}</div>`;
   }
   $id('lkCal').innerHTML=html;
+  /* 缺的农历数据交给后台线程算完再刷一次（主线程不卡） */
+  lkCompute([tk].concat(keys),renderLucky);
 }
 function lkNav(w){lkM+=w;if(lkM<0){lkM=11;lkY--}if(lkM>11){lkM=0;lkY++}renderLucky()}
 function lkShift(d){lkOff=d===0?0:lkOff+d;renderLucky()}
-function lkToday2(){lkY=new Date().getFullYear();lkM=new Date().getMonth();renderLucky()}
+function lkToday2(){lkY=new Date().getFullYear();lkM=new Date().getMonth();lkOff=0;renderLucky()}
 function lkDetail(key){
-  const d=new Date(key.replace(/-/g,'/')),f=festOfDay(d),hl=hlTag(d.getFullYear(),d.getMonth()+1,d.getDate()),jq=jqOfDay(d);
+  lkCurKey=key;
+  const d=new Date(key.replace(/-/g,'/')),f=festOfDay(d),hl=hlTag(d.getFullYear(),d.getMonth()+1,d.getDate());
+  const c=lkCache[key]||{},jq=c.jq||'';
   const tags=(hl==='law'?'<span class="tag hl-tag-law">法定</span> ':'')+(hl==='off'?'<span class="tag hl-tag-off">双休</span> ':'')
     +(jq?'<span class="tag jq-tag">节气 · '+jq+'</span> ':'')
     +f.trads.map(x=>'<span class="tag fest-pink">'+x+'</span>').join(' ')+f.wests.map(x=>'<span class="tag fest-west">'+x+'</span>').join(' ');
   showModal(`<h3>📅 ${key}</h3>
     <p class="hint" style="margin-top:6px">星期${'日一二三四五六'[d.getDay()]} · ${d.getFullYear()}年第${isoWeek(d)}周</p>
-    <p class="lk-lunar" style="font-size:12.5px;color:var(--sub);margin:8px 0">${lunarText(d)}</p>
+    <p class="lk-lunar" style="font-size:12.5px;color:var(--sub);margin:8px 0">${lunarText(d,jq)}</p>
     ${tags?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">'+tags+'</div>':''}
     ${GREEN_HEART[key]?'<p style="margin:8px 0">💚 <b>特别标记的日子</b></p>':''}
+    <div id="lkDetailYj">${lkYiJiHtml(c)}</div>
     <div class="m-btns"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
+  lkCompute([key],()=>{if(lkCurKey===key&&lkCache[key]){const el=document.getElementById('lkDetailYj');if(el)el.innerHTML=lkYiJiHtml(lkCache[key])}});
 }
 function greetTxt(now){const h=now.getHours();return h<5?'夜深了':h<9?'早上好':h<12?'上午好':h<13?'中午好':h<18?'下午好':h<23?'晚上好':'夜深了'}
 
