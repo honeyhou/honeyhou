@@ -1,4 +1,4 @@
-const CACHE='hahadu-v20261119142700';
+const CACHE='hahadu-v20261119151600';
 /* lib-lunar.js（426KB）不进安装预缓存：安装零负担，首次打开日历时按需下载并进运行时缓存 */
 const CORE=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
