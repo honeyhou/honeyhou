@@ -9228,7 +9228,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.38';
+const APP_VER='v2.39';
 const APP_VER_DATE='2026-11-18';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
@@ -9511,18 +9511,18 @@ const SNOW=[71,73,75,77,85,86];
 function wIco(c){return (WMO[c]||['🌡️',''])[0]}
 function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
 let wxJ=null;let wxRetryN=0;
-function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('honeyWxCache')||'null');return (c&&c.j&&c.d===todayStr()&&Date.now()-c.t<21600000)?c.j:null}catch(e){return null}}
+function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('honeyWxCache')||'null');if(!c||!c.j||c.d!==todayStr()||Date.now()-c.t>=21600000)return null;if(!D.city||c.city!==D.city.name)return null;return c.j}catch(e){return null}}
 async function loadWeather(force){
   const el=$id('dkWx');if(!el)return;
   if(!D.city){el.innerHTML='🌤️ 去设置里加个城市，桌面就有天气啦';return}
   const c=D.city;
-  /* 先用今天的缓存秒显，再后台刷新 */
-  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWxLine()}}
+  /* 先用今天同城市的缓存秒显，再后台刷新；城市换了不显示旧城市缓存 */
+  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWxLine()}else el.innerHTML='🌤️ 正在取'+c.name+'的天气…'}
   try{
     const r=await fetchTO('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
       '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',8000);
     if(!r.ok)throw 0; wxJ=await r.json();
-    try{localStorage.setItem('honeyWxCache',JSON.stringify({t:Date.now(),d:todayStr(),j:wxJ}))}catch(e){}
+    try{localStorage.setItem('honeyWxCache',JSON.stringify({t:Date.now(),d:todayStr(),city:D.city.name,j:wxJ}))}catch(e){}
     wxRetryN=0;renderWxLine();
   }catch(e){
     /* 失败不再干等 30 分钟：6 秒后自动重试（最多 3 次），期间显示缓存或提示 */
@@ -9570,7 +9570,7 @@ async function useGeo(){
       else if(city)name=city;
       else name=a.state||name;
     }catch(e){}
-    D.city={name:name,lat:la,lon:lo};save();renderSettings();loadWeather(true);
+    D.city={name:name,lat:la,lon:lo};wxJ=null;wxRetryN=0;save();renderSettings();loadWeather(true);
     $id('cityNow').textContent='📍 定位好了：'+name;
   },()=>{$id('cityNow').textContent='📍 没拿到定位，手动输入城市吧'},{timeout:9000,enableHighAccuracy:true});
 }
@@ -9626,6 +9626,7 @@ async function searchCity(){
 }
 function pickCity(i){const x=window.__cityHits[i];if(!x)return;
   D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};
+  wxJ=null;wxRetryN=0;
   save();$id('cityHits').innerHTML='';renderSettings();loadWeather(true);
   alert('天气城市设置好了：'+D.city.name);
 }
