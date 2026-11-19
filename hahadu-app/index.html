@@ -171,6 +171,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 .cal-heart{display:block;font-size:9px;line-height:1.2}
 .cal-cell.today{background:var(--accent);color:#0E1217}
 .cal-cell.today b{color:#0E1217}
+.cal-cell.today .cal-lunar,.cal-cell.today .cal-lunar.hasfest{color:#fff}
 .cal-lunar{display:block;font-size:9px;color:var(--sub);transform:scale(.9);white-space:nowrap;overflow:hidden}
 .cal-lunar.hasfest{color:#FF7BA9;font-weight:bold}
 .cal-west{display:block;font-size:9px;color:#FF8A3D;font-weight:bold;white-space:nowrap;overflow:hidden}
@@ -487,7 +488,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.33', APP_VER_DATE='2026-11-19';
+const APP_VER='v1.34', APP_VER_DATE='2026-11-19';
 const MENUS=[
  ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
  ['project','🎛️','项目交付','Projects'],
