@@ -140,6 +140,27 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
   .menu-item .mz{font-size:10.5px}
   #main{padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(24px + env(safe-area-inset-bottom,0px))}
 }
+/* ---------- 日历 ---------- */
+.month-nav{margin-left:auto;display:flex;align-items:center;gap:6px}
+.month-nav b{color:var(--accent);font-weight:bold;font-size:13px}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px;font-size:11px;color:var(--sub);text-align:center}
+.cal-head .wk{color:var(--accent)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-cell{min-height:46px;border-radius:10px;text-align:center;padding-top:4px;cursor:pointer;font-size:12px;background:var(--card2)}
+.cal-cell b{font-weight:bold;color:var(--text)}
+.cal-cell:hover{background:#232B38}
+.cal-cell.empty{cursor:default;background:transparent}
+.cal-cell.today{background:var(--accent);color:#0E1217}
+.cal-cell.today b{color:#0E1217}
+.cal-lunar{display:block;font-size:9px;color:var(--sub);transform:scale(.9);white-space:nowrap;overflow:hidden}
+.cal-lunar.hasfest{color:#FF7BA9;font-weight:bold}
+.cal-west{display:block;font-size:9px;color:#FF8A3D;font-weight:bold;white-space:nowrap;overflow:hidden}
+.hl-law{display:block;font-size:9px;color:#4CC38A;font-weight:bold;line-height:1.3}
+.hl-off{display:block;font-size:9px;color:#5BA8F5;font-weight:bold;line-height:1.3}
+.tag.hl-tag-law{background:transparent;color:#4CC38A;border:1px solid #4CC38A}
+.tag.hl-tag-off{background:transparent;color:#5BA8F5;border:1px solid #5BA8F5}
+.tag.fest-pink{background:transparent;color:#FF7BA9;border:1px solid #FF7BA9}
+.tag.fest-west{background:transparent;color:#FF8A3D;border:1px solid #FF8A3D}
 </style>
 </head>
 <body>
@@ -385,6 +406,19 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
       <p class="hint" id="newsSrc">来源：对新音乐产业观察 / Billboard / Music Business Worldwide / Pitchfork / Rolling Stone / MusicRadar / Spotify / 腾讯音乐</p>
     </section>
 
+    <!-- 日历 Luck day -->
+    <section class="page" id="p-lucky">
+      <div class="pg-head"><h2>📅 日历</h2><p>Luck Day · 节日 · 农历 · 假期</p></div>
+      <div class="card">
+        <div class="sec-title">🗓️ <span id="lkMonthLabel"></span>
+          <span class="month-nav"><button class="mini-btn" onclick="lkNav(-1)">‹</button><button class="mini-btn" onclick="lkToday2()">今</button><button class="mini-btn" onclick="lkNav(1)">›</button></span>
+        </div>
+        <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
+        <div class="cal-grid" id="lkCal"></div>
+        <p class="hint" id="lkHint"><span style="color:#FF7BA9;font-weight:bold">粉色为传统节假日</span> · <span style="color:#FF8A3D;font-weight:bold">橙色为西方节日</span> · <span style="color:#5BA8F5;font-weight:bold">蓝色字体为每月双休</span> · <span style="color:#4CC38A;font-weight:bold">绿色字体为法定节假日</span> · 点日期可查看详情</p>
+      </div>
+    </section>
+
     <!-- 设置 -->
     <section class="page" id="p-set">
       <div class="pg-head"><h2>⚙️ 设置</h2><p>Settings</p></div>
@@ -433,9 +467,10 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.26', APP_VER_DATE='2026-11-18';
+const APP_VER='v1.28', APP_VER_DATE='2026-11-19';
 const MENUS=[
- ['home','🏠','工作台','Home'],['project','🎛️','项目交付','Projects'],
+ ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
+ ['project','🎛️','项目交付','Projects'],
  ['sample','🎚️','音色库','Samples'],['lib','💿','曲库','Library'],['tool','🧰','工具箱','Tools'],
  ['idea','💡','灵感本','Ideas'],['lyric','🎤','歌词台','Lyrics'],
  ['study','🎧','拆歌日志','Study'],['release','🚀','发歌清单','Release'],
@@ -511,7 +546,7 @@ function go(p){
 function renderPage(p){
   ({home:renderHome,project:renderProjects,show:renderShows,sample:renderSamples,lib:renderLib,tool:renderTools,
     idea:renderIdeas,lyric:renderLyrics,study:renderStudies,release:renderReleases,
-    contact:renderContacts,news:renderNews,set:renderSettings})[p]();
+    contact:renderContacts,news:renderNews,lucky:renderLucky,set:renderSettings})[p]();
 }
 /* 弹窗 */
 function showModal(html){$id('modalBox').innerHTML=html;$id('modalMask').classList.add('show')}
@@ -537,6 +572,66 @@ function lunarText(d){
   const L=lun2(d);if(!L)return '';
   const y=L.y,gz=((y-4)%10+10)%10,bz=((y-4)%12+12)%12;
   return '农历 '+'甲乙丙丁戊己庚辛壬癸'[gz]+'子丑寅卯辰巳午未申酉戌亥'[bz]+'【'+'鼠牛虎兔龙蛇马羊猴鸡狗猪'[bz]+'】年 '+(L.isleap?'闰':'')+LMC[L.m-1]+'月'+LDC[L.d-1];
+}
+
+/* ---------- 日历（参考 HONEY呦：传统节日粉 / 西方节日橙 / 法定绿 / 双休蓝） ---------- */
+const HL_2026={
+  law:['0101','0102','0103','0215','0216','0217','0218','0219','0220','0221','0222','0223','0404','0405','0406','0501','0502','0503','0504','0505','0619','0620','0621','0925','0926','0927','1001','1002','1003','1004','1005','1006','1007'],
+  off:['0110','0111','0213','0214','0307','0308','0418','0419','0516','0517','0606','0607','0704','0705','0801','0802','0905','0906','1017','1018','1107','1108','1205','1206']
+};
+function hlTag(y,m,d){if(y!==2026)return null;const k=String(m).padStart(2,'0')+String(d).padStart(2,'0');return HL_2026.law.indexOf(k)>-1?'law':(HL_2026.off.indexOf(k)>-1?'off':null)}
+function festOfDay(d){
+  const m=d.getMonth()+1,dd=d.getDate(),k=String(m).padStart(2,'0')+String(dd).padStart(2,'0');
+  const solar={'0101':'元旦','0501':'劳动节','1010':'辛亥革命纪念日','1001':'国庆节'}[k];
+  const west={'0214':'情人节','0401':'愚人节','1031':'万圣节','1224':'平安夜','1225':'圣诞节'}[k];
+  /* 感恩节：11月第4个周四 */
+  let west2=null;
+  if(m===11&&d.getDay()===4){const thurs=Math.floor((dd-1)/7)+1;if(thurs===4)west2='感恩节'}
+  /* 农历传统节日 */
+  const L=lun2(d);let trad=null;
+  if(L&&!L.isleap){
+    const key=L.m+'-'+L.d;
+    trad={'1-1':'春节','1-15':'元宵节','5-5':'端午节','7-7':'七夕节','8-15':'中秋节','9-9':'重阳节','12-8':'腊八节'}[key];
+    if(!trad&&L.m===12){const nx=lun2(new Date(d.getFullYear(),d.getMonth(),d.getDate()+1));if(nx&&nx.m===1&&nx.d===1)trad='除夕'}
+  }
+  const trads=[];if(trad)trads.push(trad);if(solar)trads.push(solar);
+  const wests=[];if(west)wests.push(west);if(west2)wests.push(west2);
+  return {trads:trads,wests:wests};
+}
+let lkY,lkM;
+function renderLucky(){
+  const now=new Date();
+  if(lkY===undefined){lkY=now.getFullYear();lkM=now.getMonth()}
+  $id('lkMonthLabel').textContent=lkY+'年'+(lkM+1)+'月';
+  const first=new Date(lkY,lkM,1),ofs=(first.getDay()+6)%7,days=new Date(lkY,lkM+1,0).getDate();
+  const todayK=now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
+  let html='';
+  for(let i=0;i<ofs;i++)html+='<div class="cal-cell empty"></div>';
+  for(let d=1;d<=days;d++){
+    const dd=new Date(lkY,lkM,d),L=lun2(dd),f=festOfDay(dd);
+    const lTxt=(L&&!L.isleap&&L.d===1)?LMC[L.m-1]+'月':(L?LDC[L.d-1]:'');
+    const hl=hlTag(lkY,lkM+1,d);
+    const badge=hl==='law'?'<span class="hl-law">法定</span>':hl==='off'?'<span class="hl-off">双休</span>':'';
+    let sub,subCls;
+    if(f.trads.length){sub=f.trads[0];subCls='cal-lunar hasfest'}
+    else if(f.wests.length){sub=f.wests[0];subCls='cal-west'}
+    else{sub=lTxt;subCls='cal-lunar'}
+    html+=`<div class="cal-cell ${now.getFullYear()===lkY&&now.getMonth()===lkM&&now.getDate()===d?'today':''}" onclick="lkDetail('${lkY}-${String(lkM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}')">
+      <b>${d}</b><span class="${subCls}">${sub}</span>${badge}</div>`;
+  }
+  $id('lkCal').innerHTML=html;
+}
+function lkNav(w){lkM+=w;if(lkM<0){lkM=11;lkY--}if(lkM>11){lkM=0;lkY++}renderLucky()}
+function lkToday2(){lkY=new Date().getFullYear();lkM=new Date().getMonth();renderLucky()}
+function lkDetail(key){
+  const d=new Date(key.replace(/-/g,'/')),f=festOfDay(d),hl=hlTag(d.getFullYear(),d.getMonth()+1,d.getDate());
+  const tags=(hl==='law'?'<span class="tag hl-tag-law">法定</span> ':'')+(hl==='off'?'<span class="tag hl-tag-off">双休</span> ':'')
+    +f.trads.map(x=>'<span class="tag fest-pink">'+x+'</span>').join(' ')+f.wests.map(x=>'<span class="tag fest-west">'+x+'</span>').join(' ');
+  showModal(`<h3>📅 ${key}</h3>
+    <p class="hint" style="margin-top:6px">星期${'日一二三四五六'[d.getDay()]}</p>
+    <p class="lk-lunar" style="font-size:12.5px;color:var(--sub);margin:8px 0">${lunarText(d)}</p>
+    ${tags?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">'+tags+'</div>':''}
+    <div class="m-btns"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
 }
 function greetTxt(now){const h=now.getHours();return h<5?'夜深了':h<9?'早上好':h<12?'上午好':h<13?'中午好':h<18?'下午好':h<23?'晚上好':'夜深了'}
 
@@ -1294,18 +1389,18 @@ function wIco(c){return (WMO[c]||['🌡️',''])[0]}
 function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
 let wxJ=null;
 let wxRetryN=0;
-function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('hahaduWxCache')||'null');return (c&&c.j&&c.d===todayStr()&&Date.now()-c.t<21600000)?c.j:null}catch(e){return null}}
+function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('hahaduWxCache')||'null');if(!c||!c.j||c.d!==todayStr()||Date.now()-c.t>=21600000)return null;if(!D.city||c.city!==D.city.name)return null;return c.j}catch(e){return null}}
 async function loadWeather(force){
   const el=$id('hmWx');if(!el)return;
   if(!D.city){el.innerHTML='🌤️ 去设置里加个城市，工作台就有天气啦';return}
   const c=D.city;
-  /* 先用今天的缓存秒显，再后台刷新 */
-  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWxLine()}}
+  /* 先用今天同城市的缓存秒显，再后台刷新；城市换了不显示旧城市缓存 */
+  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWxLine()}else el.innerHTML='🌤️ 正在取'+c.name+'的天气…'}
   try{
     const r=await fetchTO('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
       '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',8000);
     if(!r.ok)throw 0; wxJ=await r.json();
-    try{localStorage.setItem('hahaduWxCache',JSON.stringify({t:Date.now(),d:todayStr(),j:wxJ}))}catch(e){}
+    try{localStorage.setItem('hahaduWxCache',JSON.stringify({t:Date.now(),d:todayStr(),city:D.city.name,j:wxJ}))}catch(e){}
     wxRetryN=0;renderWxLine();
   }catch(e){
     /* 失败不再干等 30 分钟：6 秒后自动重试（最多 3 次） */
@@ -1353,7 +1448,7 @@ async function useGeo(){
       else if(city)name=city;
       else name=a.state||name;
     }catch(e){}
-    D.city={name:name,lat:la,lon:lo};save();renderSettings();loadWeather(true);
+    D.city={name:name,lat:la,lon:lo};wxJ=null;wxRetryN=0;save();renderSettings();loadWeather(true);
     $id('cityNow').textContent='📍 定位好了：'+name;
   },()=>{$id('cityNow').textContent='📍 没拿到定位，手动输入城市吧'},{timeout:9000,enableHighAccuracy:true});
 }
@@ -1409,6 +1504,7 @@ async function searchCity(){
 }
 function pickCity(i){const x=window.__cityHits[i];if(!x)return;
   D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};
+  wxJ=null;wxRetryN=0;
   save();$id('cityHits').innerHTML='';renderSettings();loadWeather(true);
   alert('天气城市设置好了：'+D.city.name);
 }
