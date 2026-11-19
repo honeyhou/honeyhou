@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.11', APP_VER_DATE='2026-11-18';
+const APP_VER='v1.12', APP_VER_DATE='2026-11-18';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -461,17 +461,17 @@ function wIco(c){return (WMO[c]||['🌡️',''])[0]}
 function wName(c){return (WMO[c]||['🌡️','天气'])[1]}
 let wxJ=null;
 let wxRetryN=0;
-function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('jiuwoWxCache')||'null');return (c&&c.j&&c.d===todayStr()&&Date.now()-c.t<21600000)?c.j:null}catch(e){return null}}
+function wxCacheGet(){try{const c=JSON.parse(localStorage.getItem('jiuwoWxCache')||'null');if(!c||!c.j||c.d!==todayStr()||Date.now()-c.t>=21600000)return null;if(!D.city||c.city!==D.city.name)return null;return c.j}catch(e){return null}}
 async function loadWeather(force){
   if(!D.city){$id('wxS').textContent='设置里选个城市，就能看天气';$id('wxTip').textContent='还没设置城市 ☁️';$id('wxTip').className='wx-tip calm';return}
   const c=D.city;
-  /* 先用今天的缓存秒显，再后台刷新 */
-  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWeather()}}
+  /* 先用今天同城市的缓存秒显，再后台刷新；城市换了不显示旧城市缓存 */
+  if(!wxJ){const cached=wxCacheGet();if(cached){wxJ=cached;renderWeather()}else{$id('wxS').textContent='天气加载中…';$id('wxT').innerHTML='--<i>°</i>';$id('wxHL').innerHTML=' ';$id('wxTip').textContent='正在取'+c.name+'的天气…';$id('wxTip').className='wx-tip calm'}}
   try{
     const r=await fetchTO('https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
       '&current=temperature_2m,weather_code&hourly=precipitation,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FShanghai&forecast_days=2',8000);
     if(!r.ok)throw 0; wxJ=await r.json();
-    try{localStorage.setItem('jiuwoWxCache',JSON.stringify({t:Date.now(),d:todayStr(),j:wxJ}))}catch(e){}
+    try{localStorage.setItem('jiuwoWxCache',JSON.stringify({t:Date.now(),d:todayStr(),city:D.city.name,j:wxJ}))}catch(e){}
     wxRetryN=0;renderWeather();
   }catch(e){
     /* 失败不再干等：6 秒后自动重试（最多 3 次） */
@@ -538,7 +538,7 @@ async function useGeo(){
         name=j2.city||j2.locality||j2.principalSubdivision||name;
       }catch(e2){}
     }
-    D.city={name:name,lat:la,lon:lo};save();renderSet();loadWeather(true);toast('定位好了：'+name);
+    D.city={name:name,lat:la,lon:lo};wxJ=null;wxRetryN=0;save();renderSet();loadWeather(true);toast('定位好了：'+name);
   },()=>toast('没拿到定位，手动输入城市吧'),{timeout:9000,enableHighAccuracy:true});
 }
 async function searchCity(){
@@ -592,7 +592,7 @@ async function searchCity(){
   $id('cityHits').innerHTML=rs.length?rs.map((x,i)=>'<button class="btn sm ghost" onclick="pickCity('+i+')">'+esc(x.name)+(x.mid&&x.mid!==x.name?'（'+esc(x.mid)+'）':'')+'</button>').join(' '):'没找到，试试带上「区」字，比如 金水区';
 }
 function pickCity(i){const x=window.__cityHits[i];if(!x)return;
-  D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};save();renderSet();loadWeather(true);toast('设置好了：'+D.city.name)}
+  D.city={name:(x.mid&&x.mid!==x.name)?(x.mid+' · '+x.name):x.name,lat:x.lat,lon:x.lon};wxJ=null;wxRetryN=0;save();renderSet();loadWeather(true);toast('设置好了：'+D.city.name)}
 
 /* ================= 快递 ================= */
 let pcDrafts=[];
