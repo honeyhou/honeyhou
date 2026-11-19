@@ -9029,7 +9029,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 <script>
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.30', APP_VER_DATE='2026-11-19';
+const APP_VER='v1.31', APP_VER_DATE='2026-11-19';
 const MENUS=[
  ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
  ['project','🎛️','项目交付','Projects'],
@@ -9300,7 +9300,14 @@ const NEWS=[
 /* 自动抓取：每天由定时任务更新 news.json（与 index.html 同目录），启动时拉最新；
    拉不到/格式不对就用内置 NEWS 兜底 */
 let LIVE_NEWS=null,LIVE_DATE='';
-function newsArr(){return (LIVE_NEWS&&LIVE_NEWS.length)?LIVE_NEWS:NEWS}
+/* 按日期降序：最新日期的动态排最上面（同日按原顺序稳定排列） */
+function newsArr(){
+  const a=(LIVE_NEWS&&LIVE_NEWS.length)?LIVE_NEWS:NEWS;
+  return a.map((n,i)=>({n:n,i:i})).sort((x,y)=>{
+    const px=/(\d+)月(\d+)日/.exec(x.n.d||'')||[0,0,0],py=/(\d+)月(\d+)日/.exec(y.n.d||'')||[0,0,0];
+    return (+py[1]*100+ +py[2])-(+px[1]*100+ +px[2])||x.i-y.i;
+  }).map(o=>o.n);
+}
 /* 已看按「标题」记，不按序号：新闻每天换血，按序号会把昨天的已看套到今天的新内容头上 */
 function newsKey(n){return (n.t||'').slice(0,60)}
 function newsSeenPrune(){const ks=Object.keys(D.newsSeen);if(ks.length>150){D.newsSeen={};ks.slice(-120).forEach(k=>{D.newsSeen[k]=1})}}
