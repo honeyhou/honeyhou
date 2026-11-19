@@ -143,6 +143,11 @@ textarea.inp{resize:none;line-height:1.5}
 .pay-fest{display:block;font-size:9px;color:#fff;background:#c99a2e;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
 .cal-jq{display:block;font-size:9px;color:#fff;background:#2e8b57;border-radius:6px;margin:1px 3px 0;padding:1px 0;font-weight:bold}
 .tag.jq-tag{background:#2e8b57;color:#fff}
+/* 西方节假日（橙色） */
+.cal-west{display:block;font-size:9px;color:#d96a0b;font-weight:bold}
+.tag.west-tag{background:transparent;color:#d96a0b;border:1px solid #d96a0b}
+/* 月历特殊标记：绿色爱心 */
+.cal-heart{display:block;font-size:9px;line-height:1.2}
 .hl-law{display:block;font-size:9px;color:#2e8b57;font-weight:bold;line-height:1.3}
 .hl-off{display:block;font-size:9px;color:#1e6bb8;font-weight:bold;line-height:1.3}
 .tag.hl-tag-law{background:transparent;color:#2e8b57;border:1px solid #2e8b57}
@@ -470,7 +475,7 @@ textarea.inp{resize:none;line-height:1.5}
         </div>
         <div class="cal-head"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk">六</span><span class="wk">日</span></div>
         <div class="cal-grid" id="lkCal"></div>
-        <p class="hint"><span style="color:#e0576d;font-weight:bold">粉色为传统节假日</span> · <span style="color:#1e6bb8;font-weight:bold">蓝色字体为每月双休</span> · <span style="color:#2e8b57;font-weight:bold">绿色字体为法定节假日</span> · 点日期可查看详情</p>
+        <p class="hint"><span style="color:#e0576d;font-weight:bold">粉色为传统节假日</span> · <span style="color:#d96a0b;font-weight:bold">橙色为西方节假日</span> · <span style="color:#1e6bb8;font-weight:bold">蓝色字体为每月双休</span> · <span style="color:#2e8b57;font-weight:bold">绿色字体为法定节假日</span> · 点日期可查看详情</p>
       </div>
     </section>
 
@@ -9228,8 +9233,8 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.39';
-const APP_VER_DATE='2026-11-18';
+const APP_VER='v2.40';
+const APP_VER_DATE='2026-11-19';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
  ['lucky','📅','日历','Luck day'],
@@ -9368,7 +9373,15 @@ function renderPage(p){
 }
 
 /* ---------- 农历/节日工具 ---------- */
-const SOLAR_FEST={'01-01':'元旦','02-14':'情人节','03-08':'妇女节','03-12':'植树节','04-01':'愚人节','05-01':'劳动节','05-04':'青年节','06-01':'儿童节','07-01':'建党节','08-01':'建军节','09-10':'教师节','10-01':'国庆节','12-24':'平安夜','12-25':'圣诞节'};
+const SOLAR_FEST={'01-01':'元旦','03-08':'妇女节','03-12':'植树节','05-01':'劳动节','05-04':'青年节','06-01':'儿童节','07-01':'建党节','08-01':'建军节','09-10':'教师节','10-01':'国庆节'};
+/* 西方节假日（日历格/标签/详情统一橙色，与哈哈杜一致） */
+const WEST_FEST={'02-14':'情人节','04-01':'愚人节','10-31':'万圣节','12-24':'平安夜','12-25':'圣诞节'};
+function westOfDay(d){
+  const k=pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  if(WEST_FEST[k])return WEST_FEST[k];
+  if(d.getMonth()===10&&d.getDay()===4&&Math.floor((d.getDate()-1)/7)+1===4)return'感恩节';
+  return '';
+}
 const LUNAR_FEST={'1-1':'春节','1-15':'元宵节','2-2':'龙抬头','5-5':'端午节','7-7':'七夕节','8-15':'中秋节','9-9':'重阳节','12-8':'腊八节'};
 const STAT_SOLAR={'01-01':'元旦','05-01':'劳动节','10-01':'国庆节'};
 const STAT_LUNAR={'1-1':'春节','5-5':'端午节','8-15':'中秋节'};
@@ -10163,13 +10176,15 @@ const HL_2026={
   off:['0110','0111','0213','0214','0307','0308','0418','0419','0516','0517','0606','0607','0704','0705','0801','0802','0905','0906','1017','1018','1107','1108','1205','1206']
 };
 function hlTag(y,m,d){if(y!==2026)return null;const k=pad(m)+pad(d);return HL_2026.law.indexOf(k)>-1?'law':(HL_2026.off.indexOf(k)>-1?'off':null)}
+/* 月历上的特殊标记：绿色爱心 💚（如 2026-03-08 妇女节） */
+const GREEN_HEART={'2026-03-08':1};
 /* 24节气：当天是节气日返回名字（如「小雪」），否则空 */
 function jqOfDay(d){try{return lun(d).getJieQi()||''}catch(e){return ''}}
 function renderLucky(){
   if(lkY===undefined){lkY=new Date().getFullYear();lkM=new Date().getMonth()}
   const t=new Date();t.setDate(t.getDate()+lkOff);
   const L=lun(t),yis=L.getDayYi(),jis=L.getDayJi();
-  const fests=festOfDay(t),jqT=jqOfDay(t),hlT=hlTag(t.getFullYear(),t.getMonth()+1,t.getDate());
+  const fests=festOfDay(t),jqT=jqOfDay(t),hlT=hlTag(t.getFullYear(),t.getMonth()+1,t.getDate()),westT=westOfDay(t);
   const hlTagHtml=hlT==='law'?'<span class="tag hl-tag-law">法定</span>':hlT==='off'?'<span class="tag hl-tag-off">双休</span>':'';
   $id('lkToday').innerHTML=`
     <div class="lk-nav"><button class="mini-btn" onclick="lkShift(-1)">‹ 昨天</button>
@@ -10179,7 +10194,7 @@ function renderLucky(){
     <div class="lk-big">${t.getMonth()+1}月${t.getDate()}日</div>
     <div class="lk-sub">星期${'日一二三四五六'[t.getDay()]} · ${t.getFullYear()}年第${isoWeek(t)}周</div>
     <div class="lk-lunar">${lunarText(t)}</div>
-    ${fests.length||jqT||hlT?'<div class="fest-tags">'+(hlTagHtml)+(jqT?'<span class="tag jq-tag">节气 · '+jqT+'</span>':'')+fests.map(f=>'<span class="tag pri-h">'+f+'</span>').join('')+'</div>':''}
+    ${fests.length||jqT||hlT||westT?'<div class="fest-tags">'+(hlTagHtml)+(jqT?'<span class="tag jq-tag">节气 · '+jqT+'</span>':'')+fests.map(f=>'<span class="tag pri-h">'+f+'</span>').join('')+(westT?'<span class="tag west-tag">'+westT+'</span>':'')+'</div>':''}
     <div class="yj"><div class="yj-col"><b class="yi">宜</b><div>${yis.slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join('')}</div></div>
     <div class="yj-col"><b class="ji">忌</b><div>${jis.slice(0,4).map(x=>'<span class="chip warn">'+x+'</span>').join('')}</div></div></div>`;
   $id('lkMonthLabel').textContent=lkY+'年'+(lkM+1)+'月';
@@ -10188,7 +10203,7 @@ function renderLucky(){
   let html='';
   for(let i=0;i<ofs;i++)html+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=days;d++){
-    const dd=new Date(lkY,lkM,d),key=fmt(dd),f=festOfDay(dd),Ld=lun(dd),jq=jqOfDay(dd);
+    const dd=new Date(lkY,lkM,d),key=fmt(dd),f=festOfDay(dd),Ld=lun(dd),jq=jqOfDay(dd),w=westOfDay(dd);
     const lTxt=Ld.getDay()==1?Ld.getMonth()+'月':Ld.getDayInCn?Ld.getDayInCn():Ld.getDayInChinese();
     const stat=statOfDay(dd);
     let sub,subCls;
@@ -10196,11 +10211,13 @@ function renderLucky(){
     else if(d===10){sub='发工资';subCls='pay-fest'}
     else if(jq){sub=jq;subCls='cal-jq'}
     else if(f.length){sub=f[0];subCls='cal-lunar hasfest'}
+    else if(w){sub=w;subCls='cal-west'}
     else{sub=lTxt;subCls='cal-lunar'}
     const hl=hlTag(lkY,lkM+1,d);
     const badge=hl==='law'?'<span class="hl-law">法定</span>':hl==='off'?'<span class="hl-off">双休</span>':'';
+    const gh=GREEN_HEART[key]?'<span class="cal-heart">💚</span>':'';
     html+=`<div class="cal-cell ${key===todayStr()?'today':''}" onclick="lkDetail('${key}')">
-      <b>${d}</b><span class="${subCls}">${sub}</span>${badge}</div>`;
+      <b>${d}</b><span class="${subCls}">${sub}</span>${badge}${gh}</div>`;
   }
   $id('lkCal').innerHTML=html;
 }
@@ -10208,13 +10225,15 @@ function lkNav(w){lkM+=w;if(lkM<0){lkM=11;lkY--}if(lkM>11){lkM=0;lkY++}renderLuc
 function lkShift(d){lkOff=d===0?0:lkOff+d;renderLucky()}
 function lkToday2(){lkY=new Date().getFullYear();lkM=new Date().getMonth();renderLucky()}
 function lkDetail(key){
-  const d=new Date(key.replace(/-/g,'/')),L=lun(d),f=festOfDay(d),jq=jqOfDay(d),hl=hlTag(d.getFullYear(),d.getMonth()+1,d.getDate());
+  const d=new Date(key.replace(/-/g,'/')),L=lun(d),f=festOfDay(d),jq=jqOfDay(d),hl=hlTag(d.getFullYear(),d.getMonth()+1,d.getDate()),w=westOfDay(d);
   showModal(`<h3>📅 ${key}</h3>
     <p class="hint" style="margin-top:6px">星期${'日一二三四五六'[d.getDay()]} · ${d.getFullYear()}年第${isoWeek(d)}周</p>
     <p class="lk-lunar">${lunarText(d)}</p>
     ${hl==='law'?'<p><span class="tag hl-tag-law">法定</span></p>':''}${hl==='off'?'<p><span class="tag hl-tag-off">双休</span></p>':''}
     ${jq?'<p>节气：<b style="color:#2e8b57">'+jq+'</b></p>':''}
     ${f.length?'<p>节日：<b>'+f.join('、')+'</b></p>':''}
+    ${w?'<p>西方节日：<b style="color:#d96a0b">'+w+'</b></p>':''}
+    ${GREEN_HEART[key]?'<p>💚 <b>特别标记的日子</b></p>':''}
     <div class="yj"><div class="yj-col"><b class="yi">宜</b><div>${L.getDayYi().slice(0,6).map(x=>'<span class="chip">'+x+'</span>').join('')}</div></div>
     <div class="yj-col"><b class="ji">忌</b><div>${L.getDayJi().slice(0,4).map(x=>'<span class="chip warn">'+x+'</span>').join('')}</div></div></div>
     <div class="m-btns"><button class="btn ghost" onclick="closeModal()">关闭</button></div>`);
