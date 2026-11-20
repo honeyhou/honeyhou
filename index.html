@@ -9233,14 +9233,13 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.40';
-const APP_VER_DATE='2026-11-19';
+const APP_VER='v2.41';
+const APP_VER_DATE='2026-11-20';
 const MENUS=[
- ['desktop','🏠','桌面','Desktop'],['todo','✅','待办','To-do list'],
- ['lucky','📅','日历','Luck day'],
- ['money','💰','来财','Honey money'],['mood','💚','心情流水','Honey mood'],
- ['fuel','🧋','营养充电','Fuel Up'],
- ['anni','💗','纪念','Anniversary'],['meme','🔥','热梗','Meme'],
+ ['desktop','🏠','桌面','Desktop'],['lucky','📅','日历','Luck day'],
+ ['anni','💗','纪念','Anniversary'],['todo','✅','待办','To-do list'],
+ ['money','💰','来财','Honey money'],['fuel','🧋','营养充电','Fuel Up'],
+ ['mood','💚','心情流水','Honey mood'],['meme','🔥','热梗','Meme'],
  ['parcel','📦','快递','Parcel'],
  ['yummy','🍰','想吃','Yummy'],['wish','🌟','心愿单','Honey Wish'],
  ['settings','⚙️','设置','Settings']
@@ -9710,9 +9709,40 @@ function renderPcPushed(){
     `<div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
       <b style="font-size:13px">${esc(d.code)}</b>
       <span style="margin-left:auto;font-size:11px;color:var(--muted)">${hmStr(d.at)} 推送</span>
+      <button class="mini-btn" onclick="pcRepush('${d.id}')" title="妈妈没收到？点这个重新推一次">↻ 重推</button>
       ${d.site||d.note?'<span style="width:100%;font-size:11px;color:var(--muted)">'+esc(d.site||'')+(d.site&&d.note?' · ':'')+esc(d.note||'')+'</span>':''}
     </div>`).join('')+(arr.length>30?'<p class="hint">只显示最近 30 条，更早的自动清理</p>':'')
     :'<p class="hint" style="margin-top:10px">还没有推送过。推过的快递会在这里留底（带推送时间），前一天推的也能看到。</p>';
+}
+/* 重新推送：把这条码带 force 时间戳重新写进云端，妈妈端会复活它（哪怕已被周清理或标记已取走） */
+async function pcRepush(id){
+  const s=D.sync;
+  if(!s.gist||!s.token)return alert('先去「设置」配好语录云同步（Gist 和 Token）——快递走的是同一个通道');
+  const it=(D.pcPushed||[]).find(x=>x.id===id);
+  if(!it)return;
+  if(!confirm('重新推送 '+it.code+' 给妈妈？'))return;
+  try{
+    const gh={Authorization:'Bearer '+s.token,Accept:'application/vnd.github+json'};
+    let items=[];
+    try{
+      const r0=await fetch('https://api.github.com/gists/'+s.gist,{headers:gh});
+      if(r0.ok){const j0=await r0.json();const f0=j0.files&&j0.files['jiuwo-sync.json'];
+        if(f0&&f0.content){const d0=JSON.parse(f0.content);items=(d0.items||[]).filter(x=>x&&x.code)}}
+    }catch(e){}
+    /* 同码只留新的一条：换新 id + force 时间戳，妈妈端凭 force 复活 */
+    const nid='r'+Date.now().toString(36);
+    items=items.filter(x=>String(x.code).replace(/[–—]/g,'-').toUpperCase()!==it.code);
+    items.push({id:nid,code:it.code,site:it.site||'',note:it.note||'',force:Date.now()});
+    const r=await fetch('https://api.github.com/gists/'+s.gist,{
+      method:'PATCH',
+      headers:{Authorization:'Bearer '+s.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({files:{'jiuwo-sync.json':{content:JSON.stringify({at:Date.now(),items:items})}}})
+    });
+    if(r.ok){
+      it.at=Date.now();it.id=nid;save();renderPcPushed();
+      alert('重新推送成功 📦 妈妈那边几分钟内会重新收到 '+it.code);
+    }else alert('重推失败（'+r.status+'），检查网络或 Token 是否过期');
+  }catch(e){alert('重推失败：网络问题，稍后再试')}
 }
 function renderPcDrafts(){
   $id('pcDrafts').innerHTML=pcDrafts.length?'<div class="sec-title" style="margin-top:14px">📋 待推送 '+pcDrafts.length+' 条</div>'+pcDrafts.map((d,i)=>
@@ -10270,7 +10300,11 @@ function renderAnniCal(){
     const items=annisOn(anY,anM+1,d);
     /* 当天有纪念：日期下显示类型小图标（生日🎂/纪念日💗/倒数日💚/节日☀️/其他🎈，最多2个） */
     const icos=items.length?'<span class="an-icos">'+items.slice(0,2).map(a=>aniIco(a.type)).join('')+'</span>':'';
-    html+=`<div class="cal-cell" onclick="${items.length?`anniDay('${anY}-${pad(anM+1)}-${pad(d)}')`:''}"><b>${d}</b>${icos}</div>`;
+    /* 当天跟主日历一样高亮：粉底白字 + 白色农历小字 */
+    const isToday=anY===new Date().getFullYear()&&anM===new Date().getMonth()&&d===new Date().getDate();
+    let sub='';
+    if(isToday){const Lt=lun(new Date(anY,anM,d));sub=Lt.getDay()==1?Lt.getMonth()+'月':(Lt.getDayInCn?Lt.getDayInCn():Lt.getDayInChinese());}
+    html+=`<div class="cal-cell ${isToday?'today':''}" onclick="${items.length?`anniDay('${anY}-${pad(anM+1)}-${pad(d)}')`:''}"><b>${d}</b>${sub?`<span class="cal-lunar">${sub}</span>`:''}${icos}</div>`;
   }
   $id('anCalGrid').innerHTML=html;
 }
