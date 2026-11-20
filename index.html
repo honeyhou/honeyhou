@@ -9233,7 +9233,7 @@ textarea.inp{resize:none;line-height:1.5}
 <script>
 /* ============ Honey 工作台 App 逻辑 ============ */
 const STORE='honeyAppData_v1';
-const APP_VER='v2.41';
+const APP_VER='v2.42';
 const APP_VER_DATE='2026-11-20';
 const MENUS=[
  ['desktop','🏠','桌面','Desktop'],['lucky','📅','日历','Luck day'],
@@ -10611,9 +10611,10 @@ async function loadMemeRemote(){
     if(!r.ok)throw 0;
     const j=await r.json();
     if(j&&j.memes&&j.memes.length){
-      LIVE_MEMES=j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博']);
+      /* 数组第 5 位是原文 url（日更任务写进去的），没有就留空，App 自动兜底为平台搜索页 */
+      LIVE_MEMES=j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博',m.emoji||'',m.url||'']);
       LIVE_MEME_DATE=j.updated||'';
-      if(j.gongyi&&j.gongyi.length)LIVE_GY=j.gongyi.map(m=>[m.name,m.exp,m.heat||88,m.src||'巩义']);
+      if(j.gongyi&&j.gongyi.length)LIVE_GY=j.gongyi.map(m=>[m.name,m.exp,m.heat||88,m.src||'巩义',m.emoji||'',m.url||'']);
       try{localStorage.setItem('honeyMemesCache',JSON.stringify({t:Date.now(),j:{updated:j.updated,memes:j.memes,gongyi:j.gongyi||[]}}))}catch(e){}
       renderMeme();
     }
@@ -10621,12 +10622,24 @@ async function loadMemeRemote(){
     try{
       const c=JSON.parse(localStorage.getItem('honeyMemesCache')||'null');
       if(c&&c.j&&c.j.memes&&c.j.memes.length){
-        LIVE_MEMES=c.j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博']);
-        if(c.j.gongyi&&c.j.gongyi.length)LIVE_GY=c.j.gongyi.map(m=>[m.name,m.exp,m.heat||88,m.src||'巩义']);
+        LIVE_MEMES=c.j.memes.map(m=>[m.name,m.exp,m.heat||90,m.src||'微博',m.emoji||'',m.url||'']);
+        if(c.j.gongyi&&c.j.gongyi.length)LIVE_GY=c.j.gongyi.map(m=>[m.name,m.exp,m.heat||88,m.src||'巩义',m.emoji||'',m.url||'']);
         LIVE_MEME_DATE=c.j.updated||'';renderMeme();
       }
     }catch(e2){}
   }
+}
+function memeHasUrl(m){return !!(m[5]&&/^https?:\/\//i.test(m[5]))}
+/* 每条热梗都有出处可点：日更数据带真实原文链接；内置池/旧缓存没有，就按来源平台拼搜索页 */
+function memeUrl(m){
+  if(memeHasUrl(m))return m[5];
+  const q=encodeURIComponent(m[0]||''),s=m[3]||'';
+  const sea={'微博':'https://s.weibo.com/weibo?q='+q,'抖音':'https://www.douyin.com/search/'+q,
+    '小红书':'https://www.xiaohongshu.com/search_result?keyword='+q,'知乎':'https://www.zhihu.com/search?type=content&q='+q,
+    'B站':'https://search.bilibili.com/all?keyword='+q,'快手':'https://www.kuaishou.com/search/video?searchKey='+q,
+    '综艺':'https://www.baidu.com/s?wd='+q};
+  if(s==='巩义')return 'https://www.baidu.com/s?wd='+encodeURIComponent('巩义 '+(m[0]||''));
+  return sea[s]||('https://www.baidu.com/s?wd='+q);
 }
 function renderMeme(){
   const now=new Date(),start=new Date(now.getFullYear(),0,0);
@@ -10649,7 +10662,8 @@ function renderMeme(){
         <span class="src src-${m[3]}">${m[3]}</span>
         <span class="mm-st">${ok?'✔ 已看':'👀 未看'}</span></div>
       ${open?`<p class="mm-exp">${m[1]}</p>
-        <div class="heat"><span>🔥 热度 ${m[2]}</span><div class="heat-bar"><i style="width:${m[2]}%"></i></div></div>`
+        <div class="heat"><span>🔥 热度 ${m[2]}</span><div class="heat-bar"><i style="width:${m[2]}%"></i></div></div>
+        <div style="margin-top:10px;cursor:default" onclick="event.stopPropagation()"><a class="mini-btn" href="${esc(memeUrl(m))}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block" onclick="event.stopPropagation()">${memeHasUrl(m)?'🔗 查看原文':'🔍 去搜出处'}</a></div>`
       :'<p class="mm-hint">点开看详情</p>'}
     </div>`;
   }).join('');
