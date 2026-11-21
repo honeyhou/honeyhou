@@ -16,6 +16,7 @@
   --hot:#FF6B6B;--ok:#3ECFB2;--warn:#F5B942;--blue:#5BA8F5;
 }
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden}/* 禁止整页左右滑动（与 HONEY呦 一致） */
 body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
 #app{display:flex;min-height:100vh}
 /* 侧边导航 */
@@ -37,7 +38,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-sy
 .menu-item.active .mz{color:var(--accent)}
 .menu-item:active{opacity:.6}
 /* 内容区 */
-#main{flex:1;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
+#main{flex:1;min-width:0;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
 .page{display:none}
 .page.active{display:block}
 .pg-head{margin-bottom:12px}
@@ -127,7 +128,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 #modalMask.show{display:flex}
 #modalBox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;width:100%;max-width:420px;max-height:82vh;overflow-y:auto}
 #modalBox h3{font-size:16px;margin-bottom:12px}
-.m-btns{display:flex;gap:8px;margin-top:14px}
+.m-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .m-btns .btn{flex:1}
 .card>.btn{margin-top:10px;display:inline-block}
 /* 手机：竖栏保持，稍微收窄 */
@@ -314,7 +315,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
       </div>
       <div class="card">
         <div class="sec-title">⏳ 延迟计算器 <span class="en">Delay Time</span></div>
-        <div class="form-row2"><input class="inp" type="number" id="dlBpm" value="120" placeholder="BPM" oninput="renderDelay()"><span class="inp" style="flex:0 0 auto;display:flex;align-items:center;color:var(--sub);background:none;border:none">BPM</span></div>
+        <div class="form-row2"><input class="inp" type="number" id="dlBpm" value="120" placeholder="BPM" oninput="renderDelay()"><span class="inp" style="flex:0 0 auto;width:auto;min-width:0;display:flex;align-items:center;color:var(--sub);background:none;border:none">BPM</span></div>
         <div class="form-row" id="dlTable"></div>
         <p class="hint">把算出的毫秒数填进延迟/混响效果的 Time 里，人声瞬间和节拍咬合。</p>
       </div>
@@ -505,7 +506,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.39', APP_VER_DATE='2026-11-21';
+const APP_VER='v1.40', APP_VER_DATE='2026-11-21';
 const MENUS=[
  ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
  ['project','🎛️','项目交付','Projects'],
