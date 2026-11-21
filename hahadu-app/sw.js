@@ -1,4 +1,4 @@
-const CACHE='hahadu-v20261119160000';
+const CACHE='hahadu-v20261121100600';
 /* 静态资源安装预缓存（都很小）；lib-lunar.js(426KB) 与 lucky-data.js 首次按需下载后进缓存 */
 const CORE=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});

@@ -505,7 +505,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.38', APP_VER_DATE='2026-11-19';
+const APP_VER='v1.39', APP_VER_DATE='2026-11-21';
 const MENUS=[
  ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
  ['project','🎛️','项目交付','Projects'],
@@ -844,16 +844,31 @@ function newsArr(){
 function newsKey(n){return (n.t||'').slice(0,60)}
 function newsSeenPrune(){const ks=Object.keys(D.newsSeen);if(ks.length>150){D.newsSeen={};ks.slice(-120).forEach(k=>{D.newsSeen[k]=1})}}
 async function loadNewsRemote(){
+  let ok=false;
   try{
     const r=await fetchTO('news.json?u='+Date.now(),8000);
-    if(!r.ok)return;
-    const j=await r.json();
-    const arr=(Array.isArray(j.news)?j.news:[]).filter(n=>n&&n.t&&n.url&&n.cat).slice(0,10);
-    if(!arr.length)return;
-    LIVE_NEWS=arr;LIVE_DATE=j.updated||'';
-    newsOpen={};
-    if($id('news'))renderNews();
+    if(r.ok){
+      const j=await r.json();
+      const arr=(Array.isArray(j.news)?j.news:[]).filter(n=>n&&n.t&&n.url&&n.cat).slice(0,10);
+      if(arr.length){
+        LIVE_NEWS=arr;LIVE_DATE=j.updated||'';ok=true;
+        try{localStorage.setItem('hahaduNewsCache',JSON.stringify(j))}catch(e){}
+      }
+    }
   }catch(e){}
+  /* 拉不到远程时用上次缓存兜底（仍是最近内容），连缓存都没有才用内置 NEWS */
+  if(!ok&&!LIVE_NEWS){
+    try{
+      const c=localStorage.getItem('hahaduNewsCache');
+      if(c){
+        const j=JSON.parse(c);
+        const arr=(Array.isArray(j.news)?j.news:[]).filter(n=>n&&n.t&&n.url&&n.cat).slice(0,10);
+        if(arr.length){LIVE_NEWS=arr;LIVE_DATE=j.updated||''}
+      }
+    }catch(e){}
+  }
+  newsOpen={};
+  if($id('news'))renderNews();
 }
 function renderNews(){
   const list=newsArr();
