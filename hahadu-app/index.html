@@ -16,11 +16,12 @@
   --hot:#FF6B6B;--ok:#3ECFB2;--warn:#F5B942;--blue:#5BA8F5;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow-x:hidden}/* 禁止整页左右滑动（与 HONEY呦 一致） */
+html,body{height:100%;overflow-x:hidden}/* 禁止整页左右滑动（与 HONEY呦 一致） */
 body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
-#app{display:flex;min-height:100vh}
+/* 整页固定不滚，只有右侧内容区自己滚（与 HONEY呦 同款）：侧栏永远满高，拉到最下面左边不露空白 */
+#app{display:flex;height:100%;overflow:hidden}
 /* 侧边导航 */
-#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 8px;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+#side{width:104px;flex-shrink:0;background:#0B0F14;border-right:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 8px;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 #side::-webkit-scrollbar{display:none}
 .brand{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 4px 14px;text-align:center}
 .brand .bico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#FF5E62);display:flex;align-items:center;justify-content:center;font-size:22px}
@@ -38,7 +39,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;font-family:-apple-sy
 .menu-item.active .mz{color:var(--accent)}
 .menu-item:active{opacity:.6}
 /* 内容区 */
-#main{flex:1;min-width:0;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
+#main{flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;width:100%}
 .page{display:none}
 .page.active{display:block}
 .pg-head{margin-bottom:12px}
@@ -506,7 +507,7 @@ input[type=date].inp,input[type=number].inp{color-scheme:dark}
 
 /* ================= BeatCraft · 音乐制作人工作台 ================= */
 const STORE='hahaduData_v1';
-const APP_VER='v1.40', APP_VER_DATE='2026-11-21';
+const APP_VER='v1.41', APP_VER_DATE='2026-11-21';
 const MENUS=[
  ['home','🏠','工作台','Home'],['lucky','📅','日历','Luck day'],
  ['project','🎛️','项目交付','Projects'],
@@ -579,7 +580,7 @@ function go(p){
   document.querySelectorAll('.menu-item,.mi-pill').forEach(el=>el.classList.toggle('active',el.dataset.p===p));
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   $id('p-'+p).classList.add('active');
-  renderPage(p);window.scrollTo(0,0);
+  renderPage(p);const _m=$id('main');if(_m)_m.scrollTop=0;window.scrollTo(0,0);
 }
 function renderPage(p){
   ({home:renderHome,project:renderProjects,show:renderShows,sample:renderSamples,lib:renderLib,tool:renderTools,
