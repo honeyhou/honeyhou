@@ -395,7 +395,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="toast"></div>
 <script>
 /* ================= 基础 ================= */
-const APP_VER='v1.14', APP_VER_DATE='2026-11-21';
+const APP_VER='v1.15', APP_VER_DATE='2026-11-23';
 const STORE='jiuwoMamaV1';
 const $id=x=>document.getElementById(x);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -409,7 +409,7 @@ function defaultData(){return {v:1,name:'妈妈',theme:'taosha',fs:'big',city:nu
 let D=defaultData();
 function load(){try{const r=localStorage.getItem(STORE);if(r)Object.assign(D,JSON.parse(r))}catch(e){D=defaultData()}
   D.parcels=D.parcels||[];D.ledger=D.ledger||[];D.scamSeen=D.scamSeen||{};
-  D.pcGone=D.pcGone||{};D.pcCleanAt=D.pcCleanAt||0;D.pcRevive=D.pcRevive||{};
+  D.pcGone=D.pcGone||{};D.pcCleanAt=D.pcCleanAt||0;D.pcRevive=D.pcRevive||{};D.pcDoneIds=D.pcDoneIds||{};
   D.sync=Object.assign({gist:'',lastAt:0,lastN:0},D.sync||{});D.city=D.city||null;D.theme=D.theme||'taosha';D.fs=D.fs||'big';
   D.tel=D.tel||'';D.telName=D.telName||''}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(D))}catch(e){toast('手机存储快满了，删几张小票照片吧')}}
@@ -733,21 +733,32 @@ async function pullParcels(silent){
     const items=data.items||[];let n=0;
     items.forEach(it=>{
       if(!it||!it.code)return;
-      const code=String(it.code).replace(/[–—]/g,'-').toUpperCase();
+      const pid=String(it.id||'');
+      /* 连着的 8 位数字也自动拆成 X-X-XXXXXX（与识别/手输/粘贴三口一致） */
+      const code=pcSplitCode(String(it.code).replace(/[–—]/g,'-').toUpperCase());
       const ft=+it.force||0;
-      /* 周清理删掉的已取走快递不复活——除非女儿端点了「重推」（force 时间戳比清理时间新） */
-      if(D.pcGone[code]&&!(ft>+D.pcGone[code]))return;
       const ex=D.parcels.find(p=>p.code===code);
-      if(ex){
-        /* 同码已存在：平时不动；只有女儿端重推（force 比上次复活标记新）才重新亮出来 */
-        if(ft>(D.pcRevive[code]||0)&&ft>(+ex.revivedAt||0)){ex.taken=0;delete ex.takenAt;ex.revivedAt=ft;D.pcRevive[code]=ft;n++;save()}
-        return;
+      /* 同一次推送（同一个 id）只处理一次，不重复弹 */
+      if(pid&&D.pcDoneIds[pid]){
+        /* 但云端带更新 force 的重推仍可复活 */
+        if(!(ft&&ex&&ft>(D.pcRevive[code]||0)&&ft>(+ex.revivedAt||0)))return;
       }
-      D.parcels.push({id:String(it.id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5))),
-        code:code,site:it.site||'',note:it.note||'',ts:it.ts||data.at||Date.now(),taken:0});
-      if(ft)D.pcRevive[code]=ft;
-      n++;
+      if(ex){
+        /* 新推送（新 id）：就算妈妈已取走过，也重新亮出来——孩子明确又推了一次 */
+        if(ex.taken||ft>(D.pcRevive[code]||0)){
+          ex.taken=0;delete ex.takenAt;ex.revivedAt=ft||Date.now();if(ft)D.pcRevive[code]=ft;
+          n++;save();
+        }
+      }else{
+        /* 全新码：直接入库（哪怕以前被周清理删过、进了回收名单——新推送就该收到） */
+        D.parcels.push({id:String(it.id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5))),
+          code:code,site:it.site||'',note:it.note||'',ts:it.ts||data.at||Date.now(),taken:0});
+        if(ft)D.pcRevive[code]=ft;
+        n++;save();
+      }
+      if(pid)D.pcDoneIds[pid]=1;
     });
+    if(Object.keys(D.pcDoneIds).length>500)D.pcDoneIds={};
     D.sync.lastAt=Date.now();D.sync.lastN=n;save();
     renderToday();markDot();
     if(!silent)toast(n?('收到 '+n+' 件新快递 📦'):'没有新快递，都是最新的');
